@@ -15,16 +15,16 @@
  * `permsetAssignment` singular typo) are rejected rather than silently ignored.
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 /** Closed set of assignee values — no arbitrary usernames. */
-const Assignee = z.enum(['currentUser', 'guestUser', 'skip']);
+const Assignee = z.enum(["currentUser", "guestUser", "skip"]);
 
 // No siteName: for guestUser the site is derived from the single
 // networks/<siteName>.network-meta.xml the app ships (see spec §5.2).
 const Assignment = z
   .object({
-    assignee: Assignee,
+    assignee: Assignee
   })
   .strict();
 
@@ -33,15 +33,15 @@ export const ConfigSchema = z
     permsetAssignments: z
       .object({
         // guestUser is valid here — siteName is derived, not per-assignment.
-        defaultAssignee: Assignee.default('skip'),
-        assignments: z.record(z.string(), Assignment).default({}),
+        defaultAssignee: Assignee.default("skip"),
+        assignments: z.record(z.string(), Assignment).default({})
       })
       .strict()
       .optional(),
     role: z
       .object({
-        assignee: z.literal('currentUser'), // only value the role code honors
-        roleName: z.string().min(1),
+        assignee: z.literal("currentUser"), // only value the role code honors
+        roleName: z.string().min(1)
       })
       .strict()
       .optional(),
@@ -58,7 +58,7 @@ export const ConfigSchema = z
         // No separate license field is declared — the requirement can't drift
         // from the profile the flow actually assigns.
         selfRegProfile: z.string().min(1),
-        accountName: z.string().min(1),
+        accountName: z.string().min(1)
       })
       .strict()
       .optional(),
@@ -75,10 +75,10 @@ export const ConfigSchema = z
         // Required because getCurrentUser() calls /chatter/users/me which needs
         // API access (PermissionsApiEnabled) that the community profile lacks.
         // Typically the app's "*_Guest_User_Api_Access" permset.
-        communityUserPermset: z.string().min(1).optional(),
+        communityUserPermset: z.string().min(1).optional()
       })
       .strict()
-      .optional(),
+      .optional()
   })
   .strict();
 
@@ -87,7 +87,7 @@ export const ConfigSchema = z
  * problem) renders as "<root>: message".
  */
 function formatIssue(issue) {
-  const path = issue.path.length > 0 ? issue.path.join('.') : '<root>';
+  const path = issue.path.length > 0 ? issue.path.join(".") : "<root>";
   return `${path}: ${issue.message}`;
 }
 
@@ -102,7 +102,7 @@ function formatIssue(issue) {
  *   issues). The caller decides whether to print/exit.
  */
 export function validateConfig(rawText, configPath) {
-  const where = configPath ? ` (${configPath})` : '';
+  const where = configPath ? ` (${configPath})` : "";
 
   let parsed;
   try {

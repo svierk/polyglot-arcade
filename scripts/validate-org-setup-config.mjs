@@ -11,27 +11,27 @@
  * project ships one); a present-but-invalid config fails the gate.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync, readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { validateConfig } from './org-setup-config-schema.mjs';
+import { validateConfig } from "./org-setup-config-schema.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const configPath = resolve(__dirname, 'org-setup.config.json');
+const configPath = resolve(__dirname, "org-setup.config.json");
 
 if (!existsSync(configPath)) {
-  console.log('✓ org-setup.config.json: not present (nothing to validate)');
+  console.log("✓ org-setup.config.json: not present (nothing to validate)");
   process.exit(0);
 }
 
-const result = validateConfig(readFileSync(configPath, 'utf8'), configPath);
+const result = validateConfig(readFileSync(configPath, "utf8"), configPath);
 if (result.ok) {
-  console.log('✓ org-setup.config.json');
+  console.log("✓ org-setup.config.json");
   process.exit(0);
 }
 
-console.error('❌ org-setup.config.json is invalid:');
+console.error("❌ org-setup.config.json is invalid:");
 for (const err of result.errors) {
   console.error(`   - ${err}`);
 }

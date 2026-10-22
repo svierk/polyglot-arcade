@@ -7,13 +7,13 @@
  * (from the directory that contains force-app/ and sfdx-project.json)
  */
 
-import { spawnSync } from 'node:child_process';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { readdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from "node:child_process";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { readdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, '..');
+const ROOT = resolve(__dirname, "..");
 
 /**
  * npm strips .gitignore from published packages — generate them on first run.
@@ -22,10 +22,10 @@ const ROOT = resolve(__dirname, '..');
  * distributions where .gitignore is already present, so loading is best-effort.
  */
 function loadGitignoreTemplates() {
-  const templatesPath = resolve(__dirname, 'gitignore-templates.json');
+  const templatesPath = resolve(__dirname, "gitignore-templates.json");
   if (!existsSync(templatesPath)) return null;
   try {
-    return JSON.parse(readFileSync(templatesPath, 'utf8'));
+    return JSON.parse(readFileSync(templatesPath, "utf8"));
   } catch {
     return null;
   }
@@ -33,26 +33,28 @@ function loadGitignoreTemplates() {
 
 function ensureGitignore(dir, content) {
   if (!content) return;
-  const gitignorePath = resolve(dir, '.gitignore');
+  const gitignorePath = resolve(dir, ".gitignore");
   if (!existsSync(gitignorePath)) {
-    writeFileSync(gitignorePath, content, 'utf8');
+    writeFileSync(gitignorePath, content, "utf8");
     console.log(`Created .gitignore in ${dir}`);
   }
 }
 
 function resolveUIBundlesDir() {
-  const sfdxPath = resolve(ROOT, 'sfdx-project.json');
+  const sfdxPath = resolve(ROOT, "sfdx-project.json");
   if (!existsSync(sfdxPath)) {
-    console.error('Error: sfdx-project.json not found at project root.');
+    console.error("Error: sfdx-project.json not found at project root.");
     process.exit(1);
   }
-  const sfdxProject = JSON.parse(readFileSync(sfdxPath, 'utf8'));
+  const sfdxProject = JSON.parse(readFileSync(sfdxPath, "utf8"));
   const pkgDir = sfdxProject?.packageDirectories?.[0]?.path;
   if (!pkgDir) {
-    console.error('Error: No packageDirectories[].path found in sfdx-project.json.');
+    console.error(
+      "Error: No packageDirectories[].path found in sfdx-project.json."
+    );
     process.exit(1);
   }
-  return resolve(ROOT, pkgDir, 'main', 'default', 'uiBundles');
+  return resolve(ROOT, pkgDir, "main", "default", "uiBundles");
 }
 
 function discoverUIBundleDir() {
@@ -62,7 +64,9 @@ function discoverUIBundleDir() {
     process.exit(1);
   }
   const entries = readdirSync(uiBundlesDir, { withFileTypes: true });
-  const dirs = entries.filter((e) => e.isDirectory() && !e.name.startsWith('.'));
+  const dirs = entries.filter(
+    (e) => e.isDirectory() && !e.name.startsWith(".")
+  );
   if (dirs.length === 0) {
     console.error(`Error: No UI bundle folder found under ${uiBundlesDir}`);
     process.exit(1);
@@ -75,7 +79,7 @@ function discoverUIBundleDir() {
 
 function run(label, cmd, args, opts) {
   console.log(`\n--- ${label} ---\n`);
-  const result = spawnSync(cmd, args, { stdio: 'inherit', ...opts });
+  const result = spawnSync(cmd, args, { stdio: "inherit", ...opts });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
@@ -88,16 +92,24 @@ if (gitignoreTemplates) {
   const bundlesDir = resolveUIBundlesDir();
   if (existsSync(bundlesDir)) {
     for (const entry of readdirSync(bundlesDir, { withFileTypes: true })) {
-      if (entry.isDirectory() && !entry.name.startsWith('.')) {
-        ensureGitignore(resolve(bundlesDir, entry.name), gitignoreTemplates.webapp);
+      if (entry.isDirectory() && !entry.name.startsWith(".")) {
+        ensureGitignore(
+          resolve(bundlesDir, entry.name),
+          gitignoreTemplates.webapp
+        );
       }
     }
   }
 }
 
 const uiBundleDir = discoverUIBundleDir();
-console.log('SFDX project root:', ROOT);
-console.log('UI bundle directory:', uiBundleDir);
+console.log("SFDX project root:", ROOT);
+console.log("UI bundle directory:", uiBundleDir);
 
-run('npm install', 'npm', ['install', '--registry', 'https://registry.npmjs.org/'], { cwd: uiBundleDir });
-run('npm run build', 'npm', ['run', 'build'], { cwd: uiBundleDir });
+run(
+  "npm install",
+  "npm",
+  ["install", "--registry", "https://registry.npmjs.org/"],
+  { cwd: uiBundleDir }
+);
+run("npm run build", "npm", ["run", "build"], { cwd: uiBundleDir });

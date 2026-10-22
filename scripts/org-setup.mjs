@@ -38,9 +38,9 @@
  *   Unlisted permsets resolve to "defaultAssignee" (default "skip").
  */
 
-import { spawnSync, spawn as nodeSpawn } from 'node:child_process';
-import { resolve, dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { spawnSync, spawn as nodeSpawn } from "node:child_process";
+import { resolve, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   readdirSync,
   existsSync,
@@ -50,16 +50,16 @@ import {
   mkdtempSync,
   rmSync,
   openSync,
-  closeSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
+  closeSync
+} from "node:fs";
+import { tmpdir } from "node:os";
 
-import { validateConfig } from './org-setup-config-schema.mjs';
+import { validateConfig } from "./org-setup-config-schema.mjs";
 import {
   addProfileToMemberGroups,
   enableSelfRegInXml,
-  NetworkXmlError,
-} from './org-setup-xml.mjs';
+  NetworkXmlError
+} from "./org-setup-xml.mjs";
 import {
   discoverAllUIBundleDirs as discoverAllUIBundleDirsIn,
   discoverUIBundleDir as discoverUIBundleDirIn,
@@ -70,11 +70,11 @@ import {
   validateApiName,
   escapeSoqlString,
   parseApexInsertResults,
-  planApexBatches,
-} from './org-setup-utils.mjs';
+  planApexBatches
+} from "./org-setup-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, '..');
+const ROOT = resolve(__dirname, "..");
 
 /**
  * Thrown by step runners (run/runAsync) when a subprocess fails. The per-step
@@ -83,10 +83,13 @@ const ROOT = resolve(__dirname, '..');
  */
 class StepError extends Error {}
 
-const APEX_TMP_PREFIX = 'org-setup-';
+const APEX_TMP_PREFIX = "org-setup-";
 // Legacy fixed-name temp files that older versions of this script wrote to ROOT
 // and could leave behind on a hard kill. Swept at startup for backward cleanup.
-const LEGACY_ROOT_TMP_FILES = ['.tmp-setup-selfreg.apex', '.tmp-setup-delete.apex'];
+const LEGACY_ROOT_TMP_FILES = [
+  ".tmp-setup-selfreg.apex",
+  ".tmp-setup-delete.apex"
+];
 
 /**
  * Remove leftover Apex temp artifacts from a prior hard-killed run (cleanup AT
@@ -158,7 +161,7 @@ function withApexTempDir(fn) {
 
 /** Filesystem-safe lock path for a target org. */
 function orgLockPath(targetOrg) {
-  const safe = String(targetOrg).replace(/[^a-zA-Z0-9._-]/g, '_');
+  const safe = String(targetOrg).replace(/[^a-zA-Z0-9._-]/g, "_");
   return join(tmpdir(), `org-setup-lock-${safe}.lock`);
 }
 
@@ -171,7 +174,7 @@ function isProcessAlive(pid) {
     process.kill(pid, 0);
     return true;
   } catch (e) {
-    return e.code === 'EPERM';
+    return e.code === "EPERM";
   }
 }
 
@@ -189,11 +192,11 @@ function isProcessAlive(pid) {
 function acquireOrgLock(targetOrg) {
   const lockPath = orgLockPath(targetOrg);
   if (existsSync(lockPath)) {
-    const holder = Number(readFileSync(lockPath, 'utf8').trim());
+    const holder = Number(readFileSync(lockPath, "utf8").trim());
     if (holder && isProcessAlive(holder)) {
       console.error(
         `\nAnother org-setup run (pid ${holder}) is already targeting "${targetOrg}".\n` +
-          `Wait for it to finish, or if it was killed, remove ${lockPath} and retry.`,
+          `Wait for it to finish, or if it was killed, remove ${lockPath} and retry.`
       );
       process.exit(1);
     }
@@ -204,11 +207,11 @@ function acquireOrgLock(targetOrg) {
   // near-simultaneous runs: the loser gets EEXIST.
   let fd;
   try {
-    fd = openSync(lockPath, 'wx');
+    fd = openSync(lockPath, "wx");
   } catch (e) {
-    if (e.code === 'EEXIST') {
+    if (e.code === "EEXIST") {
       console.error(
-        `\nAnother org-setup run just acquired the lock for "${targetOrg}". Retry shortly.`,
+        `\nAnother org-setup run just acquired the lock for "${targetOrg}". Retry shortly.`
       );
       process.exit(1);
     }
@@ -217,7 +220,7 @@ function acquireOrgLock(targetOrg) {
   writeFileSync(fd, String(process.pid));
   closeSync(fd);
 
-  process.on('exit', () => {
+  process.on("exit", () => {
     try {
       rmSync(lockPath, { force: true });
     } catch {
@@ -234,10 +237,10 @@ function acquireOrgLock(targetOrg) {
  * already present, so loading is best-effort.
  */
 function loadGitignoreTemplates() {
-  const templatesPath = resolve(__dirname, 'gitignore-templates.json');
+  const templatesPath = resolve(__dirname, "gitignore-templates.json");
   if (!existsSync(templatesPath)) return null;
   try {
-    return JSON.parse(readFileSync(templatesPath, 'utf8'));
+    return JSON.parse(readFileSync(templatesPath, "utf8"));
   } catch {
     return null;
   }
@@ -245,32 +248,34 @@ function loadGitignoreTemplates() {
 
 function ensureGitignore(dir, content) {
   if (!content) return;
-  const gitignorePath = resolve(dir, '.gitignore');
+  const gitignorePath = resolve(dir, ".gitignore");
   if (!existsSync(gitignorePath)) {
-    writeFileSync(gitignorePath, content, 'utf8');
+    writeFileSync(gitignorePath, content, "utf8");
     console.log(`Created .gitignore in ${dir}`);
   }
 }
 
 function resolveSfdxSource() {
-  const sfdxPath = resolve(ROOT, 'sfdx-project.json');
+  const sfdxPath = resolve(ROOT, "sfdx-project.json");
   if (!existsSync(sfdxPath)) {
-    console.error('Error: sfdx-project.json not found at project root.');
+    console.error("Error: sfdx-project.json not found at project root.");
     process.exit(1);
   }
-  const sfdxProject = JSON.parse(readFileSync(sfdxPath, 'utf8'));
+  const sfdxProject = JSON.parse(readFileSync(sfdxPath, "utf8"));
   const pkgDir = sfdxProject?.packageDirectories?.[0]?.path;
   if (!pkgDir) {
-    console.error('Error: No packageDirectories[].path found in sfdx-project.json.');
+    console.error(
+      "Error: No packageDirectories[].path found in sfdx-project.json."
+    );
     process.exit(1);
   }
-  return resolve(ROOT, pkgDir, 'main', 'default');
+  return resolve(ROOT, pkgDir, "main", "default");
 }
 
 const SFDX_SOURCE = resolveSfdxSource();
-const UIBUNDLES_DIR = resolve(SFDX_SOURCE, 'uiBundles');
-const DATA_DIR = resolve(SFDX_SOURCE, 'data');
-const DATA_PLAN = resolve(SFDX_SOURCE, 'data/data-plan.json');
+const UIBUNDLES_DIR = resolve(SFDX_SOURCE, "uiBundles");
+const DATA_DIR = resolve(SFDX_SOURCE, "data");
+const DATA_PLAN = resolve(SFDX_SOURCE, "data/data-plan.json");
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -287,30 +292,31 @@ function parseArgs() {
     skipGraphql: false,
     skipUIBundleBuild: false,
     skipSelfReg: false,
-    skipSocialLogin: false,
+    skipSocialLogin: false
   };
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--target-org' && args[i + 1]) {
+    if (args[i] === "--target-org" && args[i + 1]) {
       targetOrg = args[++i];
-    } else if (args[i] === '--ui-bundle-name' && args[i + 1]) {
+    } else if (args[i] === "--ui-bundle-name" && args[i + 1]) {
       uiBundleName = args[++i];
-    } else if (args[i] === '--permset-name' && args[i + 1]) {
+    } else if (args[i] === "--permset-name" && args[i + 1]) {
       permsetNamesExplicit.push(args[++i]);
-    } else if (args[i] === '--skip-deploy') flags.skipDeploy = true;
-    else if (args[i] === '--skip-permset') flags.skipPermset = true;
-    else if (args[i] === '--skip-role') flags.skipRole = true;
-    else if (args[i] === '--skip-data') flags.skipData = true;
-    else if (args[i] === '--skip-self-reg') flags.skipSelfReg = true;
-    else if (args[i] === '--skip-social-login') flags.skipSocialLogin = true;
-    else if (args[i] === '--skip-graphql') flags.skipGraphql = true;
-    else if (args[i] === '--skip-ui-bundle-build') flags.skipUIBundleBuild = true;
+    } else if (args[i] === "--skip-deploy") flags.skipDeploy = true;
+    else if (args[i] === "--skip-permset") flags.skipPermset = true;
+    else if (args[i] === "--skip-role") flags.skipRole = true;
+    else if (args[i] === "--skip-data") flags.skipData = true;
+    else if (args[i] === "--skip-self-reg") flags.skipSelfReg = true;
+    else if (args[i] === "--skip-social-login") flags.skipSocialLogin = true;
+    else if (args[i] === "--skip-graphql") flags.skipGraphql = true;
+    else if (args[i] === "--skip-ui-bundle-build")
+      flags.skipUIBundleBuild = true;
     // --skip-login and --skip-dev are retired: login is now an unconditional
     // precondition and the dev step moved to `npm run dev:preview`.
     // Accept them silently as no-ops so existing invocations don't hard-error.
-    else if (args[i] === '--skip-login' || args[i] === '--skip-dev') {
+    else if (args[i] === "--skip-login" || args[i] === "--skip-dev") {
       /* no-op (retired flag) */
-    } else if (args[i] === '--yes' || args[i] === '-y') yes = true;
-    else if (args[i] === '--help' || args[i] === '-h') {
+    } else if (args[i] === "--yes" || args[i] === "-y") yes = true;
+    else if (args[i] === "--help" || args[i] === "-h") {
       console.log(`
 Setup CLI — one-command setup for apps in this project
 
@@ -373,7 +379,7 @@ function discoverUIBundleDir(uiBundleName) {
 
 /** API names from permissionsets/*.permissionset-meta.xml in the first package directory. */
 function discoverPermissionSetNames() {
-  const dir = resolve(SFDX_SOURCE, 'permissionsets');
+  const dir = resolve(SFDX_SOURCE, "permissionsets");
   if (!existsSync(dir)) return [];
   const names = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -384,7 +390,7 @@ function discoverPermissionSetNames() {
   return names.sort();
 }
 
-const CONFIG_PATH = resolve(__dirname, 'org-setup.config.json');
+const CONFIG_PATH = resolve(__dirname, "org-setup.config.json");
 
 /**
  * Read + validate org-setup.config.json ONCE, against the shared zod schema
@@ -400,9 +406,9 @@ const CONFIG_PATH = resolve(__dirname, 'org-setup.config.json');
  */
 function loadValidatedConfig() {
   if (!existsSync(CONFIG_PATH)) return {};
-  const result = validateConfig(readFileSync(CONFIG_PATH, 'utf8'), CONFIG_PATH);
+  const result = validateConfig(readFileSync(CONFIG_PATH, "utf8"), CONFIG_PATH);
   if (!result.ok) {
-    console.error('Invalid org-setup.config.json:');
+    console.error("Invalid org-setup.config.json:");
     for (const err of result.errors) console.error(`  - ${err}`);
     process.exit(1);
   }
@@ -416,26 +422,26 @@ function loadValidatedConfig() {
  * null when there is no networks dir or no .network-meta.xml file.
  */
 function deriveSiteName() {
-  const networksDir = resolve(SFDX_SOURCE, 'networks');
+  const networksDir = resolve(SFDX_SOURCE, "networks");
   if (!existsSync(networksDir)) return null;
   const files = readdirSync(networksDir)
-    .filter((f) => f.endsWith('.network-meta.xml'))
+    .filter((f) => f.endsWith(".network-meta.xml"))
     .sort();
   if (files.length === 0) return null;
   // An app ships exactly one site; if a developer added a second, derivation is
   // ambiguous — fail loudly rather than silently bind to an arbitrary site.
   if (files.length > 1) {
     throw new StepError(
-      `cannot derive guest site: multiple network metadata files found in ${networksDir} (${files.join(', ')}); guestUser assignment requires exactly one`,
+      `cannot derive guest site: multiple network metadata files found in ${networksDir} (${files.join(", ")}); guestUser assignment requires exactly one`
     );
   }
-  const siteName = files[0].replace(/\.network-meta\.xml$/, '');
+  const siteName = files[0].replace(/\.network-meta\.xml$/, "");
   // The site name is interpolated into SOQL (Network lookup, guest-user lookup),
   // so validate it here — the single chokepoint both callers pass through. Its
   // source is the metadata filename, not org-setup.config.json, so point the fix
   // there.
-  validateSoqlName(siteName, 'site name', {
-    remediation: `the networks/<siteName>.network-meta.xml filename (currently "${files[0]}")`,
+  validateSoqlName(siteName, "site name", {
+    remediation: `the networks/<siteName>.network-meta.xml filename (currently "${files[0]}")`
   });
   return siteName;
 }
@@ -467,10 +473,10 @@ function deriveSiteName() {
  */
 function loadPermsetConfig(config) {
   const section = config.permsetAssignments;
-  if (!section) return { defaultAssignee: 'skip', assignments: {} };
+  if (!section) return { defaultAssignee: "skip", assignments: {} };
   return {
     defaultAssignee: section.defaultAssignee,
-    assignments: section.assignments,
+    assignments: section.assignments
   };
 }
 
@@ -494,7 +500,7 @@ function loadRoleConfig(config) {
   if (!section) return null;
   return {
     assignee: section.assignee,
-    roleName: section.roleName,
+    roleName: section.roleName
   };
 }
 
@@ -521,7 +527,7 @@ function loadSelfRegConfig(config) {
   if (!section) return null;
   return {
     selfRegProfile: section.selfRegProfile,
-    accountName: section.accountName,
+    accountName: section.accountName
   };
 }
 
@@ -550,7 +556,7 @@ function loadSocialLoginConfig(config) {
   return {
     communityMemberProfile: section.communityMemberProfile,
     authProviderNames: section.authProviderNames,
-    communityUserPermset: section.communityUserPermset || null,
+    communityUserPermset: section.communityUserPermset || null
   };
 }
 
@@ -570,49 +576,90 @@ function enableExternalProfiles(targetOrg) {
   const dir = mkdtempSync(join(tmpdir(), APEX_TMP_PREFIX));
   try {
     // Create a minimal sfdx project with just the Communities setting
-    const settingsDir = join(dir, 'force-app', 'main', 'default', 'settings');
+    const settingsDir = join(dir, "force-app", "main", "default", "settings");
     mkdirSync(settingsDir, { recursive: true });
 
-    writeFileSync(join(dir, 'sfdx-project.json'), JSON.stringify({
-      packageDirectories: [{ path: 'force-app', default: true }],
-      sourceApiVersion: '68.0',
-    }));
+    writeFileSync(
+      join(dir, "sfdx-project.json"),
+      JSON.stringify({
+        packageDirectories: [{ path: "force-app", default: true }],
+        sourceApiVersion: "68.0"
+      })
+    );
 
-    writeFileSync(join(settingsDir, 'Communities.settings-meta.xml'), [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<CommunitiesSettings xmlns="http://soap.sforce.com/2006/04/metadata">',
-      '    <enableOotbProfExtUserOpsEnable>true</enableOotbProfExtUserOpsEnable>',
-      '</CommunitiesSettings>',
-    ].join('\n'));
+    writeFileSync(
+      join(settingsDir, "Communities.settings-meta.xml"),
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<CommunitiesSettings xmlns="http://soap.sforce.com/2006/04/metadata">',
+        "    <enableOotbProfExtUserOpsEnable>true</enableOotbProfExtUserOpsEnable>",
+        "</CommunitiesSettings>"
+      ].join("\n")
+    );
 
-    const result = spawnSync('sf', [
-      'project', 'deploy', 'start',
-      '--target-org', targetOrg,
-      '--source-dir', join(dir, 'force-app'),
-      '--json',
-    ], { cwd: dir, stdio: 'pipe', shell: true, timeout: 120000 });
+    const result = spawnSync(
+      "sf",
+      [
+        "project",
+        "deploy",
+        "start",
+        "--target-org",
+        targetOrg,
+        "--source-dir",
+        join(dir, "force-app"),
+        "--json"
+      ],
+      { cwd: dir, stdio: "pipe", shell: true, timeout: 120000 }
+    );
 
-    const out = result.stdout?.toString() || '';
+    const out = result.stdout?.toString() || "";
     let deployResult;
-    try { deployResult = JSON.parse(out); } catch { deployResult = null; }
+    try {
+      deployResult = JSON.parse(out);
+    } catch {
+      deployResult = null;
+    }
 
-    if (deployResult?.status === 0 || deployResult?.result?.status === 'Succeeded') {
-      console.log('  Enabled "Allow using standard external profiles" org setting.');
+    if (
+      deployResult?.status === 0 ||
+      deployResult?.result?.status === "Succeeded"
+    ) {
+      console.log(
+        '  Enabled "Allow using standard external profiles" org setting.'
+      );
     } else {
       // Check if it failed because the setting is already enabled or not deployable
-      const errMsg = deployResult?.message || deployResult?.result?.details?.componentFailures?.[0]?.problem || '';
-      if (errMsg.includes('already') || errMsg.includes('enableOotbProfExtUserOpsEnable')) {
-        console.log('  Warning: could not deploy "Allow standard external profiles" setting.');
+      const errMsg =
+        deployResult?.message ||
+        deployResult?.result?.details?.componentFailures?.[0]?.problem ||
+        "";
+      if (
+        errMsg.includes("already") ||
+        errMsg.includes("enableOotbProfExtUserOpsEnable")
+      ) {
+        console.log(
+          '  Warning: could not deploy "Allow standard external profiles" setting.'
+        );
         console.log(`  Detail: ${errMsg}`);
-        console.log('  The setting may already be active. Enable manually via Setup > Digital Experiences > Settings if needed.');
+        console.log(
+          "  The setting may already be active. Enable manually via Setup > Digital Experiences > Settings if needed."
+        );
       } else {
-        console.log('  Warning: could not enable "Allow standard external profiles".');
-        console.log(`  Deploy result: ${errMsg || 'unknown error'}`);
-        console.log('  Enable manually via Setup > Digital Experiences > Settings.');
+        console.log(
+          '  Warning: could not enable "Allow standard external profiles".'
+        );
+        console.log(`  Deploy result: ${errMsg || "unknown error"}`);
+        console.log(
+          "  Enable manually via Setup > Digital Experiences > Settings."
+        );
       }
     }
   } finally {
-    try { rmSync(dir, { recursive: true, force: true }); } catch { /* best effort */ }
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      /* best effort */
+    }
   }
 }
 
@@ -644,8 +691,10 @@ function enableAuthProvidersForSite(authProviderNames, siteName, targetOrg) {
   // up-front socialLogin validation in main(). loadSocialLoginConfig already
   // rejects an empty list, so the resulting literal is never empty here.
   const providerNamesLiteral = authProviderNames
-    .map((n) => `'${validateSoqlName(n, 'socialLogin.authProviderNames entry')}'`)
-    .join(', ');
+    .map(
+      (n) => `'${validateSoqlName(n, "socialLogin.authProviderNames entry")}'`
+    )
+    .join(", ");
 
   const apex = `
 // Enable Auth Providers (OAuth + SAML) for community "${siteName}"
@@ -747,15 +796,17 @@ if (inserted == 0 && existingProviderIds.size() >= allProviders.size()) {
 `;
 
   const apexOut = withApexTempDir((writeApex) => {
-    const tmpApex = writeApex('auth-providers.apex', apex);
-    const result = spawnSync('sf', [
-      'apex', 'run', '--target-org', targetOrg, '--file', tmpApex,
-    ], { cwd: ROOT, stdio: 'pipe', shell: true, timeout: 60000 });
-    const out = result.stdout?.toString() || '';
-    const err = result.stderr?.toString() || '';
-    if (result.status !== 0 && !out.includes('Compiled successfully')) {
+    const tmpApex = writeApex("auth-providers.apex", apex);
+    const result = spawnSync(
+      "sf",
+      ["apex", "run", "--target-org", targetOrg, "--file", tmpApex],
+      { cwd: ROOT, stdio: "pipe", shell: true, timeout: 60000 }
+    );
+    const out = result.stdout?.toString() || "";
+    const err = result.stderr?.toString() || "";
+    if (result.status !== 0 && !out.includes("Compiled successfully")) {
       process.stderr.write(err || out);
-      throw new StepError('failed to execute AuthConfigProviders apex');
+      throw new StepError("failed to execute AuthConfigProviders apex");
     }
     return out;
   });
@@ -763,34 +814,52 @@ if (inserted == 0 && existingProviderIds.size() >= allProviders.size()) {
   // Parse output for status — match only |DEBUG| lines to avoid false positives
   // from the "Execute Anonymous:" source echo that sf apex run always prints.
   if (apexOut.match(/\|DEBUG\|ERROR_NO_AUTHCONFIG/)) {
-    throw new StepError(`no AuthConfig found for site "${siteName}" — ensure the site is published/active`);
+    throw new StepError(
+      `no AuthConfig found for site "${siteName}" — ensure the site is published/active`
+    );
   }
   if (apexOut.match(/\|DEBUG\|ERROR_NO_PROVIDERS/)) {
-    throw new StepError(`no AuthProvider or SamlSsoConfig records found for names: ${authProviderNames.join(', ')} — create them in Setup first`);
+    throw new StepError(
+      `no AuthProvider or SamlSsoConfig records found for names: ${authProviderNames.join(", ")} — create them in Setup first`
+    );
   }
 
   // Check for insert failures
-  const insertFails = [...apexOut.matchAll(/\|DEBUG\|INSERT_FAILED:([^:]+):(OAuth|SAML):(\d+):([^\n]+)/g)];
+  const insertFails = [
+    ...apexOut.matchAll(
+      /\|DEBUG\|INSERT_FAILED:([^:]+):(OAuth|SAML):(\d+):([^\n]+)/g
+    )
+  ];
   if (insertFails.length > 0) {
     for (const m of insertFails) {
       console.error(`    ✖ ${m[1]} (${m[2]}) — HTTP ${m[3]}: ${m[4].trim()}`);
     }
-    throw new StepError(`failed to link ${insertFails.length} Auth Provider(s) to site AuthConfig`);
+    throw new StepError(
+      `failed to link ${insertFails.length} Auth Provider(s) to site AuthConfig`
+    );
   }
 
   const totalMatch = apexOut.match(/\|DEBUG\|TOTAL_INSERTED:(\d+)/);
   if (totalMatch) {
-    console.log(`  Linked ${totalMatch[1]} Auth Provider(s) to site "${siteName}".`);
+    console.log(
+      `  Linked ${totalMatch[1]} Auth Provider(s) to site "${siteName}".`
+    );
   } else if (apexOut.match(/\|DEBUG\|ALL_ALREADY_LINKED/)) {
-    console.log(`  All Auth Provider(s) already linked to site "${siteName}"; no changes needed.`);
+    console.log(
+      `  All Auth Provider(s) already linked to site "${siteName}"; no changes needed.`
+    );
   }
 
   // Log individual provider statuses
-  const alreadyLinked = [...apexOut.matchAll(/\|DEBUG\|ALREADY_LINKED:([^:]+):(OAuth|SAML)/g)];
+  const alreadyLinked = [
+    ...apexOut.matchAll(/\|DEBUG\|ALREADY_LINKED:([^:]+):(OAuth|SAML)/g)
+  ];
   for (const m of alreadyLinked) {
     console.log(`    ✔ ${m[1]} (${m[2]}, already linked)`);
   }
-  const inserted = [...apexOut.matchAll(/\|DEBUG\|INSERTED:([^:]+):(OAuth|SAML)/g)];
+  const inserted = [
+    ...apexOut.matchAll(/\|DEBUG\|INSERTED:([^:]+):(OAuth|SAML)/g)
+  ];
   for (const m of inserted) {
     console.log(`    + ${m[1]} (${m[2]}, newly linked)`);
   }
@@ -811,15 +880,19 @@ if (inserted == 0 && existingProviderIds.size() >= allProviders.size()) {
 function addCommunityMemberProfile(profileName, siteName, targetOrg) {
   // Query Network Id
   const netQuery = `SELECT Id FROM Network WHERE Name = '${siteName}'`;
-  const netResult = spawnSync('sf', [
-    'data', 'query', '--query', netQuery, '--target-org', targetOrg, '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const netResult = spawnSync(
+    "sf",
+    ["data", "query", "--query", netQuery, "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let networkId = null;
   if (netResult.status === 0) {
     try {
       const json = JSON.parse(netResult.stdout);
       networkId = json.result?.records?.[0]?.Id || null;
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
   }
   if (!networkId) {
     throw new StepError(`could not find Network "${siteName}" in org`);
@@ -827,15 +900,27 @@ function addCommunityMemberProfile(profileName, siteName, targetOrg) {
 
   // Query Profile Id
   const profQuery = `SELECT Id FROM Profile WHERE Name = '${profileName}'`;
-  const profResult = spawnSync('sf', [
-    'data', 'query', '--query', profQuery, '--target-org', targetOrg, '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const profResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "query",
+      "--query",
+      profQuery,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let profileId = null;
   if (profResult.status === 0) {
     try {
       const json = JSON.parse(profResult.stdout);
       profileId = json.result?.records?.[0]?.Id || null;
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
   }
   if (!profileId) {
     throw new StepError(`could not find Profile "${profileName}" in org`);
@@ -843,38 +928,65 @@ function addCommunityMemberProfile(profileName, siteName, targetOrg) {
 
   // Check if already a member
   const memberQuery = `SELECT Id FROM NetworkMemberGroup WHERE NetworkId = '${networkId}' AND ParentId = '${profileId}'`;
-  const memberResult = spawnSync('sf', [
-    'data', 'query', '--query', memberQuery, '--target-org', targetOrg, '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const memberResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "query",
+      "--query",
+      memberQuery,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let alreadyExists = false;
   if (memberResult.status === 0) {
     try {
       const json = JSON.parse(memberResult.stdout);
       alreadyExists = (json.result?.records?.length || 0) > 0;
-    } catch { /* proceed to create */ }
+    } catch {
+      /* proceed to create */
+    }
   }
   if (alreadyExists) {
-    console.log(`  Profile "${profileName}" is already a member of community "${siteName}"; skipping.`);
+    console.log(
+      `  Profile "${profileName}" is already a member of community "${siteName}"; skipping.`
+    );
     return;
   }
 
   // Create NetworkMemberGroup record
-  const createResult = spawnSync('sf', [
-    'data', 'create', 'record',
-    '--sobject', 'NetworkMemberGroup',
-    '--values', `NetworkId='${networkId}' ParentId='${profileId}'`,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const createResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "create",
+      "record",
+      "--sobject",
+      "NetworkMemberGroup",
+      "--values",
+      `NetworkId='${networkId}' ParentId='${profileId}'`,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   if (createResult.status !== 0) {
-    const out = (createResult.stderr || '') + (createResult.stdout || '');
+    const out = (createResult.stderr || "") + (createResult.stdout || "");
     if (out) process.stderr.write(out);
-    throw new StepError(`failed to add profile "${profileName}" to NetworkMemberGroup for "${siteName}"`);
+    throw new StepError(
+      `failed to add profile "${profileName}" to NetworkMemberGroup for "${siteName}"`
+    );
   }
   try {
     const json = JSON.parse(createResult.stdout);
     const id = json.result?.id;
-    console.log(`  Added profile "${profileName}" to community "${siteName}" (NetworkMemberGroup: ${id}).`);
+    console.log(
+      `  Added profile "${profileName}" to community "${siteName}" (NetworkMemberGroup: ${id}).`
+    );
   } catch {
     console.log(`  Added profile "${profileName}" to community "${siteName}".`);
   }
@@ -893,15 +1005,19 @@ function addCommunityMemberProfile(profileName, siteName, targetOrg) {
 function assignPermsetToCommunityUsers(permsetName, profileName, targetOrg) {
   // Resolve PermissionSet Id
   const psQuery = `SELECT Id FROM PermissionSet WHERE Name = '${permsetName}'`;
-  const psResult = spawnSync('sf', [
-    'data', 'query', '--query', psQuery, '--target-org', targetOrg, '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const psResult = spawnSync(
+    "sf",
+    ["data", "query", "--query", psQuery, "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let permsetId = null;
   if (psResult.status === 0) {
     try {
       const json = JSON.parse(psResult.stdout);
       permsetId = json.result?.records?.[0]?.Id || null;
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
   }
   if (!permsetId) {
     throw new StepError(`could not find PermissionSet "${permsetName}" in org`);
@@ -913,45 +1029,72 @@ function assignPermsetToCommunityUsers(permsetName, profileName, targetOrg) {
     `WHERE Profile.Name = '${profileName}'`,
     `AND IsActive = true`,
     `AND UserType IN ('CspLitePortal', 'CustomerSuccess', 'PowerCustomerSuccess')`,
-    `AND Id NOT IN (SELECT AssigneeId FROM PermissionSetAssignment WHERE PermissionSetId = '${permsetId}')`,
-  ].join(' ');
-  const usersResult = spawnSync('sf', [
-    'data', 'query', '--query', usersQuery, '--target-org', targetOrg, '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+    `AND Id NOT IN (SELECT AssigneeId FROM PermissionSetAssignment WHERE PermissionSetId = '${permsetId}')`
+  ].join(" ");
+  const usersResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "query",
+      "--query",
+      usersQuery,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let users = [];
   if (usersResult.status === 0) {
     try {
       const json = JSON.parse(usersResult.stdout);
       users = json.result?.records || [];
-    } catch { /* empty list */ }
+    } catch {
+      /* empty list */
+    }
   }
 
   if (users.length === 0) {
-    console.log(`  No community users on profile "${profileName}" need permset "${permsetName}"; skipping.`);
+    console.log(
+      `  No community users on profile "${profileName}" need permset "${permsetName}"; skipping.`
+    );
     return;
   }
 
   // Assign the permset to each user
   let assigned = 0;
   for (const user of users) {
-    const createResult = spawnSync('sf', [
-      'data', 'create', 'record',
-      '--sobject', 'PermissionSetAssignment',
-      '--values', `PermissionSetId='${permsetId}' AssigneeId='${user.Id}'`,
-      '--target-org', targetOrg,
-      '--json',
-    ], { cwd: ROOT, encoding: 'utf8' });
+    const createResult = spawnSync(
+      "sf",
+      [
+        "data",
+        "create",
+        "record",
+        "--sobject",
+        "PermissionSetAssignment",
+        "--values",
+        `PermissionSetId='${permsetId}' AssigneeId='${user.Id}'`,
+        "--target-org",
+        targetOrg,
+        "--json"
+      ],
+      { cwd: ROOT, encoding: "utf8" }
+    );
     if (createResult.status === 0) {
       assigned++;
     } else {
       // Log but don't fail — user might already have it via race condition
-      const out = (createResult.stdout || '') + (createResult.stderr || '');
-      if (!out.includes('DUPLICATE_VALUE')) {
-        console.warn(`  Warning: could not assign "${permsetName}" to ${user.Username}: ${out.slice(0, 120)}`);
+      const out = (createResult.stdout || "") + (createResult.stderr || "");
+      if (!out.includes("DUPLICATE_VALUE")) {
+        console.warn(
+          `  Warning: could not assign "${permsetName}" to ${user.Username}: ${out.slice(0, 120)}`
+        );
       }
     }
   }
-  console.log(`  Assigned permset "${permsetName}" to ${assigned}/${users.length} community user(s).`);
+  console.log(
+    `  Assigned permset "${permsetName}" to ${assigned}/${users.length} community user(s).`
+  );
 }
 
 /**
@@ -963,12 +1106,18 @@ function ensureNetworkMemberProfile(selfRegConfig, siteName) {
   const { selfRegProfile } = selfRegConfig;
   if (!siteName || !selfRegProfile) return;
 
-  const networkXmlPath = resolve(SFDX_SOURCE, 'networks', `${siteName}.network-meta.xml`);
+  const networkXmlPath = resolve(
+    SFDX_SOURCE,
+    "networks",
+    `${siteName}.network-meta.xml`
+  );
   if (!existsSync(networkXmlPath)) {
-    console.log(`  Network metadata not found: ${networkXmlPath}; skipping member group update.`);
+    console.log(
+      `  Network metadata not found: ${networkXmlPath}; skipping member group update.`
+    );
     return;
   }
-  const xml = readFileSync(networkXmlPath, 'utf8');
+  const xml = readFileSync(networkXmlPath, "utf8");
 
   // Parse + assert the target node exists, then mutate via a targeted edit.
   // This is the BEST-EFFORT pre-deploy prep (not inside runStep, see lines
@@ -983,7 +1132,7 @@ function ensureNetworkMemberProfile(selfRegConfig, siteName) {
     if (e instanceof NetworkXmlError) {
       console.error(
         `  ERROR: cannot add self-reg profile to ${siteName}.network-meta.xml — ${e.message}. ` +
-        `Continuing pre-deploy; the self-registration step will record the authoritative failure.`,
+          `Continuing pre-deploy; the self-registration step will record the authoritative failure.`
       );
       return;
     }
@@ -991,11 +1140,15 @@ function ensureNetworkMemberProfile(selfRegConfig, siteName) {
   }
 
   if (!result.changed) {
-    console.log(`  Profile "${selfRegProfile}" already in networkMemberGroups; no update needed.`);
+    console.log(
+      `  Profile "${selfRegProfile}" already in networkMemberGroups; no update needed.`
+    );
     return;
   }
   writeFileSync(networkXmlPath, result.xml);
-  console.log(`  Added profile "${selfRegProfile}" to networkMemberGroups in ${siteName}.network-meta.xml`);
+  console.log(
+    `  Added profile "${selfRegProfile}" to networkMemberGroups in ${siteName}.network-meta.xml`
+  );
 }
 
 /**
@@ -1010,11 +1163,15 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
   const { selfRegProfile, accountName } = selfRegConfig;
 
   // 1. Modify network metadata XML
-  const networkXmlPath = resolve(SFDX_SOURCE, 'networks', `${siteName}.network-meta.xml`);
+  const networkXmlPath = resolve(
+    SFDX_SOURCE,
+    "networks",
+    `${siteName}.network-meta.xml`
+  );
   if (!existsSync(networkXmlPath)) {
     throw new StepError(`network metadata not found: ${networkXmlPath}`);
   }
-  const xml = readFileSync(networkXmlPath, 'utf8');
+  const xml = readFileSync(networkXmlPath, "utf8");
 
   // Parse + assert the <selfRegistration> node exists, then mutate via a
   // targeted edit. This runs inside
@@ -1033,19 +1190,33 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
   }
 
   if (!result.changed) {
-    console.log(`  Network "${siteName}" already has self-registration configured; skipping metadata update and deploy.`);
+    console.log(
+      `  Network "${siteName}" already has self-registration configured; skipping metadata update and deploy.`
+    );
   } else {
     writeFileSync(networkXmlPath, result.xml);
-    console.log(`  Updated ${siteName}.network-meta.xml: selfRegistration=true, selfRegProfile=${selfRegProfile}`);
+    console.log(
+      `  Updated ${siteName}.network-meta.xml: selfRegistration=true, selfRegProfile=${selfRegProfile}`
+    );
 
     // Re-deploy only the network file
-    const deployResult = spawnSync('sf', [
-      'project', 'deploy', 'start',
-      '--target-org', targetOrg,
-      '--source-dir', networkXmlPath,
-    ], { cwd: ROOT, stdio: 'inherit', shell: true, timeout: 120000 });
+    const deployResult = spawnSync(
+      "sf",
+      [
+        "project",
+        "deploy",
+        "start",
+        "--target-org",
+        targetOrg,
+        "--source-dir",
+        networkXmlPath
+      ],
+      { cwd: ROOT, stdio: "inherit", shell: true, timeout: 120000 }
+    );
     if (deployResult.status !== 0) {
-      throw new StepError(`failed to deploy updated network metadata (exit ${deployResult.status ?? 1})`);
+      throw new StepError(
+        `failed to deploy updated network metadata (exit ${deployResult.status ?? 1})`
+      );
     }
   }
 
@@ -1056,21 +1227,32 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
   // (apexLiteral-escaped) rather than the `--values Name='...'` CLI arg, whose
   // space-separated key=value parsing an escaped name cannot safely satisfy.
   const acctQuery = `SELECT Id FROM Account WHERE Name = '${escapeSoqlString(accountName)}' LIMIT 1`;
-  const acctQueryResult = spawnSync('sf', [
-    'data', 'query',
-    '--query', acctQuery,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const acctQueryResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "query",
+      "--query",
+      acctQuery,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let accountId = null;
   if (acctQueryResult.status === 0) {
     try {
       const json = JSON.parse(acctQueryResult.stdout);
       accountId = json.result?.records?.[0]?.Id || null;
-    } catch { /* proceed to create */ }
+    } catch {
+      /* proceed to create */
+    }
   }
   if (accountId) {
-    console.log(`  Account "${accountName}" already exists (${accountId}); skipping creation.`);
+    console.log(
+      `  Account "${accountName}" already exists (${accountId}); skipping creation.`
+    );
   } else {
     // Create via Anonymous Apex (apexLiteral escapes the name) instead of
     // `sf data create record --values`: the CLI parses --values as
@@ -1080,15 +1262,17 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
     const apex = [
       `Account acct = new Account(Name = ${apexLiteral(accountName)});`,
       `insert acct;`,
-      `System.debug('ACCOUNT_CREATED:' + acct.Id);`,
-    ].join('\n');
+      `System.debug('ACCOUNT_CREATED:' + acct.Id);`
+    ].join("\n");
     const apexOut = withApexTempDir((writeApex) => {
-      const tmpApex = writeApex('account.apex', apex);
-      const apexResult = spawnSync('sf', [
-        'apex', 'run', '--target-org', targetOrg, '--file', tmpApex,
-      ], { cwd: ROOT, stdio: 'pipe', shell: true, timeout: 60000 });
-      const out = apexResult.stdout?.toString() || '';
-      if (apexResult.status !== 0 && !out.includes('Compiled successfully')) {
+      const tmpApex = writeApex("account.apex", apex);
+      const apexResult = spawnSync(
+        "sf",
+        ["apex", "run", "--target-org", targetOrg, "--file", tmpApex],
+        { cwd: ROOT, stdio: "pipe", shell: true, timeout: 60000 }
+      );
+      const out = apexResult.stdout?.toString() || "";
+      if (apexResult.status !== 0 && !out.includes("Compiled successfully")) {
         process.stderr.write(apexResult.stderr?.toString() || out);
         throw new StepError(`failed to create Account "${accountName}"`);
       }
@@ -1096,7 +1280,7 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
     });
     const acctMatch = apexOut.match(/ACCOUNT_CREATED:(\w+)/);
     if (!acctMatch) {
-      throw new StepError('failed to parse Account creation result');
+      throw new StepError("failed to parse Account creation result");
     }
     accountId = acctMatch[1];
     console.log(`  Created Account "${accountName}" (${accountId}).`);
@@ -1104,18 +1288,19 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
 
   // 4. Query Network Id
   const netQuery = `SELECT Id FROM Network WHERE Name = '${siteName}'`;
-  const netResult = spawnSync('sf', [
-    'data', 'query',
-    '--query', netQuery,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const netResult = spawnSync(
+    "sf",
+    ["data", "query", "--query", netQuery, "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let networkId = null;
   if (netResult.status === 0) {
     try {
       const json = JSON.parse(netResult.stdout);
       networkId = json.result?.records?.[0]?.Id || null;
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
   }
   if (!networkId) {
     throw new StepError(`could not find Network "${siteName}" in org`);
@@ -1124,21 +1309,22 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
 
   // 5. Create NetworkSelfRegistration (idempotent)
   const nsrQuery = `SELECT Id FROM NetworkSelfRegistration WHERE NetworkId = '${networkId}'`;
-  const nsrResult = spawnSync('sf', [
-    'data', 'query',
-    '--query', nsrQuery,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const nsrResult = spawnSync(
+    "sf",
+    ["data", "query", "--query", nsrQuery, "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   let nsrExists = false;
   if (nsrResult.status === 0) {
     try {
       const json = JSON.parse(nsrResult.stdout);
       nsrExists = (json.result?.records?.length || 0) > 0;
-    } catch { /* proceed to create */ }
+    } catch {
+      /* proceed to create */
+    }
   }
   if (nsrExists) {
-    console.log('  NetworkSelfRegistration record already exists; skipping.');
+    console.log("  NetworkSelfRegistration record already exists; skipping.");
   } else {
     const apex = [
       `Account acct = [SELECT Id FROM Account WHERE Id = '${accountId}' LIMIT 1];`,
@@ -1146,17 +1332,19 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
       `nsr.AccountId = acct.Id;`,
       `nsr.NetworkId = '${networkId}';`,
       `insert nsr;`,
-      `System.debug('NSR_CREATED:' + nsr.Id);`,
-    ].join('\n');
+      `System.debug('NSR_CREATED:' + nsr.Id);`
+    ].join("\n");
     const apexOut = withApexTempDir((writeApex) => {
-      const tmpApex = writeApex('selfreg.apex', apex);
-      const apexResult = spawnSync('sf', [
-        'apex', 'run', '--target-org', targetOrg, '--file', tmpApex,
-      ], { cwd: ROOT, stdio: 'pipe', shell: true, timeout: 60000 });
-      const out = apexResult.stdout?.toString() || '';
-      if (apexResult.status !== 0 && !out.includes('Compiled successfully')) {
+      const tmpApex = writeApex("selfreg.apex", apex);
+      const apexResult = spawnSync(
+        "sf",
+        ["apex", "run", "--target-org", targetOrg, "--file", tmpApex],
+        { cwd: ROOT, stdio: "pipe", shell: true, timeout: 60000 }
+      );
+      const out = apexResult.stdout?.toString() || "";
+      if (apexResult.status !== 0 && !out.includes("Compiled successfully")) {
         process.stderr.write(apexResult.stderr?.toString() || out);
-        throw new StepError('failed to create NetworkSelfRegistration record');
+        throw new StepError("failed to create NetworkSelfRegistration record");
       }
       return out;
     });
@@ -1164,7 +1352,7 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
     if (nsrMatch) {
       console.log(`  Created NetworkSelfRegistration (${nsrMatch[1]}).`);
     } else {
-      console.log('  NetworkSelfRegistration creation executed.');
+      console.log("  NetworkSelfRegistration creation executed.");
     }
   }
 }
@@ -1174,14 +1362,21 @@ function enableSelfRegistration(selfRegConfig, siteName, targetOrg) {
  * works correctly.
  */
 function assignRoleToCurrentUser(roleName, targetOrg) {
-  validateSoqlName(roleName, 'role name');
+  validateSoqlName(roleName, "role name");
   const roleQuery = `SELECT Id FROM UserRole WHERE Name = '${roleName}'`;
-  const roleResult = spawnSync('sf', [
-    'data', 'query',
-    '--query', roleQuery,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const roleResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "query",
+      "--query",
+      roleQuery,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   if (roleResult.status !== 0) {
     if (roleResult.stderr) console.error(roleResult.stderr);
     throw new StepError(`failed to query role "${roleName}" in org`);
@@ -1199,56 +1394,81 @@ function assignRoleToCurrentUser(roleName, targetOrg) {
     throw new StepError(`failed to parse role query result for "${roleName}"`);
   }
 
-  const orgResult = spawnSync('sf', [
-    'org', 'display',
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const orgResult = spawnSync(
+    "sf",
+    ["org", "display", "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   if (orgResult.status !== 0) {
-    throw new StepError('failed to resolve current user from org');
+    throw new StepError("failed to resolve current user from org");
   }
   let username;
   try {
     const json = JSON.parse(orgResult.stdout);
     username = json.result?.username;
     if (!username) {
-      throw new StepError('could not determine current username from org display');
+      throw new StepError(
+        "could not determine current username from org display"
+      );
     }
   } catch (err) {
     if (err instanceof StepError) throw err;
-    throw new StepError('failed to parse org display result');
+    throw new StepError("failed to parse org display result");
   }
 
   const userQuery = `SELECT Id, UserRoleId FROM User WHERE Username = '${username}'`;
-  const userResult = spawnSync('sf', [
-    'data', 'query',
-    '--query', userQuery,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const userResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "query",
+      "--query",
+      userQuery,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   if (userResult.status === 0) {
     try {
       const json = JSON.parse(userResult.stdout);
       const userRecord = json.result?.records?.[0];
       if (userRecord?.UserRoleId) {
-        console.log(`  User ${username} already has a role assigned; skipping to avoid overriding.`);
+        console.log(
+          `  User ${username} already has a role assigned; skipping to avoid overriding.`
+        );
         return;
       }
-    } catch { /* continue */ }
+    } catch {
+      /* continue */
+    }
   }
 
-  const updateResult = spawnSync('sf', [
-    'data', 'update', 'record',
-    '--sobject', 'User',
-    '--where', `Username='${username}'`,
-    '--values', `UserRoleId='${roleId}'`,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const updateResult = spawnSync(
+    "sf",
+    [
+      "data",
+      "update",
+      "record",
+      "--sobject",
+      "User",
+      "--where",
+      `Username='${username}'`,
+      "--values",
+      `UserRoleId='${roleId}'`,
+      "--target-org",
+      targetOrg,
+      "--json"
+    ],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   if (updateResult.status === 0) {
     console.log(`  Role "${roleName}" assigned to ${username}.`);
   } else {
-    const out = (updateResult.stderr?.toString() || '') + (updateResult.stdout?.toString() || '');
+    const out =
+      (updateResult.stderr?.toString() || "") +
+      (updateResult.stdout?.toString() || "");
     if (out) console.error(out);
     throw new StepError(`failed to assign role "${roleName}" to ${username}`);
   }
@@ -1279,12 +1499,11 @@ function resolveGuestUsername(siteName, targetOrg) {
   const query =
     `SELECT Username FROM User ` +
     `WHERE Profile.Name = '${siteName} Profile' AND UserType = 'Guest'`;
-  const result = spawnSync('sf', [
-    'data', 'query',
-    '--query', query,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const result = spawnSync(
+    "sf",
+    ["data", "query", "--query", query, "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
   if (result.status !== 0) {
     console.error(`  Failed to query guest user for site "${siteName}".`);
     if (result.stderr) console.error(result.stderr);
@@ -1294,20 +1513,24 @@ function resolveGuestUsername(siteName, targetOrg) {
     const json = JSON.parse(result.stdout);
     const records = json.result?.records;
     if (!records || records.length === 0) {
-      console.error(`  No guest user found for site "${siteName}" (looked for profile "${siteName} Profile").`);
+      console.error(
+        `  No guest user found for site "${siteName}" (looked for profile "${siteName} Profile").`
+      );
       return null;
     }
     if (records.length > 1) {
-      const names = records.map((r) => r.Username).join(', ');
+      const names = records.map((r) => r.Username).join(", ");
       console.error(
         `  Ambiguous guest user for site "${siteName}": ${records.length} guest users share ` +
-          `profile "${siteName} Profile" (${names}); refusing to guess.`,
+          `profile "${siteName} Profile" (${names}); refusing to guess.`
       );
       return null;
     }
     return records[0].Username;
   } catch {
-    console.error(`  Failed to parse guest user query result for site "${siteName}".`);
+    console.error(
+      `  Failed to parse guest user query result for site "${siteName}".`
+    );
     return null;
   }
 }
@@ -1331,18 +1554,17 @@ function checkSelfRegLicense(selfRegConfig, targetOrg) {
     `SELECT UserLicense.LicenseDefinitionKey, UserLicense.Name, UserLicense.Status, ` +
     `UserLicense.TotalLicenses, UserLicense.UsedLicenses ` +
     `FROM Profile WHERE Name = '${profileName}'`;
-  const result = spawnSync('sf', [
-    'data', 'query',
-    '--query', query,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const result = spawnSync(
+    "sf",
+    ["data", "query", "--query", query, "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
 
   if (result.status !== 0) {
     if (result.stderr) console.error(result.stderr);
     return {
       satisfied: false,
-      reason: `could not query the UserLicense for profile "${profileName}" (sf data query failed)`,
+      reason: `could not query the UserLicense for profile "${profileName}" (sf data query failed)`
     };
   }
   let rows;
@@ -1351,7 +1573,7 @@ function checkSelfRegLicense(selfRegConfig, targetOrg) {
   } catch {
     return {
       satisfied: false,
-      reason: `could not parse the UserLicense query result for profile "${profileName}"`,
+      reason: `could not parse the UserLicense query result for profile "${profileName}"`
     };
   }
   const { satisfied, reason } = evaluateLicenseRows(rows, profileName);
@@ -1369,9 +1591,13 @@ function checkSelfRegLicense(selfRegConfig, targetOrg) {
  * @returns {string|null} the license name, or null if the file / field is absent
  */
 function readProfileUserLicense(selfRegProfile) {
-  const profilePath = resolve(SFDX_SOURCE, 'profiles', `${selfRegProfile}.profile-meta.xml`);
+  const profilePath = resolve(
+    SFDX_SOURCE,
+    "profiles",
+    `${selfRegProfile}.profile-meta.xml`
+  );
   if (!existsSync(profilePath)) return null;
-  const xml = readFileSync(profilePath, 'utf8');
+  const xml = readFileSync(profilePath, "utf8");
   const m = xml.match(/<userLicense>\s*([^<]+?)\s*<\/userLicense>/);
   return m ? m[1].trim() : null;
 }
@@ -1395,55 +1621,67 @@ function checkDeployLicense(selfRegConfig, targetOrg) {
   const query =
     `SELECT LicenseDefinitionKey, Name, Status, TotalLicenses, UsedLicenses ` +
     `FROM UserLicense WHERE Name = '${escapeSoqlString(licenseName)}'`;
-  const result = spawnSync('sf', [
-    'data', 'query',
-    '--query', query,
-    '--target-org', targetOrg,
-    '--json',
-  ], { cwd: ROOT, encoding: 'utf8' });
+  const result = spawnSync(
+    "sf",
+    ["data", "query", "--query", query, "--target-org", targetOrg, "--json"],
+    { cwd: ROOT, encoding: "utf8" }
+  );
 
   if (result.status !== 0) {
     if (result.stderr) console.error(result.stderr);
-    return { satisfied: false, reason: `could not query UserLicense "${licenseName}" (sf data query failed)` };
+    return {
+      satisfied: false,
+      reason: `could not query UserLicense "${licenseName}" (sf data query failed)`
+    };
   }
   let rows;
   try {
     rows = JSON.parse(result.stdout).result?.records ?? [];
   } catch {
-    return { satisfied: false, reason: `could not parse the UserLicense query result for "${licenseName}"` };
+    return {
+      satisfied: false,
+      reason: `could not parse the UserLicense query result for "${licenseName}"`
+    };
   }
   if (rows.length === 0) {
     return {
       satisfied: false,
-      reason: `required license "${licenseName}" is not present in the org — add it before deploying`,
+      reason: `required license "${licenseName}" is not present in the org — add it before deploying`
     };
   }
   // evaluateLicenseRows expects the license nested under `.UserLicense` (its
   // Profile-query shape); reshape the direct UserLicense rows to match so the
   // seat/status logic — and its license-named messages — stay shared.
-  return evaluateLicenseRows(rows.map((r) => ({ UserLicense: r })), selfRegConfig.selfRegProfile);
+  return evaluateLicenseRows(
+    rows.map((r) => ({ UserLicense: r })),
+    selfRegConfig.selfRegProfile
+  );
 }
 
 function isOrgConnected(targetOrg) {
-  const result = spawnSync('sf', ['org', 'display', '--target-org', targetOrg, '--json'], {
-    cwd: ROOT,
-    stdio: 'pipe',
-    shell: true,
-  });
+  const result = spawnSync(
+    "sf",
+    ["org", "display", "--target-org", targetOrg, "--json"],
+    {
+      cwd: ROOT,
+      stdio: "pipe",
+      shell: true
+    }
+  );
   return result.status === 0;
 }
 
 function apexLiteral(value) {
-  if (value === null || value === undefined) return 'null';
-  if (typeof value === 'boolean') return String(value);
-  if (typeof value === 'number') return String(value);
+  if (value === null || value === undefined) return "null";
+  if (typeof value === "boolean") return String(value);
+  if (typeof value === "number") return String(value);
   const s = String(value);
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return `Date.valueOf('${s}')`;
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s)) {
-    const dt = s.replace('T', ' ').replace(/\.\d+/, '').replace('Z', '');
+    const dt = s.replace("T", " ").replace(/\.\d+/, "").replace("Z", "");
     return `DateTime.valueOf('${dt}')`;
   }
-  return "'" + s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+  return "'" + s.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + "'";
 }
 
 function buildApexInsert(sobject, records, refIds) {
@@ -1454,27 +1692,27 @@ function buildApexInsert(sobject, records, refIds) {
   // marker; they carry no Apex-identifier role, so escaping (not whitelisting)
   // is the right treatment for their single-quoted literal. All three come from
   // app-shipped seed fixtures, so a violation is a fixture bug surfaced loudly.
-  validateApiName(sobject, 'sobject type');
+  validateApiName(sobject, "sobject type");
   const lines = [
-    'Database.DMLOptions dmlOpts = new Database.DMLOptions();',
+    "Database.DMLOptions dmlOpts = new Database.DMLOptions();",
     // Intentional: bypass duplicate rules for seed-data import. These are
     // controlled fixtures the app ships, not user input, and duplicate-rule
     // blocks (plus matching-service timeouts the REST Sforce-Duplicate-Rule-Action
     // header can't override) would abort an otherwise-valid setup.
-    'dmlOpts.DuplicateRuleHeader.allowSave = true;',
-    `List<${sobject}> recs = new List<${sobject}>();`,
+    "dmlOpts.DuplicateRuleHeader.allowSave = true;",
+    `List<${sobject}> recs = new List<${sobject}>();`
   ];
   for (const rec of records) {
     lines.push(`{ ${sobject} r = new ${sobject}();`);
     for (const [key, val] of Object.entries(rec)) {
-      if (key === 'attributes') continue;
+      if (key === "attributes") continue;
       validateApiName(key, `field API name on ${sobject}`);
       lines.push(`r.put('${key}', ${apexLiteral(val)});`);
     }
-    lines.push('recs.add(r); }');
+    lines.push("recs.add(r); }");
   }
-  lines.push('Database.SaveResult[] results = Database.insert(recs, dmlOpts);');
-  const refArray = refIds.map((r) => `'${escapeSoqlString(r)}'`).join(',');
+  lines.push("Database.SaveResult[] results = Database.insert(recs, dmlOpts);");
+  const refArray = refIds.map((r) => `'${escapeSoqlString(r)}'`).join(",");
   lines.push(`String[] refs = new String[]{${refArray}};`);
   // Emit ONE machine-readable line instead of one System.debug per record: a
   // JSON array of {ref, id?|err?}. The Node side parses this with
@@ -1482,18 +1720,26 @@ function buildApexInsert(sobject, records, refIds) {
   // batch failure (a truncated debug line must not read as "0 errors"). Measured
   // batching keeps each batch — and thus this payload — well under the log line
   // size.
-  lines.push('List<Object> setupOut = new List<Object>();');
-  lines.push('for (Integer i = 0; i < results.size(); i++) {');
-  lines.push('  Map<String,Object> m = new Map<String,Object>{ \'ref\' => refs[i] };');
-  lines.push('  if (results[i].isSuccess()) { m.put(\'id\', results[i].getId()); }');
-  lines.push('  else { m.put(\'err\', results[i].getErrors()[0].getMessage()); }');
-  lines.push('  setupOut.add(m);');
-  lines.push('}');
+  lines.push("List<Object> setupOut = new List<Object>();");
+  lines.push("for (Integer i = 0; i < results.size(); i++) {");
+  lines.push(
+    "  Map<String,Object> m = new Map<String,Object>{ 'ref' => refs[i] };"
+  );
+  lines.push(
+    "  if (results[i].isSuccess()) { m.put('id', results[i].getId()); }"
+  );
+  lines.push(
+    "  else { m.put('err', results[i].getErrors()[0].getMessage()); }"
+  );
+  lines.push("  setupOut.add(m);");
+  lines.push("}");
   // Use LoggingLevel.ERROR to ensure this critical line appears near the end of
   // the debug log and isn't truncated by excessive DEBUG-level noise from DML
   // operations, workflow rules, or process builders that fire during insert.
-  lines.push("System.debug(LoggingLevel.ERROR, 'SETUP_RESULT_JSON:' + JSON.serialize(setupOut));");
-  return lines.join('\n');
+  lines.push(
+    "System.debug(LoggingLevel.ERROR, 'SETUP_RESULT_JSON:' + JSON.serialize(setupOut));"
+  );
+  return lines.join("\n");
 }
 
 /**
@@ -1508,15 +1754,17 @@ async function promptSteps(steps) {
   // false. Only available steps are shown and navigable — unavailable steps are
   // hidden entirely rather than rendered greyed-out.
   const selected = steps.map((s) => s.enabled);
-  const visible = steps.map((s, i) => ({ step: s, index: i })).filter(({ step }) => step.available);
+  const visible = steps
+    .map((s, i) => ({ step: s, index: i }))
+    .filter(({ step }) => step.available);
   let cursor = 0;
-  const RST = '\x1B[0m';
-  const CYAN = '\x1B[36m';
-  const GREEN = '\x1B[32m';
+  const RST = "\x1B[0m";
+  const CYAN = "\x1B[36m";
+  const GREEN = "\x1B[32m";
 
   /** Strip ANSI escape sequences to get visible character count. */
   function visibleLength(str) {
-    return str.replace(/\x1B\[[0-9;]*m/g, '').length;
+    return str.replace(/\x1B\[[0-9;]*m/g, "").length;
   }
 
   /** Count how many terminal rows a set of lines occupies (accounting for wrapping). */
@@ -1532,8 +1780,8 @@ async function promptSteps(steps) {
 
   function render() {
     return visible.map(({ step, index }, row) => {
-      const ptr = row === cursor ? `${CYAN}❯${RST}` : ' ';
-      const chk = selected[index] ? `${GREEN}●${RST}` : '○';
+      const ptr = row === cursor ? `${CYAN}❯${RST}` : " ";
+      const chk = selected[index] ? `${GREEN}●${RST}` : "○";
       return `${ptr} ${chk} ${step.label}`;
     });
   }
@@ -1543,12 +1791,14 @@ async function promptSteps(steps) {
   return new Promise((resolve) => {
     process.stdin.setRawMode(true);
     process.stdin.resume();
-    process.stdin.setEncoding('utf8');
-    process.stdout.write('\x1B[?25l');
-    console.log('\nSelect steps (↑↓ move, space toggle, a all, enter confirm):\n');
+    process.stdin.setEncoding("utf8");
+    process.stdout.write("\x1B[?25l");
+    console.log(
+      "\nSelect steps (↑↓ move, space toggle, a all, enter confirm):\n"
+    );
     const initialLines = render();
     prevRows = terminalRows(initialLines);
-    process.stdout.write(initialLines.join('\n') + '\n');
+    process.stdout.write(initialLines.join("\n") + "\n");
 
     function redraw() {
       process.stdout.write(`\x1B[${prevRows}A`);
@@ -1557,38 +1807,38 @@ async function promptSteps(steps) {
       prevRows = terminalRows(lines);
     }
 
-    process.stdin.on('data', (key) => {
-      if (key === '\x03') {
-        process.stdout.write('\x1B[?25h\n');
+    process.stdin.on("data", (key) => {
+      if (key === "\x03") {
+        process.stdout.write("\x1B[?25h\n");
         process.exit(0);
       }
-      if (key === '\r' || key === '\n') {
-        process.stdout.write('\x1B[?25h');
+      if (key === "\r" || key === "\n") {
+        process.stdout.write("\x1B[?25h");
         process.stdin.setRawMode(false);
         process.stdin.pause();
-        process.stdin.removeAllListeners('data');
+        process.stdin.removeAllListeners("data");
         console.log();
         resolve(selected);
         return;
       }
       // Note: `cursor` indexes `visible`; `selected` is indexed by ORIGINAL step
       // order. Map through visible[cursor].index before touching `selected`.
-      if (key === ' ') {
+      if (key === " ") {
         const { index } = visible[cursor];
         selected[index] = !selected[index];
         redraw();
         return;
       }
-      if (key === 'a') {
+      if (key === "a") {
         const allOn = visible.every(({ index }) => selected[index]);
         for (const { index } of visible) selected[index] = !allOn;
         redraw();
         return;
       }
-      if (key === '\x1B[A' || key === 'k') {
+      if (key === "\x1B[A" || key === "k") {
         cursor = Math.max(0, cursor - 1);
         redraw();
-      } else if (key === '\x1B[B' || key === 'j') {
+      } else if (key === "\x1B[B" || key === "j") {
         cursor = Math.min(visible.length - 1, cursor + 1);
         redraw();
       }
@@ -1598,13 +1848,13 @@ async function promptSteps(steps) {
 
 function run(name, cmd, args, opts = {}) {
   const { cwd = ROOT, optional = false } = opts;
-  console.log('\n---', name, '---');
+  console.log("\n---", name, "---");
   const result = spawnSync(cmd, args, {
     cwd,
-    stdio: 'inherit',
+    stdio: "inherit",
     shell: true,
     ...(opts.env && { env: opts.env }),
-    ...(opts.timeout && { timeout: opts.timeout }),
+    ...(opts.timeout && { timeout: opts.timeout })
   });
   if (result.status !== 0 && !optional) {
     throw new StepError(`${name} (exit ${result.status ?? 1})`);
@@ -1617,23 +1867,30 @@ function spawnAsync(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
     const proc = nodeSpawn(cmd, args, {
       cwd: opts.cwd || ROOT,
-      stdio: 'pipe',
+      stdio: "pipe",
       shell: true,
-      ...(opts.timeout && { timeout: opts.timeout }),
+      ...(opts.timeout && { timeout: opts.timeout })
     });
-    let stdout = '';
-    let stderr = '';
-    proc.stdout.on('data', (d) => { stdout += d.toString(); });
-    proc.stderr.on('data', (d) => { stderr += d.toString(); });
-    proc.on('close', (code) => resolve({ status: code, stdout, stderr }));
-    proc.on('error', reject);
+    let stdout = "";
+    let stderr = "";
+    proc.stdout.on("data", (d) => {
+      stdout += d.toString();
+    });
+    proc.stderr.on("data", (d) => {
+      stderr += d.toString();
+    });
+    proc.on("close", (code) => resolve({ status: code, stdout, stderr }));
+    proc.on("error", reject);
   });
 }
 
 /** Async version of run() for parallel steps. Captures output and prints on failure. */
 async function runAsync(name, cmd, args, opts = {}) {
   const { cwd = ROOT, optional = false } = opts;
-  const result = await spawnAsync(cmd, args, { cwd, ...(opts.timeout && { timeout: opts.timeout }) });
+  const result = await spawnAsync(cmd, args, {
+    cwd,
+    ...(opts.timeout && { timeout: opts.timeout })
+  });
   if (result.status !== 0 && !optional) {
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);
@@ -1654,21 +1911,38 @@ async function runAsync(name, cmd, args, opts = {}) {
  */
 const results = [];
 function recordOk(step) {
-  results.push({ key: step.key, label: step.label, status: 'ok', failFast: step.failFast });
+  results.push({
+    key: step.key,
+    label: step.label,
+    status: "ok",
+    failFast: step.failFast
+  });
 }
 function recordSkipped(step, reason) {
-  results.push({ key: step.key, label: step.label, status: 'skipped', reason, failFast: step.failFast });
+  results.push({
+    key: step.key,
+    label: step.label,
+    status: "skipped",
+    reason,
+    failFast: step.failFast
+  });
 }
 function recordFailed(step, reason) {
-  results.push({ key: step.key, label: step.label, status: 'failed', reason, failFast: step.failFast });
+  results.push({
+    key: step.key,
+    label: step.label,
+    status: "failed",
+    reason,
+    failFast: step.failFast
+  });
 }
 
 /** True if any step in the ledger failed. */
 function finalExitCode() {
-  return results.some((r) => r.status === 'failed') ? 1 : 0;
+  return results.some((r) => r.status === "failed") ? 1 : 0;
 }
 
-const SUMMARY_GLYPH = { ok: '✔', skipped: '–', failed: '✖' };
+const SUMMARY_GLYPH = { ok: "✔", skipped: "–", failed: "✖" };
 
 /**
  * Render the end-of-run summary. Always called — on success, on a fail-fast
@@ -1678,24 +1952,27 @@ const SUMMARY_GLYPH = { ok: '✔', skipped: '–', failed: '✖' };
  */
 function printSummary(targetOrg) {
   const ordered = [
-    ...results.filter((r) => r.status !== 'failed'),
-    ...results.filter((r) => r.status === 'failed'),
+    ...results.filter((r) => r.status !== "failed"),
+    ...results.filter((r) => r.status === "failed")
   ];
   const pad = Math.max(0, ...ordered.map((r) => r.key.length));
   console.log(`\nSetup summary (target org: ${targetOrg})`);
   for (const r of ordered) {
-    const glyph = SUMMARY_GLYPH[r.status] ?? ' ';
+    const glyph = SUMMARY_GLYPH[r.status] ?? " ";
     const key = r.key.padEnd(pad);
     let line = `  ${glyph} ${key}  ${r.status}`;
     if (r.reason) line += ` (${r.reason})`;
-    if (r.status === 'failed') line += r.failFast ? '   [fail-fast — aborted]' : '   [skippable — continued]';
+    if (r.status === "failed")
+      line += r.failFast
+        ? "   [fail-fast — aborted]"
+        : "   [skippable — continued]";
     console.log(line);
   }
-  const failures = results.filter((r) => r.status === 'failed').length;
+  const failures = results.filter((r) => r.status === "failed").length;
   if (failures > 0) {
     console.log(`Setup completed with ${failures} failure(s). Exiting 1.`);
   } else {
-    console.log('Setup complete.');
+    console.log("Setup complete.");
   }
 }
 
@@ -1712,7 +1989,8 @@ async function runStep(step, targetOrg, body) {
     await body();
     recordOk(step);
   } catch (err) {
-    const reason = err instanceof StepError ? err.message : (err?.message ?? String(err));
+    const reason =
+      err instanceof StepError ? err.message : (err?.message ?? String(err));
     recordFailed(step, reason);
     console.error(`\nStep "${step.key}" failed: ${reason}`);
     if (step.failFast) {
@@ -1736,8 +2014,11 @@ async function main() {
     ensureGitignore(ROOT, gitignoreTemplates.sfdx);
     if (existsSync(UIBUNDLES_DIR)) {
       for (const entry of readdirSync(UIBUNDLES_DIR, { withFileTypes: true })) {
-        if (entry.isDirectory() && !entry.name.startsWith('.')) {
-          ensureGitignore(resolve(UIBUNDLES_DIR, entry.name), gitignoreTemplates.webapp);
+        if (entry.isDirectory() && !entry.name.startsWith(".")) {
+          ensureGitignore(
+            resolve(UIBUNDLES_DIR, entry.name),
+            gitignoreTemplates.webapp
+          );
         }
       }
     }
@@ -1755,7 +2036,7 @@ async function main() {
     skipSocialLogin: argSkipSocialLogin,
     skipData: argSkipData,
     skipGraphql: argSkipGraphql,
-    skipUIBundleBuild: argSkipUIBundleBuild,
+    skipUIBundleBuild: argSkipUIBundleBuild
   } = parsed;
 
   // Resolve the target org up front: explicit --target-org is used verbatim;
@@ -1769,12 +2050,14 @@ async function main() {
   acquireOrgLock(targetOrg);
 
   const permsetNames =
-    permsetNamesExplicit.length > 0 ? permsetNamesExplicit : discoverPermissionSetNames();
+    permsetNamesExplicit.length > 0
+      ? permsetNamesExplicit
+      : discoverPermissionSetNames();
   const permsetStepLabel =
     permsetNames.length === 0
-      ? 'Permset — (none under permissionsets/)'
+      ? "Permset — (none under permissionsets/)"
       : permsetNames.length <= 3
-        ? `Permset — assign ${permsetNames.join(', ')}`
+        ? `Permset — assign ${permsetNames.join(", ")}`
         : `Permset — assign ${permsetNames.length} permission sets`;
 
   // Validate org-setup.config.json ONCE, before any step runs. The three
@@ -1814,12 +2097,18 @@ async function main() {
   // to silently escape (same rationale as validateSoqlName's self-reg use).
   if (hasSocialLoginConfig) {
     try {
-      validateSoqlName(socialLoginConfig.communityMemberProfile, 'socialLogin.communityMemberProfile');
+      validateSoqlName(
+        socialLoginConfig.communityMemberProfile,
+        "socialLogin.communityMemberProfile"
+      );
       for (const providerName of socialLoginConfig.authProviderNames ?? []) {
-        validateSoqlName(providerName, 'socialLogin.authProviderNames entry');
+        validateSoqlName(providerName, "socialLogin.authProviderNames entry");
       }
       if (socialLoginConfig.communityUserPermset) {
-        validateSoqlName(socialLoginConfig.communityUserPermset, 'socialLogin.communityUserPermset');
+        validateSoqlName(
+          socialLoginConfig.communityUserPermset,
+          "socialLogin.communityUserPermset"
+        );
       }
     } catch (err) {
       console.error(`Invalid org-setup.config.json:\n  - ${err.message}`);
@@ -1836,17 +2125,67 @@ async function main() {
   // server moved to `npm run dev:preview`, so setup terminates cleanly after
   // graphql.
   const stepDefs = [
-    { key: 'uiBundleBuild', label: 'UI Bundle Build — npm install + build (pre-deploy)', enabled: !argSkipUIBundleBuild, available: true, failFast: true },
-    { key: 'deploy', label: 'Deploy — sf project deploy start', enabled: !argSkipDeploy, available: true, failFast: true },
-    { key: 'permset', label: permsetStepLabel, enabled: !argSkipPermset, available: true, failFast: false },
-    { key: 'role', label: `Role — assign "${roleConfig?.roleName ?? '?'}" to current user`, enabled: !argSkipRole && hasRoleConfig, available: hasRoleConfig, failFast: false },
-    { key: 'selfReg', label: 'Self-Registration — enable for site', enabled: !argSkipSelfReg && hasSelfRegConfig, available: hasSelfRegConfig, failFast: false },
-    { key: 'socialLogin', label: 'Social Login — enable auth providers + community profile', enabled: !argSkipSocialLogin && hasSocialLoginConfig, available: hasSocialLoginConfig, failFast: false },
-    { key: 'data', label: 'Data — delete + import records via Apex', enabled: !argSkipData && hasDataPlan, available: hasDataPlan, failFast: true },
-    { key: 'graphql', label: 'GraphQL — schema introspect + codegen', enabled: !argSkipGraphql, available: true, failFast: true },
+    {
+      key: "uiBundleBuild",
+      label: "UI Bundle Build — npm install + build (pre-deploy)",
+      enabled: !argSkipUIBundleBuild,
+      available: true,
+      failFast: true
+    },
+    {
+      key: "deploy",
+      label: "Deploy — sf project deploy start",
+      enabled: !argSkipDeploy,
+      available: true,
+      failFast: true
+    },
+    {
+      key: "permset",
+      label: permsetStepLabel,
+      enabled: !argSkipPermset,
+      available: true,
+      failFast: false
+    },
+    {
+      key: "role",
+      label: `Role — assign "${roleConfig?.roleName ?? "?"}" to current user`,
+      enabled: !argSkipRole && hasRoleConfig,
+      available: hasRoleConfig,
+      failFast: false
+    },
+    {
+      key: "selfReg",
+      label: "Self-Registration — enable for site",
+      enabled: !argSkipSelfReg && hasSelfRegConfig,
+      available: hasSelfRegConfig,
+      failFast: false
+    },
+    {
+      key: "socialLogin",
+      label: "Social Login — enable auth providers + community profile",
+      enabled: !argSkipSocialLogin && hasSocialLoginConfig,
+      available: hasSocialLoginConfig,
+      failFast: false
+    },
+    {
+      key: "data",
+      label: "Data — delete + import records via Apex",
+      enabled: !argSkipData && hasDataPlan,
+      available: hasDataPlan,
+      failFast: true
+    },
+    {
+      key: "graphql",
+      label: "GraphQL — schema introspect + codegen",
+      enabled: !argSkipGraphql,
+      available: true,
+      failFast: true
+    }
   ];
 
-  const selections = yes ? stepDefs.map((s) => s.enabled) : await promptSteps(stepDefs);
+  const selections = yes
+    ? stepDefs.map((s) => s.enabled)
+    : await promptSteps(stepDefs);
   const on = {};
   stepDefs.forEach((s, i) => {
     on[s.key] = selections[i];
@@ -1862,12 +2201,19 @@ async function main() {
   const skipGraphql = !on.graphql;
 
   const needsUIBundle = !skipUIBundleBuild || !skipGraphql;
-  const uiBundleDir = needsUIBundle ? await discoverUIBundleDir(uiBundleName) : null;
+  const uiBundleDir = needsUIBundle
+    ? await discoverUIBundleDir(uiBundleName)
+    : null;
   const doData = !skipData;
 
-  console.log('Setup — target org:', targetOrg, '| UI bundle:', uiBundleDir ?? '(none)');
   console.log(
-    'Steps: login=always deploy=%s permset=%s role=%s selfReg=%s socialLogin=%s data=%s graphql=%s uiBundle=%s',
+    "Setup — target org:",
+    targetOrg,
+    "| UI bundle:",
+    uiBundleDir ?? "(none)"
+  );
+  console.log(
+    "Steps: login=always deploy=%s permset=%s role=%s selfReg=%s socialLogin=%s data=%s graphql=%s uiBundle=%s",
     !skipDeploy,
     !skipPermset,
     !skipRole,
@@ -1881,13 +2227,25 @@ async function main() {
   // Login is an unconditional precondition: it is not part of
   // the step picker and cannot be skipped. It still no-ops when the org is already
   // connected, and stays fail-fast — a failed browser login aborts before deploy.
-  const loginStep = { key: 'login', label: 'Login — org authentication', failFast: true };
+  const loginStep = {
+    key: "login",
+    label: "Login — org authentication",
+    failFast: true
+  };
   await runStep(loginStep, targetOrg, async () => {
     if (isOrgConnected(targetOrg)) {
-      console.log('\n--- Login ---');
-      console.log(`Org ${targetOrg} is already authenticated; skipping browser login.`);
+      console.log("\n--- Login ---");
+      console.log(
+        `Org ${targetOrg} is already authenticated; skipping browser login.`
+      );
     } else {
-      run('Login (browser)', 'sf', ['org', 'login', 'web', '--alias', targetOrg]);
+      run("Login (browser)", "sf", [
+        "org",
+        "login",
+        "web",
+        "--alias",
+        targetOrg
+      ]);
     }
   });
 
@@ -1905,13 +2263,13 @@ async function main() {
       // ambiguous derivation — surfaced by the selfReg step below
     }
     if (preDeploySiteName) {
-      console.log('\n--- Ensure network member profile (pre-deploy) ---');
+      console.log("\n--- Ensure network member profile (pre-deploy) ---");
       ensureNetworkMemberProfile(selfRegConfig, preDeploySiteName);
     }
   }
 
   // Build all UI Bundles before deploy so dist exists for entity deployment
-  const uiBundleBuildStep = stepDefs.find((s) => s.key === 'uiBundleBuild');
+  const uiBundleBuildStep = stepDefs.find((s) => s.key === "uiBundleBuild");
   let preDeployBundlesBuilt = false;
   if (!skipUIBundleBuild) {
     if (!skipDeploy) {
@@ -1919,8 +2277,10 @@ async function main() {
         const allUIBundleDirs = discoverAllUIBundleDirs(uiBundleName);
         for (const dir of allUIBundleDirs) {
           const name = dir.split(/[/\\]/).pop();
-          run(`UI Bundle install (${name})`, 'npm', ['install'], { cwd: dir });
-          run(`UI Bundle build (${name})`, 'npm', ['run', 'build'], { cwd: dir });
+          run(`UI Bundle install (${name})`, "npm", ["install"], { cwd: dir });
+          run(`UI Bundle build (${name})`, "npm", ["run", "build"], {
+            cwd: dir
+          });
         }
       });
       preDeployBundlesBuilt = true;
@@ -1928,10 +2288,10 @@ async function main() {
     // When skipDeploy, the bundle build happens in the GraphQL section below;
     // its outcome is recorded there.
   } else {
-    recordSkipped(uiBundleBuildStep, 'not selected');
+    recordSkipped(uiBundleBuildStep, "not selected");
   }
 
-  const deployStep = stepDefs.find((s) => s.key === 'deploy');
+  const deployStep = stepDefs.find((s) => s.key === "deploy");
   if (!skipDeploy) {
     await runStep(deployStep, targetOrg, () => {
       // License pre-check: deploy fails with a cryptic error when the
@@ -1947,24 +2307,31 @@ async function main() {
           throw new StepError(`deploy blocked — ${licenseGate.reason}`);
         }
       }
-      run('Deploy metadata', 'sf', ['project', 'deploy', 'start', '--target-org', targetOrg], {
-        timeout: 180000,
-      });
+      run(
+        "Deploy metadata",
+        "sf",
+        ["project", "deploy", "start", "--target-org", targetOrg],
+        {
+          timeout: 180000
+        }
+      );
     });
   } else {
-    recordSkipped(deployStep, 'not selected');
+    recordSkipped(deployStep, "not selected");
   }
 
-  const permsetStep = stepDefs.find((s) => s.key === 'permset');
+  const permsetStep = stepDefs.find((s) => s.key === "permset");
   if (!skipPermset) {
     await runStep(permsetStep, targetOrg, async () => {
       const permsetConfig = loadPermsetConfig(config);
       if (permsetNames.length === 0) {
-        console.log('\n--- Assign permission sets ---');
-        console.log('No permission sets found under permissionsets/ and none passed via --permset-name; skipping.');
+        console.log("\n--- Assign permission sets ---");
+        console.log(
+          "No permission sets found under permissionsets/ and none passed via --permset-name; skipping."
+        );
         return;
       }
-      console.log('\n--- Assign permission sets ---');
+      console.log("\n--- Assign permission sets ---");
 
       // Resolve assignments (guest user lookups etc.) then run all sf assign calls in parallel.
       //
@@ -1978,52 +2345,78 @@ async function main() {
       const resolutionFailures = [];
       for (const permsetName of permsetNames) {
         const assignment = resolveAssignment(permsetName, permsetConfig);
-        if (assignment.assignee === 'skip') {
+        if (assignment.assignee === "skip") {
           console.log(`Permission set "${permsetName}" — skipped (config).`);
           continue;
         }
         let effectiveUsername = null;
-        if (assignment.assignee === 'guestUser') {
+        if (assignment.assignee === "guestUser") {
           // Site name is derived from the single network metadata file the app
           // ships — never restated per-assignment.
           const siteName = deriveSiteName();
           if (!siteName) {
-            console.error(`Permission set "${permsetName}" — assignee is "guestUser" but no networks/<siteName>.network-meta.xml was found to derive the site; skipping.`);
-            resolutionFailures.push(`${permsetName} (no network metadata to derive site)`);
+            console.error(
+              `Permission set "${permsetName}" — assignee is "guestUser" but no networks/<siteName>.network-meta.xml was found to derive the site; skipping.`
+            );
+            resolutionFailures.push(
+              `${permsetName} (no network metadata to derive site)`
+            );
             continue;
           }
           effectiveUsername = resolveGuestUsername(siteName, targetOrg);
           if (!effectiveUsername) {
-            console.error(`Permission set "${permsetName}" — could not resolve guest user for site "${siteName}"; skipping.`);
-            resolutionFailures.push(`${permsetName} (could not resolve guest user for site "${siteName}")`);
+            console.error(
+              `Permission set "${permsetName}" — could not resolve guest user for site "${siteName}"; skipping.`
+            );
+            resolutionFailures.push(
+              `${permsetName} (could not resolve guest user for site "${siteName}")`
+            );
             continue;
           }
-          console.log(`  Resolved guest user for site "${siteName}": ${effectiveUsername}`);
+          console.log(
+            `  Resolved guest user for site "${siteName}": ${effectiveUsername}`
+          );
         }
         assignmentJobs.push({ permsetName, effectiveUsername });
       }
 
       // Run all permset assignment calls in parallel.
-      const assignResults = await Promise.all(assignmentJobs.map(async ({ permsetName, effectiveUsername }) => {
-        const sfArgs = ['org', 'assign', 'permset', '--name', permsetName, '--target-org', targetOrg];
-        if (effectiveUsername) {
-          sfArgs.push('--on-behalf-of', effectiveUsername);
-        }
-        const assigneeLabel = effectiveUsername || 'current user';
-        const result = await spawnAsync('sf', sfArgs);
-        return { permsetName, assigneeLabel, result };
-      }));
+      const assignResults = await Promise.all(
+        assignmentJobs.map(async ({ permsetName, effectiveUsername }) => {
+          const sfArgs = [
+            "org",
+            "assign",
+            "permset",
+            "--name",
+            permsetName,
+            "--target-org",
+            targetOrg
+          ];
+          if (effectiveUsername) {
+            sfArgs.push("--on-behalf-of", effectiveUsername);
+          }
+          const assigneeLabel = effectiveUsername || "current user";
+          const result = await spawnAsync("sf", sfArgs);
+          return { permsetName, assigneeLabel, result };
+        })
+      );
 
       const failures = [];
       for (const { permsetName, assigneeLabel, result } of assignResults) {
         if (result.status === 0) {
-          console.log(`Permission set "${permsetName}" assigned to ${assigneeLabel}.`);
+          console.log(
+            `Permission set "${permsetName}" assigned to ${assigneeLabel}.`
+          );
         } else {
-          const out = (result.stderr || '') + (result.stdout || '');
-          if (out.includes('Duplicate') && out.includes('PermissionSet')) {
-            console.log(`Permission set "${permsetName}" already assigned to ${assigneeLabel}; skipping.`);
-          } else if (out.includes('not found') && out.includes('target org')) {
-            console.log(`Permission set "${permsetName}" not in org; skipping.`);
+          const out = (result.stderr || "") + (result.stdout || "");
+          if (out.includes("Duplicate") && out.includes("PermissionSet")) {
+            console.log(
+              `Permission set "${permsetName}" already assigned to ${assigneeLabel}; skipping.`
+            );
+          } else if (out.includes("not found") && out.includes("target org")) {
+            console.log(
+              `Permission set "${permsetName}" not in org; skipping.`
+            );
           } else {
             if (result.stdout) process.stdout.write(result.stdout);
             if (result.stderr) process.stderr.write(result.stderr);
@@ -2033,16 +2426,18 @@ async function main() {
       }
       const allFailures = [...resolutionFailures, ...failures];
       if (allFailures.length > 0) {
-        throw new StepError(`failed to assign permission set(s): ${allFailures.join(', ')}`);
+        throw new StepError(
+          `failed to assign permission set(s): ${allFailures.join(", ")}`
+        );
       }
     });
   } else {
-    recordSkipped(permsetStep, 'not selected');
+    recordSkipped(permsetStep, "not selected");
   }
 
-  const roleStep = stepDefs.find((s) => s.key === 'role');
+  const roleStep = stepDefs.find((s) => s.key === "role");
   if (!skipRole) {
-    console.log('\n--- Assign role ---');
+    console.log("\n--- Assign role ---");
     // Config shape (assignee === 'currentUser', non-empty roleName) is guaranteed
     // by the schema, so there is nothing to re-check here — the step either ran
     // (ok) or its assignment threw (failed). No manual recordSkipped inference.
@@ -2050,10 +2445,10 @@ async function main() {
       assignRoleToCurrentUser(roleConfig.roleName, targetOrg);
     });
   } else {
-    recordSkipped(roleStep, roleStep.available ? 'not selected' : 'no config');
+    recordSkipped(roleStep, roleStep.available ? "not selected" : "no config");
   }
 
-  const selfRegStep = stepDefs.find((s) => s.key === 'selfReg');
+  const selfRegStep = stepDefs.find((s) => s.key === "selfReg");
   if (!skipSelfReg) {
     // License pre-check: self-registration requires a seat on the
     // UserLicense the selfRegProfile belongs to. Verify it BEFORE running the step
@@ -2063,10 +2458,12 @@ async function main() {
     // precondition, not a setup failure, so warn + recordSkipped and move on.
     const licenseGate = checkSelfRegLicense(selfRegConfig, targetOrg);
     if (!licenseGate.satisfied) {
-      console.warn(`\n--- Self-registration skipped ---\n  ⚠ ${licenseGate.reason}`);
+      console.warn(
+        `\n--- Self-registration skipped ---\n  ⚠ ${licenseGate.reason}`
+      );
       recordSkipped(selfRegStep, licenseGate.reason);
     } else {
-      console.log('\n--- Enable self-registration ---');
+      console.log("\n--- Enable self-registration ---");
       // Config shape (selfRegProfile, accountName) is guaranteed by the schema.
       // The site is derived inside the step body so a "multiple network files"
       // StepError is recorded in the ledger rather than escaping. No manual
@@ -2075,24 +2472,29 @@ async function main() {
         const siteName = deriveSiteName();
         if (!siteName) {
           throw new StepError(
-            'self-registration is configured but no networks/<siteName>.network-meta.xml was found to derive the site',
+            "self-registration is configured but no networks/<siteName>.network-meta.xml was found to derive the site"
           );
         }
         enableSelfRegistration(selfRegConfig, siteName, targetOrg);
       });
     }
   } else {
-    recordSkipped(selfRegStep, selfRegStep.available ? 'not selected' : 'no config');
+    recordSkipped(
+      selfRegStep,
+      selfRegStep.available ? "not selected" : "no config"
+    );
   }
 
-  const socialLoginStep = stepDefs.find((s) => s.key === 'socialLogin');
+  const socialLoginStep = stepDefs.find((s) => s.key === "socialLogin");
   if (!skipSocialLogin) {
-    console.log('\n--- Social Login — enable auth providers + community profile ---');
+    console.log(
+      "\n--- Social Login — enable auth providers + community profile ---"
+    );
     await runStep(socialLoginStep, targetOrg, () => {
       const siteName = deriveSiteName();
       if (!siteName) {
         throw new StepError(
-          'socialLogin is configured but no networks/<siteName>.network-meta.xml was found to derive the site',
+          "socialLogin is configured but no networks/<siteName>.network-meta.xml was found to derive the site"
         );
       }
 
@@ -2101,223 +2503,277 @@ async function main() {
       // Sub-step 1: Enable "Allow using standard external profiles" org setting.
       // This is required so the SSO registration handler can create users with
       // standard community profiles (e.g. "Customer Community User").
-      console.log(`  [1/${totalSubSteps}] Enabling "Allow standard external profiles" setting...`);
+      console.log(
+        `  [1/${totalSubSteps}] Enabling "Allow standard external profiles" setting...`
+      );
       enableExternalProfiles(targetOrg);
 
       // Sub-step 2: Link Auth Providers to the site's AuthConfig.
       // React (Site Container) sites hide SSO config in Admin UI, so this must
       // be done programmatically via AuthConfig/AuthConfigProviders records.
-      console.log(`  [2/${totalSubSteps}] Linking Auth Providers to site AuthConfig...`);
-      enableAuthProvidersForSite(socialLoginConfig.authProviderNames, siteName, targetOrg);
+      console.log(
+        `  [2/${totalSubSteps}] Linking Auth Providers to site AuthConfig...`
+      );
+      enableAuthProvidersForSite(
+        socialLoginConfig.authProviderNames,
+        siteName,
+        targetOrg
+      );
 
       // Sub-step 3: Add the community member profile to NetworkMemberGroup.
       // Without this, users created by the registration handler get
       // "NO_ACCESS: User was not authorized for the community".
-      console.log(`  [3/${totalSubSteps}] Adding community member profile to NetworkMemberGroup...`);
-      addCommunityMemberProfile(socialLoginConfig.communityMemberProfile, siteName, targetOrg);
+      console.log(
+        `  [3/${totalSubSteps}] Adding community member profile to NetworkMemberGroup...`
+      );
+      addCommunityMemberProfile(
+        socialLoginConfig.communityMemberProfile,
+        siteName,
+        targetOrg
+      );
 
       // Sub-step 4 (optional): Assign API-enabled permset to community users.
       // Without this, getCurrentUser() fails because /chatter/users/me requires
       // PermissionsApiEnabled which the standard community profile lacks.
       if (socialLoginConfig.communityUserPermset) {
-        console.log(`  [4/${totalSubSteps}] Assigning API permset to community users...`);
+        console.log(
+          `  [4/${totalSubSteps}] Assigning API permset to community users...`
+        );
         assignPermsetToCommunityUsers(
           socialLoginConfig.communityUserPermset,
           socialLoginConfig.communityMemberProfile,
-          targetOrg,
+          targetOrg
         );
       }
     });
   } else {
-    recordSkipped(socialLoginStep, socialLoginStep.available ? 'not selected' : 'no config');
+    recordSkipped(
+      socialLoginStep,
+      socialLoginStep.available ? "not selected" : "no config"
+    );
   }
 
-  const dataStep = stepDefs.find((s) => s.key === 'data');
+  const dataStep = stepDefs.find((s) => s.key === "data");
   if (doData) {
-   await runStep(dataStep, targetOrg, () => {
-    // Prepare data for uniqueness (run before import so repeat imports don't conflict).
-    // Per-app data normalization (reference remapping, unique-field mangling) ships with
-    // the app's seed data as data/prepare-import-unique-fields.js — this script stays
-    // object-agnostic and simply runs it if present.
-    const prepareScript = resolve(DATA_DIR, 'prepare-import-unique-fields.js');
-    if (existsSync(prepareScript)) {
-      run('Prepare data (unique fields)', 'node', [prepareScript, '--data-dir', DATA_DIR], {
-        cwd: ROOT,
-      });
-    }
+    await runStep(dataStep, targetOrg, () => {
+      // Prepare data for uniqueness (run before import so repeat imports don't conflict).
+      // Per-app data normalization (reference remapping, unique-field mangling) ships with
+      // the app's seed data as data/prepare-import-unique-fields.js — this script stays
+      // object-agnostic and simply runs it if present.
+      const prepareScript = resolve(
+        DATA_DIR,
+        "prepare-import-unique-fields.js"
+      );
+      if (existsSync(prepareScript)) {
+        run(
+          "Prepare data (unique fields)",
+          "node",
+          [prepareScript, "--data-dir", DATA_DIR],
+          {
+            cwd: ROOT
+          }
+        );
+      }
 
-    // Delete existing records so every run inserts the full dataset without duplicate conflicts.
-    // Reverse plan order ensures children are removed before parents (FK safety).
-    console.log('\n--- Clean existing data for fresh import ---');
-    const planEntries = JSON.parse(readFileSync(DATA_PLAN, 'utf8'));
-    const sobjectsReversed = [...planEntries.map((e) => e.sobject)].reverse();
-    // One private temp dir for both the delete sweep and the import batches;
-    // always removed in finally, even if a batch throws.
-    withApexTempDir((writeApex) => {
-    for (const sobject of sobjectsReversed) {
-      // Bare identifier inside a dynamic-SOQL string literal — whitelist it (the
-      // same guard buildApexInsert applies) so a malformed data-plan sobject
-      // can't alter the delete query.
-      validateApiName(sobject, 'sobject type');
-      const apexCode = [
-        'try {',
-        `  List<SObject> recs = Database.query('SELECT Id FROM ${sobject} LIMIT 10000');`,
-        '  if (!recs.isEmpty()) {',
-        '    Database.delete(recs, false);',
-        '    Database.emptyRecycleBin(recs);',
-        '  }',
-        '} catch (Exception e) {',
-        '  // non-deletable records (e.g. Contact linked to Case) are skipped via allOrNone=false',
-        '}',
-      ].join('\n');
-      const tmpApex = writeApex('data.apex', apexCode);
-      spawnSync('sf', ['apex', 'run', '--target-org', targetOrg, '--file', tmpApex], {
-        cwd: ROOT,
-        stdio: 'pipe',
-        shell: true,
-        timeout: 60000,
-      });
-      console.log(`  ${sobject}: cleaned`);
-    }
+      // Delete existing records so every run inserts the full dataset without duplicate conflicts.
+      // Reverse plan order ensures children are removed before parents (FK safety).
+      console.log("\n--- Clean existing data for fresh import ---");
+      const planEntries = JSON.parse(readFileSync(DATA_PLAN, "utf8"));
+      const sobjectsReversed = [...planEntries.map((e) => e.sobject)].reverse();
+      // One private temp dir for both the delete sweep and the import batches;
+      // always removed in finally, even if a batch throws.
+      withApexTempDir((writeApex) => {
+        for (const sobject of sobjectsReversed) {
+          // Bare identifier inside a dynamic-SOQL string literal — whitelist it (the
+          // same guard buildApexInsert applies) so a malformed data-plan sobject
+          // can't alter the delete query.
+          validateApiName(sobject, "sobject type");
+          const apexCode = [
+            "try {",
+            `  List<SObject> recs = Database.query('SELECT Id FROM ${sobject} LIMIT 10000');`,
+            "  if (!recs.isEmpty()) {",
+            "    Database.delete(recs, false);",
+            "    Database.emptyRecycleBin(recs);",
+            "  }",
+            "} catch (Exception e) {",
+            "  // non-deletable records (e.g. Contact linked to Case) are skipped via allOrNone=false",
+            "}"
+          ].join("\n");
+          const tmpApex = writeApex("data.apex", apexCode);
+          spawnSync(
+            "sf",
+            ["apex", "run", "--target-org", targetOrg, "--file", tmpApex],
+            {
+              cwd: ROOT,
+              stdio: "pipe",
+              shell: true,
+              timeout: 60000
+            }
+          );
+          console.log(`  ${sobject}: cleaned`);
+        }
 
-    // Import via Anonymous Apex with Database.DMLOptions.duplicateRuleHeader.allowSave = true.
-    // This bypasses both duplicate-rule blocks AND matching-service timeouts that the REST
-    // API headers (Sforce-Duplicate-Rule-Action) cannot override.
-    console.log('\n--- Data import (Apex) ---');
-    const refMap = new Map();
-    // Apex anonymous code is capped at ~1M chars total, but each batch is much
-    // smaller in practice. The real constraint is the SETUP_RESULT_JSON debug log
-    // line: Salesforce truncates debug lines at ~5KB, and large batches produce
-    // JSON arrays that exceed that limit. With RESULT_JSON_PER_RECORD = 150 and
-    // MAX_BATCH = 100, the worst-case output is ~15KB of JSON, which fits
-    // comfortably after the debug-line prefix and the marker.
-    const APEX_CHAR_LIMIT = 25000;
-    const APEX_MAX_BATCH = 100;
+        // Import via Anonymous Apex with Database.DMLOptions.duplicateRuleHeader.allowSave = true.
+        // This bypasses both duplicate-rule blocks AND matching-service timeouts that the REST
+        // API headers (Sforce-Duplicate-Rule-Action) cannot override.
+        console.log("\n--- Data import (Apex) ---");
+        const refMap = new Map();
+        // Apex anonymous code is capped at ~1M chars total, but each batch is much
+        // smaller in practice. The real constraint is the SETUP_RESULT_JSON debug log
+        // line: Salesforce truncates debug lines at ~5KB, and large batches produce
+        // JSON arrays that exceed that limit. With RESULT_JSON_PER_RECORD = 150 and
+        // MAX_BATCH = 100, the worst-case output is ~15KB of JSON, which fits
+        // comfortably after the debug-line prefix and the marker.
+        const APEX_CHAR_LIMIT = 25000;
+        const APEX_MAX_BATCH = 100;
 
-    for (const entry of planEntries) {
-      for (const file of entry.files) {
-        const data = JSON.parse(readFileSync(resolve(DATA_DIR, file), 'utf8'));
-        const records = data.records || [];
+        for (const entry of planEntries) {
+          for (const file of entry.files) {
+            const data = JSON.parse(
+              readFileSync(resolve(DATA_DIR, file), "utf8")
+            );
+            const records = data.records || [];
 
-        for (const rec of records) {
-          for (const key of Object.keys(rec)) {
-            if (key === 'attributes') continue;
-            const val = rec[key];
-            if (typeof val === 'string' && val.startsWith('@')) {
-              const actual = refMap.get(val.slice(1));
-              if (actual) {
-                rec[key] = actual;
-              } else if (refMap.size > 0) {
-                console.warn(`    Warning: unresolved ref ${val} in ${file}`);
+            for (const rec of records) {
+              for (const key of Object.keys(rec)) {
+                if (key === "attributes") continue;
+                const val = rec[key];
+                if (typeof val === "string" && val.startsWith("@")) {
+                  const actual = refMap.get(val.slice(1));
+                  if (actual) {
+                    rec[key] = actual;
+                  } else if (refMap.size > 0) {
+                    console.warn(
+                      `    Warning: unresolved ref ${val} in ${file}`
+                    );
+                  }
+                }
               }
             }
-          }
-        }
 
-        // Measured batching: size each record's rendered Apex (using
-        // the same apexLiteral the insert uses) and pack batches under the char
-        // limit, instead of the old estCharsPerRec = 40 + fields*55 guess that
-        // under-counted long text fields and could overflow the anon-Apex limit.
-        // Overhead is measured from the real builder with zero records so the
-        // fixed boilerplate can't drift from buildApexInsert. Each record also
-        // grows the per-batch `String[] refs = new String[]{'…',…}` line, so its
-        // rendered refId literal is counted here too (mirroring the same
-        // referenceId/_idx fallback the batch emit uses) — otherwise sizing
-        // under-counts and a packed batch could edge past APEX_CHAR_LIMIT.
-        //
-        // CRITICAL: also account for the SETUP_RESULT_JSON output size. The
-        // System.debug line can exceed the Salesforce debug log line limit when
-        // the serialized JSON array is large. Estimate ~85 chars per success
-        // result ({"ref":"_idxNNN","id":"001XXXXXXXXXXXXXXX"}) and ~150 chars per
-        // potential error ({"ref":"_idxNNN","err":"typical error message"}), taking
-        // the higher value to be conservative. This ensures the batching prevents
-        // log truncation that would fail parseApexInsertResults.
-        const overhead = buildApexInsert(entry.sobject, [], []).length;
-        const RESULT_JSON_PER_RECORD = 150;
-        const recordSizes = records.map((rec, i) => {
-          let size = `{ ${entry.sobject} r = new ${entry.sobject}();\n`.length + 'recs.add(r); }\n'.length;
-          for (const [key, val] of Object.entries(rec)) {
-            if (key === 'attributes') continue;
-            size += `r.put('${key}', ${apexLiteral(val)});\n`.length;
-          }
-          const refId = rec.attributes?.referenceId || `_idx${i}`;
-          size += `'${escapeSoqlString(refId)}',`.length;
-          // Add the estimated size of this record's JSON result entry in the
-          // SETUP_RESULT_JSON output. Without this, large batches can produce
-          // debug log lines that exceed Salesforce's limit and get truncated.
-          size += RESULT_JSON_PER_RECORD;
-          return size;
-        });
-        const batches = planApexBatches(recordSizes, {
-          charLimit: APEX_CHAR_LIMIT,
-          maxBatch: APEX_MAX_BATCH,
-          overhead,
-        });
+            // Measured batching: size each record's rendered Apex (using
+            // the same apexLiteral the insert uses) and pack batches under the char
+            // limit, instead of the old estCharsPerRec = 40 + fields*55 guess that
+            // under-counted long text fields and could overflow the anon-Apex limit.
+            // Overhead is measured from the real builder with zero records so the
+            // fixed boilerplate can't drift from buildApexInsert. Each record also
+            // grows the per-batch `String[] refs = new String[]{'…',…}` line, so its
+            // rendered refId literal is counted here too (mirroring the same
+            // referenceId/_idx fallback the batch emit uses) — otherwise sizing
+            // under-counts and a packed batch could edge past APEX_CHAR_LIMIT.
+            //
+            // CRITICAL: also account for the SETUP_RESULT_JSON output size. The
+            // System.debug line can exceed the Salesforce debug log line limit when
+            // the serialized JSON array is large. Estimate ~85 chars per success
+            // result ({"ref":"_idxNNN","id":"001XXXXXXXXXXXXXXX"}) and ~150 chars per
+            // potential error ({"ref":"_idxNNN","err":"typical error message"}), taking
+            // the higher value to be conservative. This ensures the batching prevents
+            // log truncation that would fail parseApexInsertResults.
+            const overhead = buildApexInsert(entry.sobject, [], []).length;
+            const RESULT_JSON_PER_RECORD = 150;
+            const recordSizes = records.map((rec, i) => {
+              let size =
+                `{ ${entry.sobject} r = new ${entry.sobject}();\n`.length +
+                "recs.add(r); }\n".length;
+              for (const [key, val] of Object.entries(rec)) {
+                if (key === "attributes") continue;
+                size += `r.put('${key}', ${apexLiteral(val)});\n`.length;
+              }
+              const refId = rec.attributes?.referenceId || `_idx${i}`;
+              size += `'${escapeSoqlString(refId)}',`.length;
+              // Add the estimated size of this record's JSON result entry in the
+              // SETUP_RESULT_JSON output. Without this, large batches can produce
+              // debug log lines that exceed Salesforce's limit and get truncated.
+              size += RESULT_JSON_PER_RECORD;
+              return size;
+            });
+            const batches = planApexBatches(recordSizes, {
+              charLimit: APEX_CHAR_LIMIT,
+              maxBatch: APEX_MAX_BATCH,
+              overhead
+            });
 
-        let imported = 0;
-        for (const { start, count } of batches) {
-          const batch = records.slice(start, start + count);
-          const refIds = batch.map((r, j) => r.attributes?.referenceId || `_idx${start + j}`);
-          const apex = buildApexInsert(entry.sobject, batch, refIds);
-          const tmpApex = writeApex('data.apex', apex);
-          const apexResult = spawnSync(
-            'sf',
-            ['apex', 'run', '--target-org', targetOrg, '--file', tmpApex],
-            { cwd: ROOT, stdio: 'pipe', shell: true, timeout: 120000 }
-          );
-          const apexOut = apexResult.stdout?.toString() || '';
-          const apexErr = apexResult.stderr?.toString() || '';
-          if (apexResult.status !== 0 && !apexOut.includes('Compiled successfully')) {
-            process.stderr.write(apexErr || apexOut);
-            throw new StepError(`${entry.sobject}: apex execution failed`);
-          }
-          const parsed = parseApexInsertResults(apexOut);
-          if (!parsed.ok) {
-            // A missing/truncated result marker must fail loudly — never read as
-            // "0 errors" and let a partial import look successful.
-            process.stderr.write(apexErr || apexOut);
-            throw new StepError(`data import (${entry.sobject}) — ${parsed.error}`);
-          }
-          if (parsed.errors.length) {
-            for (const e of parsed.errors.slice(0, 5)) {
-              console.error(`    ${e.ref}: ${e.message.trim()}`);
+            let imported = 0;
+            for (const { start, count } of batches) {
+              const batch = records.slice(start, start + count);
+              const refIds = batch.map(
+                (r, j) => r.attributes?.referenceId || `_idx${start + j}`
+              );
+              const apex = buildApexInsert(entry.sobject, batch, refIds);
+              const tmpApex = writeApex("data.apex", apex);
+              const apexResult = spawnSync(
+                "sf",
+                ["apex", "run", "--target-org", targetOrg, "--file", tmpApex],
+                { cwd: ROOT, stdio: "pipe", shell: true, timeout: 120000 }
+              );
+              const apexOut = apexResult.stdout?.toString() || "";
+              const apexErr = apexResult.stderr?.toString() || "";
+              if (
+                apexResult.status !== 0 &&
+                !apexOut.includes("Compiled successfully")
+              ) {
+                process.stderr.write(apexErr || apexOut);
+                throw new StepError(`${entry.sobject}: apex execution failed`);
+              }
+              const parsed = parseApexInsertResults(apexOut);
+              if (!parsed.ok) {
+                // A missing/truncated result marker must fail loudly — never read as
+                // "0 errors" and let a partial import look successful.
+                process.stderr.write(apexErr || apexOut);
+                throw new StepError(
+                  `data import (${entry.sobject}) — ${parsed.error}`
+                );
+              }
+              if (parsed.errors.length) {
+                for (const e of parsed.errors.slice(0, 5)) {
+                  console.error(`    ${e.ref}: ${e.message.trim()}`);
+                }
+                if (parsed.errors.length > 5)
+                  console.error(`    ... and ${parsed.errors.length - 5} more`);
+                throw new StepError(
+                  `data import (${entry.sobject}) — ${parsed.errors.length} record error(s)`
+                );
+              }
+              if (entry.saveRefs) {
+                for (const s of parsed.successes) refMap.set(s.ref, s.id);
+              }
+              imported += parsed.successes.length;
             }
-            if (parsed.errors.length > 5) console.error(`    ... and ${parsed.errors.length - 5} more`);
-            throw new StepError(`data import (${entry.sobject}) — ${parsed.errors.length} record error(s)`);
+            console.log(`  ${entry.sobject}: imported ${imported} records`);
           }
-          if (entry.saveRefs) {
-            for (const s of parsed.successes) refMap.set(s.ref, s.id);
-          }
-          imported += parsed.successes.length;
         }
-        console.log(`  ${entry.sobject}: imported ${imported} records`);
-      }
-    }
+      });
     });
-   });
   } else {
-    recordSkipped(dataStep, dataStep.available ? 'not selected' : 'no data plan');
+    recordSkipped(
+      dataStep,
+      dataStep.available ? "not selected" : "no data plan"
+    );
   }
 
-  const graphqlStep = stepDefs.find((s) => s.key === 'graphql');
+  const graphqlStep = stepDefs.find((s) => s.key === "graphql");
   if (!skipGraphql) {
     await runStep(graphqlStep, targetOrg, () => {
-      run('UI Bundle npm install', 'npm', ['install'], { cwd: uiBundleDir });
-      run('GraphQL schema (introspect)', 'npm', ['run', 'graphql:schema'], {
+      run("UI Bundle npm install", "npm", ["install"], { cwd: uiBundleDir });
+      run("GraphQL schema (introspect)", "npm", ["run", "graphql:schema"], {
         cwd: uiBundleDir,
-        env: { ...process.env, SF_TARGET_ORG: targetOrg },
+        env: { ...process.env, SF_TARGET_ORG: targetOrg }
       });
-      run('GraphQL codegen', 'npm', ['run', 'graphql:codegen'], { cwd: uiBundleDir });
-      run('UI Bundle build (post-codegen)', 'npm', ['run', 'build'], { cwd: uiBundleDir });
+      run("GraphQL codegen", "npm", ["run", "graphql:codegen"], {
+        cwd: uiBundleDir
+      });
+      run("UI Bundle build (post-codegen)", "npm", ["run", "build"], {
+        cwd: uiBundleDir
+      });
     });
   } else {
-    recordSkipped(graphqlStep, 'not selected');
+    recordSkipped(graphqlStep, "not selected");
     if (!skipUIBundleBuild && skipDeploy && !preDeployBundlesBuilt) {
       // The pre-deploy build never ran (deploy was skipped); build here and
       // record the uiBundleBuild outcome that the pre-deploy branch would have.
       await runStep(uiBundleBuildStep, targetOrg, () => {
-        run('UI Bundle npm install', 'npm', ['install'], { cwd: uiBundleDir });
-        run('UI Bundle build', 'npm', ['run', 'build'], { cwd: uiBundleDir });
+        run("UI Bundle npm install", "npm", ["install"], { cwd: uiBundleDir });
+        run("UI Bundle build", "npm", ["run", "build"], { cwd: uiBundleDir });
       });
       preDeployBundlesBuilt = true;
     }
@@ -2326,7 +2782,11 @@ async function main() {
   // When uiBundleBuild was selected but the dedicated pre-deploy build never ran
   // (deploy skipped and graphql selected), the build happened inside the graphql
   // step — which is fail-fast, so reaching here means it succeeded. Record ok.
-  if (!skipUIBundleBuild && !preDeployBundlesBuilt && !results.some((r) => r.key === 'uiBundleBuild')) {
+  if (
+    !skipUIBundleBuild &&
+    !preDeployBundlesBuilt &&
+    !results.some((r) => r.key === "uiBundleBuild")
+  ) {
     recordOk(uiBundleBuildStep);
   }
 
@@ -2334,7 +2794,7 @@ async function main() {
   // no longer part of setup — run `npm run dev:preview` (scripts/org-setup-dev.mjs) for that.
   printSummary(targetOrg);
   if (finalExitCode() === 0) {
-    console.log('\nTo launch the dev server, run:  npm run dev:preview');
+    console.log("\nTo launch the dev server, run:  npm run dev:preview");
   }
   process.exit(finalExitCode());
 }

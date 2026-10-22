@@ -24,24 +24,29 @@
  *   6. npm run dev            (blocking, Ctrl+C to stop)
  */
 
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { run, resolveSfdxSource, discoverUIBundleDir, resolveTargetOrg } from './org-setup-utils.mjs';
+import {
+  run,
+  resolveSfdxSource,
+  discoverUIBundleDir,
+  resolveTargetOrg
+} from "./org-setup-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, '..');
+const ROOT = resolve(__dirname, "..");
 
 function parseArgs() {
   const args = process.argv.slice(2);
   let targetOrg = null;
   let uiBundleName = null;
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--target-org' && args[i + 1]) {
+    if (args[i] === "--target-org" && args[i + 1]) {
       targetOrg = args[++i];
-    } else if (args[i] === '--ui-bundle-name' && args[i + 1]) {
+    } else if (args[i] === "--ui-bundle-name" && args[i + 1]) {
       uiBundleName = args[++i];
-    } else if (args[i] === '--help' || args[i] === '-h') {
+    } else if (args[i] === "--help" || args[i] === "-h") {
       console.log(`
 Dev preview — refresh GraphQL types then launch the Vite dev server
 
@@ -64,20 +69,33 @@ async function main() {
   const parsed = parseArgs();
 
   const targetOrg = await resolveTargetOrg(parsed);
-  const uiBundlesDir = resolve(resolveSfdxSource(ROOT), 'uiBundles');
-  const uiBundleDir = await discoverUIBundleDir(uiBundlesDir, parsed.uiBundleName);
+  const uiBundlesDir = resolve(resolveSfdxSource(ROOT), "uiBundles");
+  const uiBundleDir = await discoverUIBundleDir(
+    uiBundlesDir,
+    parsed.uiBundleName
+  );
 
-  console.log('Dev preview — target org:', targetOrg, '| UI bundle:', uiBundleDir);
+  console.log(
+    "Dev preview — target org:",
+    targetOrg,
+    "| UI bundle:",
+    uiBundleDir
+  );
 
-  run('UI Bundle npm install', 'npm', ['install'], { cwd: uiBundleDir });
-  run('GraphQL schema (introspect)', 'npm', ['run', 'graphql:schema'], {
+  run("UI Bundle npm install", "npm", ["install"], { cwd: uiBundleDir });
+  run("GraphQL schema (introspect)", "npm", ["run", "graphql:schema"], {
     cwd: uiBundleDir,
-    env: { ...process.env, SF_TARGET_ORG: targetOrg },
+    env: { ...process.env, SF_TARGET_ORG: targetOrg }
   });
-  run('GraphQL codegen', 'npm', ['run', 'graphql:codegen'], { cwd: uiBundleDir });
+  run("GraphQL codegen", "npm", ["run", "graphql:codegen"], {
+    cwd: uiBundleDir
+  });
 
-  console.log('\n--- Launching dev server (Ctrl+C to stop) ---\n');
-  const devResult = run('Dev server', 'npm', ['run', 'dev'], { cwd: uiBundleDir, optional: true });
+  console.log("\n--- Launching dev server (Ctrl+C to stop) ---\n");
+  const devResult = run("Dev server", "npm", ["run", "dev"], {
+    cwd: uiBundleDir,
+    optional: true
+  });
   process.exit(devResult.status ?? 0);
 }
 

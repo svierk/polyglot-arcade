@@ -1,10 +1,15 @@
 {
-  "name": "@salesforce/ui-bundle-template-base-sfdx-project",
-  "version": "11.64.0",
-  "description": "Base SFDX project template",
-  "license": "SEE LICENSE IN LICENSE.txt",
-  "publishConfig": {
-    "access": "public"
+  "name": "polyglot-arcade",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Retro arcade on the Salesforce Platform showing Salesforce Multi-Framework: an Angular hub, a React cabinet and an LWC microfrontend host sharing CRM data.",
+  "author": {
+    "name": "Sebastiano Schwarz",
+    "url": "https://github.com/svierk"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "24.x.x"
   },
   "scripts": {
     "sf-project-setup": "node scripts/sf-project-setup.mjs",
@@ -18,8 +23,8 @@
     "test:unit:watch": "sfdx-lwc-jest --watch",
     "test:unit:debug": "sfdx-lwc-jest --debug",
     "test:unit:coverage": "sfdx-lwc-jest --coverage",
-    "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,mjs,json,md,page,trigger,ts,tsx,xml,yaml,yml}\"",
+    "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,mjs,json,md,page,trigger,ts,tsx,xml,yaml,yml}\"",
     "precommit": "lint-staged",
     "setup": "node scripts/org-setup.mjs",
     "dev:preview": "node scripts/org-setup-dev.mjs"
@@ -31,6 +36,7 @@
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^3.3.0",
     "@prettier/plugin-xml": "^3.2.2",
+    "@sa11y/jest": "^8.2.1",
     "@salesforce/eslint-config-lwc": "^4.1.0",
     "@salesforce/eslint-plugin-aura": "^3.0.0",
     "@salesforce/eslint-plugin-lightning": "^2.0.0",
