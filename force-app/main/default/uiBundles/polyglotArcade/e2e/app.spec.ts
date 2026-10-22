@@ -34,6 +34,19 @@ test.describe('Polyglot Arcade hub', () => {
     }
   });
 
+  test('Brick Breaker: start, launch, pause and resume', async ({ page }) => {
+    await page.goto('/play/brick-breaker');
+    await expect(page.getByRole('heading', { name: 'Brick Breaker' })).toBeVisible();
+    await page.getByRole('button', { name: 'Press start' }).click();
+    await expect(page.getByLabel('3 lives left')).toBeVisible();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('p');
+    await expect(page.getByText('Paused')).toBeVisible();
+    await page.getByRole('button', { name: 'Resume' }).click();
+    await expect(page.getByText('Paused')).toBeHidden();
+  });
+
   test('hall of fame and 404 pages render', async ({ page }) => {
     await page.goto('/leaderboard');
     await expect(page.getByRole('heading', { name: 'Hall of fame' })).toBeVisible();

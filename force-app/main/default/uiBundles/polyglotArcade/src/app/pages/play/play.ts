@@ -6,6 +6,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { RouterLink } from '@angular/router';
 import { ArcadeApi } from '../../api/arcade-api.service';
 import { LeaderboardTableComponent } from '../../components/leaderboard-table/leaderboard-table';
+import { BrickBreakerComponent } from '../../games/brick-breaker/brick-breaker';
 import { FourInARowComponent } from '../../games/four-in-a-row/four-in-a-row';
 import { findHubGame } from '../../games/registry';
 import type { GameResult } from '../../games/types';
@@ -18,7 +19,7 @@ type SaveState =
 @Component({
   selector: 'app-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, FourInARowComponent, LeaderboardTableComponent],
+  imports: [RouterLink, BrickBreakerComponent, FourInARowComponent, LeaderboardTableComponent],
   templateUrl: './play.html',
 })
 export class PlayComponent {

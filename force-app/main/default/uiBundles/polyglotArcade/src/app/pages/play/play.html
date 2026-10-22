@@ -8,6 +8,9 @@
         <!-- Tracking the round re-creates the game for a fresh start. -->
         @for (r of [round()]; track r) {
           @switch (game.key) {
+            @case ('brick-breaker') {
+              <app-brick-breaker class="w-full" (gameOver)="onGameOver($event)" />
+            }
             @case ('four-in-a-row') {
               <app-four-in-a-row class="w-full" (gameOver)="onGameOver($event)" />
             }
