@@ -63,7 +63,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^16.5.0",
     "graphql": "^16.11.0",
     "graphql-codegen-typescript-operation-types": "^2.0.2",
