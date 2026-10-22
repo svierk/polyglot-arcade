@@ -1,0 +1,20 @@
+<div class="w-full" [ngClass]="wrapperClasses()">
+	@if (label()) {
+		<label [for]="labelId" class="text-sm leading-none font-medium select-none mb-1.5 block">
+			{{ label() }}
+		</label>
+	}
+	<hlm-date-range-picker
+		[date]="dateRange()"
+		(dateChange)="onRangeChange($event)"
+		[disabled]="disabled()"
+		[minDate]="min()"
+		[maxDate]="max()"
+	>
+		<hlm-date-range-input
+			[inputId]="labelId"
+			[placeholder]="startPlaceholder() + ' — ' + endPlaceholder()"
+			[readonly]="readonly()"
+		/>
+	</hlm-date-range-picker>
+</div>

@@ -1,0 +1,22 @@
+<app-filter-field-wrapper
+	[label]="config().label"
+	[helpText]="config().helpText"
+	[error]="errorMessage()"
+>
+	<div class="flex gap-2">
+		<app-input
+			class="flex-1"
+			type="number"
+			placeholder="Min"
+			[value]="localMin()"
+			(valueChange)="onMinChange($event)"
+		/>
+		<app-input
+			class="flex-1"
+			type="number"
+			placeholder="Max"
+			[value]="localMax()"
+			(valueChange)="onMaxChange($event)"
+		/>
+	</div>
+</app-filter-field-wrapper>

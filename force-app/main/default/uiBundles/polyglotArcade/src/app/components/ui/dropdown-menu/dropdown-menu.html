@@ -1,0 +1,20 @@
+<button
+	[hlmDropdownMenuTrigger]="menuTpl"
+	[align]="align()"
+	[side]="side()"
+	type="button"
+	[class]="triggerClass()"
+	[attr.aria-label]="ariaLabel()"
+>
+	<ng-content select="[trigger]" />
+</button>
+<ng-template #menuTpl>
+	<div
+		hlmDropdownMenu
+		appDropdownMenuInjector
+		#menuInjector="appDropdownMenuInjector"
+		[sideOffset]="sideOffset()"
+	>
+		<ng-container *ngTemplateOutlet="content().templateRef; injector: menuInjector.injector" />
+	</div>
+</ng-template>

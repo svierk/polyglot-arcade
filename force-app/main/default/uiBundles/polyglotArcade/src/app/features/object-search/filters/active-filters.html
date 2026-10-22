@@ -1,0 +1,23 @@
+@if (chips().length > 0) {
+<div class="flex flex-wrap gap-2">
+	@for (chip of chips(); track chip.field) {
+	<app-button
+		appearance="outlined"
+		size="sm"
+		iconEnd="close"
+		[ariaLabel]="'Remove filter ' + chip.label"
+		(clicked)="onRemove(chip.field)"
+	>
+		{{ chip.label }}
+	</app-button>
+	}
+	<app-button
+		appearance="destructive"
+		size="sm"
+		ariaLabel="Clear all filters"
+		(clicked)="onClearAll()"
+	>
+		Clear all
+	</app-button>
+</div>
+}
