@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Published by the Pixel Cabinet Host when an embedded round ends, so leaderboards on the same page refresh.</description>
+    <isExposed>true</isExposed>
+    <lightningMessageFields>
+        <description
+    >Game key of the finished round, e.g. block-drop.</description>
+        <fieldName>gameKey</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>Final score of the round.</description>
+        <fieldName>score</fieldName>
+    </lightningMessageFields>
+    <masterLabel>Arcade Score Channel</masterLabel>
+</LightningMessageChannel>

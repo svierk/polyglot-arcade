@@ -1,0 +1,32 @@
+<template>
+  <lightning-card title={cardTitle} icon-name="custom:custom48">
+    <lightning-button-icon
+      slot="actions"
+      icon-name="utility:refresh"
+      alternative-text="Refresh leaderboard"
+      onclick={refresh}
+    ></lightning-button-icon>
+    <template lwc:if={error}>
+      <div class="slds-p-horizontal_medium slds-text-color_error">{error}</div>
+    </template>
+    <template lwc:elseif={hasRows}>
+      <ol class="board">
+        <template for:each={rows} for:item="row">
+          <li key={row.id} class="entry">
+            <span class="rank">{row.rank}</span>
+            <span class="who">
+              <span class="player">{row.player}</span>
+              <span class="meta">{row.game} · {row.source}</span>
+            </span>
+            <span class="score">{row.score}</span>
+          </li>
+        </template>
+      </ol>
+    </template>
+    <template lwc:else>
+      <p class="slds-p-horizontal_medium slds-text-color_weak">
+        No scores yet. Be the first on the board!
+      </p>
+    </template>
+  </lightning-card>
+</template>

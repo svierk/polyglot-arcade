@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cardTitle</name>
+                    <value>Block Drop</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>game</name>
+                    <value>block-drop</value>
+                </componentInstanceProperties>
+                <componentName>pixelCabinetHost</componentName>
+                <identifier>c_pixelCabinetHost</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>column1</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cardTitle</name>
+                    <value>Block Drop Champions</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>gameKey</name>
+                    <value>block-drop</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxEntries</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentName>arcadeLeaderboard</componentName>
+                <identifier>c_arcadeLeaderboard</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>column2</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <masterLabel>Arcade Break Room</masterLabel>
+    <description
+  >Microfrontend demo: the React Block Drop game embedded next to a native LWC leaderboard.</description>
+    <template>
+        <name>flexipage:appHomeTemplateTwoColumns</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>
