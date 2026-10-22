@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Game_Key__c</fullName>
+    <description
+  >Stable slug used by the UI bundles to route to and identify a game (e.g. block-drop).</description>
+    <externalId>true</externalId>
+    <label>Game Key</label>
+    <length>40</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>true</unique>
+    <caseSensitive>false</caseSensitive>
+</CustomField>

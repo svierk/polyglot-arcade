@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Source__c</fullName>
+    <description
+  >Surface the round was played on. Shows which integration pattern produced the score.</description>
+    <label>Source</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Polyglot Arcade</fullName>
+                <default>false</default>
+                <label>Polyglot Arcade</label>
+            </value>
+            <value>
+                <fullName>Pixel Cabinet</fullName>
+                <default>false</default>
+                <label>Pixel Cabinet</label>
+            </value>
+            <value>
+                <fullName>Embedded</fullName>
+                <default>false</default>
+                <label>Embedded</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

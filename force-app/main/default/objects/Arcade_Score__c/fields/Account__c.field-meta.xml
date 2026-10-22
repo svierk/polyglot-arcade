@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Account__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description
+  >Set when the round was played from an embedded cabinet on an Account record page.</description>
+    <label>Account</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Arcade Scores</relationshipLabel>
+    <relationshipName>Arcade_Scores</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>
