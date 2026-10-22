@@ -1,75 +1,35 @@
-# Base React App
+# Pixel Cabinet (React)
 
-Base React App is a template application that demonstrates how to build a React UI Bundle on the Salesforce platform with Vite, TypeScript, Tailwind, shadcn/ui, and the Salesforce UI Bundle SDK. It provides a minimal shell (home, 404), routing, and GraphQL codegen support so feature apps can extend it via the patches pipeline.
+The React UI bundle of [Polyglot Arcade](../../../../../README.md): the real-time games, launchable from the App Launcher and embeddable in Lightning pages as a microfrontend through the `pixelCabinetHost` LWC.
 
-This UI Bundle lives inside an SFDX project. The project root is the directory that contains `force-app/` and `sfdx-project.json`. Run the commands in the sections below from the paths indicated.
+| Route            | Purpose                                                                                 |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| `/`              | Lobby of the cabinet games                                                              |
+| `/play/:gameKey` | A game with its leaderboard, e.g. `/play/block-drop`                                    |
+| `/embed`         | Chromeless surface framed by `<lightning-ui-embedding>`; the game comes from host props |
 
-## Table of contents
+## Structure
 
-- [Run (development)](#run-development)
-- [Build](#build)
-- [Deploy](#deploy)
-- [Test](#test)
-
-## Run (development)
-
-From the UI Bundle directory (`force-app/main/default/uiBundles/base-react-app`):
-
-```bash
-npm install
-npm run dev
+```
+src/
+├── api/            Data SDK access: games, scores, leaderboards (GraphQL)
+├── cabinet/        Layouts (standalone + embed), GameStage, Leaderboard
+├── embedding/      View SDK bridge: host props in, gameover event out
+├── games/          registry, shared types, block-drop/ (engine.ts + BlockDrop.tsx)
+├── pages/          Lobby, GamePage, NotFound
+└── styles/         Tailwind base + shared arcade theme (arcade.css)
 ```
 
-This starts the Vite dev server (e.g. http://localhost:5173). Use `npm run dev:design` to run in design mode.
+## Commands
 
-## Build
-
-From the UI Bundle directory:
+Run from this folder:
 
 ```bash
-npm install
-npm run build
+npm run dev          # Vite dev server, data calls proxied to the default org
+npm run build        # type check + production build into dist/
+npm run lint         # ESLint (incl. GraphQL operations once schema.graphql exists)
+npx vitest run       # unit tests (game engines)
+npm run build:e2e && npx playwright test   # end-to-end tests against the built app, no org needed
 ```
 
-The production build is written to `dist/` inside the UI Bundle folder. Deploy using the steps in [Deploy](#deploy).
-
-## Deploy
-
-From the **SFDX project root** (the directory that contains `force-app/`):
-
-1. Build the UI Bundle:
-
-   ```bash
-   cd force-app/main/default/uiBundles/base-react-app && npm install && npm run build && cd -
-   ```
-
-2. Deploy the UI Bundle only:
-
-   ```bash
-   sf project deploy start --source-dir force-app/main/default/ui-bundles --target-org <alias>
-   ```
-
-   Or deploy all metadata:
-
-   ```bash
-   sf project deploy start --source-dir force-app --target-org <alias>
-   ```
-
-   Replace `<alias>` with your target org alias.
-
-## Test
-
-From the UI Bundle directory:
-
-```bash
-npm install
-npm run test
-```
-
-This runs the unit test suite (Vitest). For end-to-end tests from the **base-react-app package root**:
-
-```bash
-npm run test:e2e
-```
-
-This installs dependencies, builds with E2E asset rewrites, and runs Playwright. Ensure Chromium is installed (`npx playwright install chromium` if needed).
+Deploy from the project root with `sf project deploy start --source-dir force-app/main/default/uiBundles/pixelCabinet`. The bundle is deployed with its built `dist/` folder, so build before deploying.

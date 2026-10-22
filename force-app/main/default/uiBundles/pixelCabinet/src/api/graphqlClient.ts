@@ -4,7 +4,7 @@
  * sdk.graphql.query (the SDK rejects an operation sent to the wrong method).
  * Use with gql-tagged queries and generated operation types for type-safe calls.
  */
-import { createDataSDK } from '@salesforce/platform-sdk';
+import { createDataSDK, type CacheControl } from '@salesforce/platform-sdk';
 
 /**
  * True when the operation's first definition is a `mutation`. Strips GraphQL
@@ -18,7 +18,8 @@ function isMutation(operation: string): boolean {
 
 export async function executeGraphQL<TData, TVariables>(
   operation: string,
-  variables?: TVariables
+  variables?: TVariables,
+  options: { cacheControl?: CacheControl } = {}
 ): Promise<TData> {
   const data = await createDataSDK();
   const result = isMutation(operation)
@@ -29,6 +30,7 @@ export async function executeGraphQL<TData, TVariables>(
     : await data.graphql!.query<TData, TVariables>({
         query: operation,
         variables: variables,
+        cacheControl: options.cacheControl,
       });
 
   if (result.errors?.length) {

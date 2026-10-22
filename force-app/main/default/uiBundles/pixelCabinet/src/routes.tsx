@@ -1,22 +1,20 @@
 import type { RouteObject } from 'react-router';
-import AppLayout from '@/appLayout';
-import Home from './pages/Home';
+import CabinetLayout from '@/cabinet/CabinetLayout';
+import EmbedLayout from '@/cabinet/EmbedLayout';
+import GamePage from './pages/GamePage';
+import Lobby from './pages/Lobby';
 import NotFound from './pages/NotFound';
 
 export const routes: RouteObject[] = [
   {
     path: '/',
-    element: <AppLayout />,
+    element: <CabinetLayout />,
     children: [
-      {
-        index: true,
-        element: <Home />,
-        handle: { showInNavigation: true, label: 'Home' },
-      },
-      {
-        path: '*',
-        element: <NotFound />,
-      },
+      { index: true, element: <Lobby /> },
+      { path: 'play/:gameKey', element: <GamePage /> },
+      { path: '*', element: <NotFound /> },
     ],
   },
+  // Framed by the Pixel Cabinet Host LWC via <lightning-ui-embedding>.
+  { path: '/embed', element: <EmbedLayout /> },
 ];
