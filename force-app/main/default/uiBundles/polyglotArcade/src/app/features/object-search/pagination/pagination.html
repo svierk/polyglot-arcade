@@ -1,0 +1,8 @@
+<app-paginator
+	[length]="totalCount() ?? 0"
+	[pageIndex]="pageIndex()"
+	[pageSize]="pageSize()"
+	[pageSizeOptions]="pageSizeOptions()"
+	[disabled]="disabled()"
+	(page)="onPage($event)"
+/>

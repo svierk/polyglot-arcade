@@ -1,0 +1,13 @@
+<hlm-popover
+	[align]="align()"
+	[sideOffset]="sideOffset()"
+	[state]="open() ? 'open' : 'closed'"
+	(stateChanged)="onStateChanged($event)"
+>
+	<button hlmPopoverTrigger type="button" [class]="triggerClass()" [attr.aria-label]="ariaLabel()">
+		<ng-content select="[trigger]" />
+	</button>
+	<div hlmPopoverContent *hlmPopoverPortal>
+		<ng-content />
+	</div>
+</hlm-popover>

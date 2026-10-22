@@ -1,0 +1,93 @@
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+	<app-object-breadcrumb listPath="/accounts" listLabel="Accounts" />
+
+	<h1 class="text-2xl font-bold mb-4">Search Accounts</h1>
+
+	<div class="flex flex-col lg:flex-row gap-6">
+		<aside class="w-full lg:w-80 shrink-0">
+			<app-collapsible title="Filters" [(open)]="filtersOpen">
+				<div class="space-y-1">
+					<app-search-filter [config]="searchConfig" />
+					<app-text-filter [config]="nameConfig" />
+					<app-select-filter [config]="industryConfig()" />
+					<app-multi-select-filter [config]="typeConfig()" />
+					<app-numeric-range-filter [config]="revenueConfig" />
+					<app-date-filter [config]="createdConfig" filterType="datetime" />
+					<app-date-range-filter [config]="lastModifiedConfig" filterType="datetimerange" />
+				</div>
+			</app-collapsible>
+		</aside>
+
+		<div class="flex-1 min-w-0">
+			<div class="flex flex-wrap items-center gap-2 mb-4">
+				<app-sort-control [sortFields]="sortConfigs" />
+				<app-active-filters />
+			</div>
+
+			<div class="min-h-132" [attr.aria-busy]="loading()">
+				@if (loading()) {
+				<app-skeleton class="h-5 w-30 mb-3" />
+				<div class="divide-y">
+					@for (row of skeletonRows(); track row) {
+					<div class="flex items-center justify-between py-3">
+						<div class="space-y-2">
+							<app-skeleton class="h-5 w-40" />
+							<app-skeleton class="h-4 w-28" />
+						</div>
+						<div class="space-y-2 flex flex-col items-end">
+							<app-skeleton class="h-4 w-24" />
+							<app-skeleton class="h-4 w-20" />
+						</div>
+					</div>
+					}
+				</div>
+				} @else if (error()) {
+				<p class="text-sm text-muted-foreground mb-3">0 accounts found</p>
+				<app-alert
+					variant="destructive"
+					icon="error"
+					title="Failed to load accounts"
+					description="Something went wrong while loading accounts. Please try again later."
+				/>
+				} @else if (nodes().length > 0) {
+				<p class="text-sm text-muted-foreground mb-3">{{ resultCountLabel() }}</p>
+				<ul class="divide-y">
+					@for (node of nodes(); track node.Id) {
+					<li>
+						<a
+							[routerLink]="['/accounts', node.Id]"
+							class="flex items-center justify-between py-3 px-3 -mx-3 rounded-md transition-colors hover:bg-accent"
+						>
+							<div>
+								<span class="font-medium">{{ name(node) }}</span>
+								<p class="text-sm text-muted-foreground">{{ secondaryLine(node) }}</p>
+							</div>
+							<div class="text-right text-sm">
+								<p>{{ phone(node) }}</p>
+								<p class="text-muted-foreground">{{ ownerName(node) }}</p>
+							</div>
+						</a>
+					</li>
+					}
+				</ul>
+				} @else {
+				<div class="flex flex-col items-center justify-center py-16 text-center">
+					<app-icon name="noResults" size="3rem" class="text-muted-foreground mb-4" />
+					<h2 class="text-lg font-semibold mb-1">No accounts found</h2>
+					<p class="text-sm text-muted-foreground">
+						Try adjusting your filters or search criteria.
+					</p>
+				</div>
+				}
+			</div>
+
+			<app-pagination-controls
+				[totalCount]="totalCount()"
+				[hasNextPage]="hasNextPage()"
+				[endCursor]="endCursor()"
+				[pageSizeOptions]="pageSizeOptions"
+				[disabled]="controlsDisabled()"
+			/>
+		</div>
+	</div>
+</div>

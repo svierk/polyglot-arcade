@@ -1,0 +1,18 @@
+<app-filter-field-wrapper [label]="config().label" [helpText]="config().helpText">
+	<div class="flex gap-2">
+		<app-select
+			class="flex-1"
+			[options]="operatorOptions"
+			[value]="operator()"
+			(valueChange)="onOperatorChange($event)"
+		/>
+		<app-date-picker
+			class="flex-1"
+			placeholder="Pick a date"
+			[readonly]="true"
+			[max]="maxDate()"
+			[value]="currentDate()"
+			(valueChange)="onDateChange($event)"
+		/>
+	</div>
+</app-filter-field-wrapper>

@@ -1,0 +1,34 @@
+<nav aria-label="Breadcrumb" class="mb-3">
+	<ol
+		class="text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5"
+	>
+		@if (includeHome()) {
+		<li class="inline-flex items-center gap-1.5">
+			<a [routerLink]="'/'" class="hover:text-foreground transition-colors">{{ homeLabel() }}</a>
+		</li>
+		<li aria-hidden="true">
+			<app-icon name="chevronRight" size="14px" class="flex" />
+		</li>
+		} @if (isDetailView()) {
+		<li class="inline-flex items-center gap-1.5">
+			<a [routerLink]="listPath()" class="hover:text-foreground transition-colors"
+				>{{ listLabel() }}</a
+			>
+		</li>
+		<li aria-hidden="true">
+			<app-icon name="chevronRight" size="14px" class="flex" />
+		</li>
+		<li class="inline-flex items-center gap-1.5">
+			@if (loading() && !recordName()) {
+			<app-skeleton class="h-4 w-32" />
+			} @else {
+			<span class="text-foreground font-normal" aria-current="page">{{ recordName() }}</span>
+			}
+		</li>
+		} @else {
+		<li class="inline-flex items-center gap-1.5">
+			<span class="text-foreground font-normal" aria-current="page">{{ listLabel() }}</span>
+		</li>
+		}
+	</ol>
+</nav>
