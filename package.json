@@ -27,7 +27,8 @@
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,mjs,json,md,page,trigger,ts,tsx,xml,yaml,yml}\"",
     "precommit": "lint-staged",
     "setup": "node scripts/org-setup.mjs",
-    "dev:preview": "node scripts/org-setup-dev.mjs"
+    "dev:preview": "node scripts/org-setup-dev.mjs",
+    "connect:cabinet": "node scripts/connect-cabinet.mjs"
   },
   "dependencies": {
     "fast-xml-parser": "^5.9.3",
