@@ -8,7 +8,7 @@ export interface HubGame {
 
 export const HUB_GAMES: readonly HubGame[] = [
   { key: 'four-in-a-row', name: 'Four in a Row', available: true },
-  { key: 'brick-breaker', name: 'Brick Breaker', available: false },
+  { key: 'brick-breaker', name: 'Brick Breaker', available: true },
 ];
 
 export function findHubGame(key: string | null | undefined): HubGame | undefined {

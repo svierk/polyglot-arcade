@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  outline: none;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hearts {
+  color: #fb7185;
+  letter-spacing: 0.1em;
+}
+
+.board {
+  display: block;
+  width: 100%;
+  /* The pointer steers the paddle; don't let touch scroll the page instead. */
+  touch-action: none;
+  cursor: ew-resize;
+}

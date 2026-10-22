@@ -1,7 +1,7 @@
 {
   "name": "pixel-cabinet",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pixel Cabinet: React UI bundle with the real-time games, standalone and embeddable as a microfrontend.",
   "author": {
     "name": "Sebastiano Schwarz",
