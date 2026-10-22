@@ -91,6 +91,10 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <tabSettings>
+        <tab>Arcade_Break_Room</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
         <tab>Arcade_Game__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>

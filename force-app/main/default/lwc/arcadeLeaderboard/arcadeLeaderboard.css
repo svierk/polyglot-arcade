@@ -1,0 +1,45 @@
+.board {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--slds-g-spacing-4, 1rem);
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--slds-g-color-border-1, #e5e5e5);
+}
+
+.entry:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  width: 2rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.player {
+  font-weight: 600;
+}
+
+.meta {
+  font-size: 0.75rem;
+  color: var(--slds-g-color-on-surface-1, #747474);
+}
+
+.score {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-weight: 700;
+  font-size: 1rem;
+}
