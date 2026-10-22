@@ -1,27 +1,27 @@
 @if (icon()) {
-	<ng-icon
-		[name]="icon()"
-		class="row-span-2 translate-y-0.5 size-4 text-base leading-4"
-		aria-hidden="true"
-	/>
+  <ng-icon
+    [name]="icon()"
+    class="row-span-2 translate-y-0.5 size-4 text-base leading-4"
+    aria-hidden="true"
+  />
 }
 <ng-content select="[icon]" />
 
 @if (title()) {
-	<div hlmAlertTitle>{{ title() }}</div>
+  <div hlmAlertTitle>{{ title() }}</div>
 }
 @if (description()) {
-	<div
-		hlmAlertDescription
-		[class.text-muted-foreground]="variant() === 'default'"
-		[class.text-destructive]="variant() === 'destructive'"
-	>
-		{{ description() }}
-	</div>
+  <div
+    hlmAlertDescription
+    [class.text-muted-foreground]="variant() === 'default'"
+    [class.text-destructive]="variant() === 'destructive'"
+  >
+    {{ description() }}
+  </div>
 }
 
 <div class="text-sm empty:hidden group-has-[>ng-icon]/alert:col-start-2">
-	<ng-content />
+  <ng-content />
 </div>
 
 <ng-content select="app-alert-action" />

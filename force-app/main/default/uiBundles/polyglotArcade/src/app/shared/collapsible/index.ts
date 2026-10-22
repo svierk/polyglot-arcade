@@ -7,7 +7,7 @@ export * from './hlm-collapsible-content';
 export * from './hlm-collapsible-trigger';
 
 export const HlmCollapsibleImports = [
-	HlmCollapsible,
-	HlmCollapsibleContent,
-	HlmCollapsibleTrigger,
+  HlmCollapsible,
+  HlmCollapsibleContent,
+  HlmCollapsibleTrigger,
 ] as const;

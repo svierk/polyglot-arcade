@@ -7,15 +7,15 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, input, model } fr
 import { HlmCollapsibleImports } from '@spartan-ng/styles/collapsible';
 
 @Component({
-	selector: 'app-collapsible',
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [HlmCollapsibleImports],
-	templateUrl: './collapsible.html',
+  selector: 'app-collapsible',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HlmCollapsibleImports],
+  templateUrl: './collapsible.html',
 })
 export class CollapsibleComponent {
-	readonly open = model<boolean>(false);
-	readonly title = input<string>('');
-	readonly disabled = input(false, { transform: booleanAttribute });
+  readonly open = model<boolean>(false);
+  readonly title = input<string>('');
+  readonly disabled = input(false, { transform: booleanAttribute });
 }
 
 export const CollapsibleImports = [CollapsibleComponent] as const;

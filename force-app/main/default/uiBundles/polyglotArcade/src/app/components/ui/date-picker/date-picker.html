@@ -1,20 +1,20 @@
 <div class="w-full" [ngClass]="wrapperClasses()">
-	@if (label()) {
-		<label [for]="labelId" class="text-sm leading-none font-medium select-none mb-1.5 block">
-			{{ label() }}
-		</label>
-	}
-	<hlm-date-picker
-		[date]="value() ?? undefined"
-		(dateChange)="value.set($event)"
-		[disabled]="disabled()"
-		[minDate]="min()"
-		[maxDate]="max()"
-	>
-		<hlm-date-picker-input
-			[inputId]="labelId"
-			[placeholder]="placeholder()"
-			[readonly]="readonly()"
-		/>
-	</hlm-date-picker>
+  @if (label()) {
+    <label [for]="labelId" class="text-sm leading-none font-medium select-none mb-1.5 block">
+      {{ label() }}
+    </label>
+  }
+  <hlm-date-picker
+    [date]="value() ?? undefined"
+    (dateChange)="value.set($event)"
+    [disabled]="disabled()"
+    [minDate]="min()"
+    [maxDate]="max()"
+  >
+    <hlm-date-picker-input
+      [inputId]="labelId"
+      [placeholder]="placeholder()"
+      [readonly]="readonly()"
+    />
+  </hlm-date-picker>
 </div>

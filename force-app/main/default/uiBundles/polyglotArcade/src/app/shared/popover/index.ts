@@ -15,11 +15,11 @@ export * from './hlm-popover-title';
 export * from './hlm-popover-trigger';
 
 export const HlmPopoverImports = [
-	HlmPopover,
-	HlmPopoverContent,
-	HlmPopoverDescription,
-	HlmPopoverHeader,
-	HlmPopoverPortal,
-	HlmPopoverTitle,
-	HlmPopoverTrigger,
+  HlmPopover,
+  HlmPopoverContent,
+  HlmPopoverDescription,
+  HlmPopoverHeader,
+  HlmPopoverPortal,
+  HlmPopoverTitle,
+  HlmPopoverTrigger,
 ] as const;

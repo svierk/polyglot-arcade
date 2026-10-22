@@ -1,74 +1,74 @@
 @if (!hidePageSize()) {
-	<div class="flex items-center gap-2">
-		<span [id]="pageSizeLabelId" class="text-muted-foreground text-nowrap">Items per page:</span>
-		@if (pageSizeOptions().length > 0) {
-			<select
-				class="h-8 rounded-md border border-input bg-background px-2 text-sm"
-				[attr.aria-labelledby]="pageSizeLabelId"
-				[disabled]="disabled()"
-				(change)="onPageSizeChange($event)"
-			>
-				@for (opt of pageSizeOptions(); track opt) {
-					<option [value]="opt" [selected]="opt === pageSize()">{{ opt }}</option>
-				}
-			</select>
-		} @else {
-			<span class="text-muted-foreground">{{ pageSize() }}</span>
-		}
-	</div>
+  <div class="flex items-center gap-2">
+    <span [id]="pageSizeLabelId" class="text-muted-foreground text-nowrap">Items per page:</span>
+    @if (pageSizeOptions().length > 0) {
+      <select
+        class="h-8 rounded-md border border-input bg-background px-2 text-sm"
+        [attr.aria-labelledby]="pageSizeLabelId"
+        [disabled]="disabled()"
+        (change)="onPageSizeChange($event)"
+      >
+        @for (opt of pageSizeOptions(); track opt) {
+          <option [value]="opt" [selected]="opt === pageSize()">{{ opt }}</option>
+        }
+      </select>
+    } @else {
+      <span class="text-muted-foreground">{{ pageSize() }}</span>
+    }
+  </div>
 }
 <div class="text-muted-foreground text-nowrap">
-	{{ rangeLabel() }}
+  {{ rangeLabel() }}
 </div>
 <nav hlmPagination class="w-auto mx-0">
-	<ul hlmPaginationContent>
-		@if (showFirstLastButtons()) {
-			<li hlmPaginationItem>
-				<button
-					type="button"
-					class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
-					[disabled]="disabled() || clampedPageIndex() === 0"
-					(click)="goToPage(0)"
-					aria-label="First page"
-				>
-					<ng-icon name="lucideChevronFirst" size="16" />
-				</button>
-			</li>
-		}
-		<li hlmPaginationItem>
-			<button
-				type="button"
-				class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
-				[disabled]="disabled() || clampedPageIndex() === 0"
-				(click)="goToPage(clampedPageIndex() - 1)"
-				aria-label="Previous page"
-			>
-				<ng-icon name="lucideChevronLeft" size="16" />
-			</button>
-		</li>
-		<li hlmPaginationItem>
-			<button
-				type="button"
-				class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
-				[disabled]="disabled() || clampedPageIndex() >= lastPage()"
-				(click)="goToPage(clampedPageIndex() + 1)"
-				aria-label="Next page"
-			>
-				<ng-icon name="lucideChevronRight" size="16" />
-			</button>
-		</li>
-		@if (showFirstLastButtons()) {
-			<li hlmPaginationItem>
-				<button
-					type="button"
-					class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
-					[disabled]="disabled() || clampedPageIndex() >= lastPage()"
-					(click)="goToPage(lastPage())"
-					aria-label="Last page"
-				>
-					<ng-icon name="lucideChevronLast" size="16" />
-				</button>
-			</li>
-		}
-	</ul>
+  <ul hlmPaginationContent>
+    @if (showFirstLastButtons()) {
+      <li hlmPaginationItem>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
+          [disabled]="disabled() || clampedPageIndex() === 0"
+          (click)="goToPage(0)"
+          aria-label="First page"
+        >
+          <ng-icon name="lucideChevronFirst" size="16" />
+        </button>
+      </li>
+    }
+    <li hlmPaginationItem>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
+        [disabled]="disabled() || clampedPageIndex() === 0"
+        (click)="goToPage(clampedPageIndex() - 1)"
+        aria-label="Previous page"
+      >
+        <ng-icon name="lucideChevronLeft" size="16" />
+      </button>
+    </li>
+    <li hlmPaginationItem>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
+        [disabled]="disabled() || clampedPageIndex() >= lastPage()"
+        (click)="goToPage(clampedPageIndex() + 1)"
+        aria-label="Next page"
+      >
+        <ng-icon name="lucideChevronRight" size="16" />
+      </button>
+    </li>
+    @if (showFirstLastButtons()) {
+      <li hlmPaginationItem>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center size-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none"
+          [disabled]="disabled() || clampedPageIndex() >= lastPage()"
+          (click)="goToPage(lastPage())"
+          aria-label="Last page"
+        >
+          <ng-icon name="lucideChevronLast" size="16" />
+        </button>
+      </li>
+    }
+  </ul>
 </nav>

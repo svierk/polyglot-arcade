@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createDataSDK } from '@salesforce/platform-sdk';
+import { createDataSDK, type CacheControl } from '@salesforce/platform-sdk';
 
 /**
  * True when the operation's first definition is a `mutation`. Strips GraphQL
@@ -8,7 +8,7 @@ import { createDataSDK } from '@salesforce/platform-sdk';
  * query().
  */
 function isMutation(operation: string): boolean {
-	return /^\s*mutation\b/.test(operation.replace(/#[^\n\r]*/g, ''));
+  return /^\s*mutation\b/.test(operation.replace(/#[^\n\r]*/g, ''));
 }
 
 /**
@@ -28,47 +28,49 @@ function isMutation(operation: string): boolean {
  */
 @Injectable({ providedIn: 'root' })
 export class DataClient {
-	/**
-	 * Executes a GraphQL operation and returns its `data`, throwing on GraphQL
-	 * errors or a null payload.
-	 */
-	async execute<TData, TVariables = Record<string, unknown>>(
-		operation: string,
-		variables?: TVariables,
-	): Promise<TData> {
-		const data = await createDataSDK();
-		const result = isMutation(operation)
-			? await data.graphql!.mutate<TData, TVariables>({
-					mutation: operation,
-					variables,
-				})
-			: await data.graphql!.query<TData, TVariables>({
-					query: operation,
-					variables,
-				});
+  /**
+   * Executes a GraphQL operation and returns its `data`, throwing on GraphQL
+   * errors or a null payload.
+   */
+  async execute<TData, TVariables = Record<string, unknown>>(
+    operation: string,
+    variables?: TVariables,
+    options: { cacheControl?: CacheControl } = {},
+  ): Promise<TData> {
+    const data = await createDataSDK();
+    const result = isMutation(operation)
+      ? await data.graphql!.mutate<TData, TVariables>({
+          mutation: operation,
+          variables,
+        })
+      : await data.graphql!.query<TData, TVariables>({
+          query: operation,
+          variables,
+          cacheControl: options.cacheControl,
+        });
 
-		if (result.errors?.length) {
-			const msg = result.errors.map((e) => e.message).join('; ');
-			throw new Error(`GraphQL Error: ${msg}`);
-		}
+    if (result.errors?.length) {
+      const msg = result.errors.map((e) => e.message).join('; ');
+      throw new Error(`GraphQL Error: ${msg}`);
+    }
 
-		if (result.data == null) {
-			throw new Error('GraphQL response data is null');
-		}
+    if (result.data == null) {
+      throw new Error('GraphQL response data is null');
+    }
 
-		return result.data;
-	}
+    return result.data;
+  }
 
-	/**
-	 * Performs a REST request through the SDK's authenticated `fetch`, returning
-	 * the raw `Response`. Callers parse the body / shape errors themselves (e.g.
-	 * via `handleApiResponse`).
-	 *
-	 * @param input - The request URL (e.g. an Apex REST route).
-	 * @param init  - Standard `fetch` options (method, headers, body, …).
-	 */
-	async fetch(input: string, init?: RequestInit): Promise<Response> {
-		const sdk = await createDataSDK();
-		return sdk.fetch!(input, init);
-	}
+  /**
+   * Performs a REST request through the SDK's authenticated `fetch`, returning
+   * the raw `Response`. Callers parse the body / shape errors themselves (e.g.
+   * via `handleApiResponse`).
+   *
+   * @param input - The request URL (e.g. an Apex REST route).
+   * @param init  - Standard `fetch` options (method, headers, body, …).
+   */
+  async fetch(input: string, init?: RequestInit): Promise<Response> {
+    const sdk = await createDataSDK();
+    return sdk.fetch!(input, init);
+  }
 }

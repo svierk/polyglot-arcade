@@ -1,0 +1,35 @@
+<section>
+  <h1 class="arcade-title mb-2 text-2xl">Hall of fame</h1>
+  <p class="arcade-hint mb-6">
+    Scores from every surface: the Angular hub, the React cabinet and cabinets embedded in Lightning
+    pages.
+  </p>
+
+  @if (error()) {
+    <div class="arcade-panel text-sm text-rose-300" role="alert">{{ error() }}</div>
+  }
+
+  <div class="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Games">
+    @for (game of games(); track game.id) {
+      <button
+        type="button"
+        role="tab"
+        class="arcade-nav-link rounded-md border border-white/10 px-3 py-2"
+        [class.arcade-nav-link-active]="selected()?.id === game.id"
+        [attr.aria-selected]="selected()?.id === game.id"
+        (click)="selected.set(game)"
+      >
+        {{ game.name }}
+      </button>
+    }
+  </div>
+
+  @if (selected(); as game) {
+    <app-leaderboard-table
+      class="block max-w-xl"
+      [gameKey]="game.key"
+      [limit]="25"
+      [showDetails]="true"
+    />
+  }
+</section>

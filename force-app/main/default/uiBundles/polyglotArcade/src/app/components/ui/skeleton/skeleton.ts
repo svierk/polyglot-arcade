@@ -7,13 +7,13 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { HlmSkeleton } from '@spartan-ng/styles/skeleton';
 
 @Component({
-	selector: 'app-skeleton',
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	hostDirectives: [HlmSkeleton],
-	host: {
-		'aria-hidden': 'true',
-	},
-	template: '<ng-content />',
+  selector: 'app-skeleton',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [HlmSkeleton],
+  host: {
+    'aria-hidden': 'true',
+  },
+  template: '<ng-content />',
 })
 export class SkeletonComponent {}
 

@@ -1,15 +1,43 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-test.describe('base-angular-app', () => {
-	test('home page loads and shows welcome content', async ({ page }) => {
-		await page.goto('/');
-		await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
-		await expect(page.getByText('Welcome to your Angular application.')).toBeVisible();
-	});
+// Runs against the static build without a Salesforce org: the lobby reports
+// that games could not be loaded, the hub games are still playable.
+test.describe('Polyglot Arcade hub', () => {
+  test('lobby renders and reports missing org data', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Insert coin' })).toBeVisible();
+    await expect(page.getByRole('alert')).toContainText('Could not load games');
+  });
 
-	test('not found route shows 404', async ({ page }) => {
-		await page.goto('/non-existent-route');
-		await expect(page.getByRole('heading', { name: '404' })).toBeVisible();
-		await expect(page.getByText('Page not found')).toBeVisible();
-	});
+  test('Four in a Row: the CPU answers a move', async ({ page }) => {
+    await page.goto('/play/four-in-a-row');
+    await page.getByRole('button', { name: 'easy' }).click();
+    await expect(page.getByText('Your move')).toBeVisible();
+    await page.getByRole('button', { name: 'Drop disc in column 4' }).click();
+    await expect(page.getByText('CPU is thinking…')).toBeVisible();
+    await expect(page.getByText('Your move')).toBeVisible();
+  });
+
+  test('full columns cannot be played', async ({ page }) => {
+    await page.goto('/play/four-in-a-row');
+    await page.getByRole('button', { name: 'easy' }).click();
+    const column = page.getByRole('button', { name: 'Drop disc in column 1' });
+    // Six discs fill a column; the CPU may help fill it, so stop once disabled.
+    for (let i = 0; i < 6 && (await column.isEnabled()); i++) {
+      await column.click();
+      await expect(
+        page.getByText('Your move').or(page.getByText(/You win|CPU wins|Draw/)),
+      ).toBeVisible();
+    }
+    if (await page.getByText('Your move').isVisible()) {
+      await expect(column).toBeDisabled();
+    }
+  });
+
+  test('hall of fame and 404 pages render', async ({ page }) => {
+    await page.goto('/leaderboard');
+    await expect(page.getByRole('heading', { name: 'Hall of fame' })).toBeVisible();
+    await page.goto('/does-not-exist');
+    await expect(page.getByRole('heading', { name: '404' })).toBeVisible();
+  });
 });

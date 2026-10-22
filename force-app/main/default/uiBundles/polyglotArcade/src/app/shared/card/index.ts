@@ -17,12 +17,12 @@ export * from './hlm-card-header';
 export * from './hlm-card-title';
 
 export const HlmCardImports = [
-	HlmCard,
-	HlmCardAction,
-	HlmCardAvatar,
-	HlmCardContent,
-	HlmCardDescription,
-	HlmCardFooter,
-	HlmCardHeader,
-	HlmCardTitle,
+  HlmCard,
+  HlmCardAction,
+  HlmCardAvatar,
+  HlmCardContent,
+  HlmCardDescription,
+  HlmCardFooter,
+  HlmCardHeader,
+  HlmCardTitle,
 ] as const;

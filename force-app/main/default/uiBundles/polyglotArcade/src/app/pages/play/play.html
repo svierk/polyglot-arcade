@@ -1,0 +1,61 @@
+@if (game(); as game) {
+  <section>
+    <a routerLink="/" class="arcade-nav-link">← Lobby</a>
+    <h1 class="arcade-title mt-4 mb-6 text-xl">{{ game.name }}</h1>
+
+    <div class="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center">
+      <div class="flex w-full max-w-md flex-col items-center gap-4">
+        <!-- Tracking the round re-creates the game for a fresh start. -->
+        @for (r of [round()]; track r) {
+          @switch (game.key) {
+            @case ('four-in-a-row') {
+              <app-four-in-a-row class="w-full" (gameOver)="onGameOver($event)" />
+            }
+            @default {
+              <div class="arcade-panel text-center">
+                <p class="arcade-title mb-2">Coming soon</p>
+                <p class="arcade-hint">
+                  {{ game.name }} is still in the workshop. Insert coin later!
+                </p>
+              </div>
+            }
+          }
+        }
+
+        @if (result(); as finished) {
+          <div class="arcade-panel w-full text-center" role="status">
+            <p class="arcade-title text-base">{{ finished.score }} points</p>
+            <p class="arcade-hint mb-2">{{ finished.summary }}</p>
+            @switch (save()?.state) {
+              @case ('saving') {
+                <p class="arcade-hint">Saving to Salesforce…</p>
+              }
+              @case ('saved') {
+                <p class="text-sm text-emerald-300">
+                  {{ isHighScore() ? '★ New high score! ★' : 'Score saved to the leaderboard.' }}
+                </p>
+              }
+              @case ('failed') {
+                <p class="text-sm text-rose-300">Could not save score: {{ saveError() }}</p>
+              }
+            }
+            <button type="button" class="arcade-button mt-3" (click)="playAgain()">
+              Play again
+            </button>
+          </div>
+        }
+      </div>
+
+      <app-leaderboard-table
+        class="w-full max-w-sm"
+        [gameKey]="game.key"
+        [refreshKey]="savedCount()"
+      />
+    </div>
+  </section>
+} @else {
+  <section class="py-12 text-center">
+    <p class="arcade-title mb-4 text-2xl">Unknown game</p>
+    <a routerLink="/" class="arcade-button">Back to the lobby</a>
+  </section>
+}

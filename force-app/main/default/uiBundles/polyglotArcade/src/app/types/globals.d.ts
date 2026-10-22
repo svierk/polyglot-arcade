@@ -5,8 +5,8 @@
  */
 
 interface SfdcEnv {
-	/** Salesforce org force.com URL (e.g., "https://myorg.lightning.force.com"). */
-	orgUrl?: string;
+  /** Salesforce org force.com URL (e.g., "https://myorg.lightning.force.com"). */
+  orgUrl?: string;
 }
 
 // eslint-disable-next-line no-var -- ambient global declaration
