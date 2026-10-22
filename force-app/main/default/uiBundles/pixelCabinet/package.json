@@ -1,10 +1,16 @@
 {
-  "name": "base-react-app",
+  "name": "pixel-cabinet",
   "private": true,
-  "version": "1.59.0",
+  "version": "0.1.0",
+  "description": "Pixel Cabinet: React UI bundle with the real-time games, standalone and embeddable as a microfrontend.",
+  "author": {
+    "name": "Sebastiano Schwarz",
+    "url": "https://github.com/svierk"
+  },
+  "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": "24.x.x"
   },
   "scripts": {
     "dev": "vite",

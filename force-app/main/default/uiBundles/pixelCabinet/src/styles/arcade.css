@@ -1,0 +1,206 @@
+/*
+ * Polyglot Arcade arcade theme.
+ * Shared look of the React (Pixel Cabinet) and Angular (Polyglot Arcade) bundles;
+ * keep both copies in sync. Plain CSS so it works with either build pipeline.
+ */
+:root {
+  --arcade-bg: #07071a;
+  --arcade-panel: #11112b;
+  --arcade-line: rgba(148, 163, 184, 0.18);
+  --arcade-text: #e2e8f0;
+  --arcade-muted: #94a3b8;
+  --arcade-neon: #22d3ee;
+  --arcade-neon-shadow: #0e7490;
+  --arcade-pink: #f472b6;
+  --arcade-font:
+    ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+}
+
+.arcade-shell {
+  background:
+    radial-gradient(
+      1200px 500px at 50% -10%,
+      rgba(124, 58, 237, 0.25),
+      transparent
+    ),
+    var(--arcade-bg);
+  color: var(--arcade-text);
+  font-family: var(--arcade-font);
+}
+
+/* Inside <lightning-ui-embedding> the page provides the frame. */
+html.embedded,
+html.embedded body {
+  background: transparent;
+  min-height: 0;
+}
+
+.arcade-logo {
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--arcade-neon), var(--arcade-pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.arcade-title {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+}
+
+.arcade-hint {
+  color: var(--arcade-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.arcade-panel {
+  background: var(--arcade-panel);
+  border: 1px solid var(--arcade-line);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.arcade-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 2px solid
+    color-mix(in srgb, var(--accent, var(--arcade-neon)) 55%, transparent);
+  border-radius: 12px;
+  background: var(--arcade-panel);
+  color: var(--arcade-text);
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.arcade-card:hover,
+.arcade-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px
+    color-mix(in srgb, var(--accent, var(--arcade-neon)) 40%, transparent);
+  outline: none;
+}
+
+.arcade-card .arcade-title {
+  color: var(--accent, var(--arcade-neon));
+}
+
+.arcade-badge {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent, var(--arcade-neon));
+}
+
+.arcade-button {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--arcade-neon);
+  color: #04121a;
+  font-family: var(--arcade-font);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 var(--arcade-neon-shadow);
+  cursor: pointer;
+}
+
+.arcade-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--arcade-neon-shadow);
+}
+
+.arcade-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.arcade-nav-link {
+  color: var(--arcade-muted);
+  background: none;
+  border: none;
+  font-family: var(--arcade-font);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.arcade-nav-link:hover,
+.arcade-nav-link-active {
+  color: var(--arcade-neon);
+}
+
+.arcade-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 4.5rem;
+}
+
+.arcade-stat span {
+  color: var(--arcade-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.arcade-stat strong {
+  font-size: 1.25rem;
+}
+
+.arcade-screen {
+  border: 3px solid #312e81;
+  border-radius: 6px;
+  box-shadow: 0 0 32px rgba(34, 211, 238, 0.15);
+  image-rendering: pixelated;
+}
+
+.arcade-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(7, 7, 26, 0.72);
+  border-radius: 6px;
+}
+
+.arcade-pad {
+  padding: 0.6rem 0;
+  border: 1px solid var(--arcade-line);
+  border-radius: 8px;
+  background: var(--arcade-panel);
+  color: var(--arcade-text);
+  font-size: 1.25rem;
+}
+
+.arcade-focus:focus-visible {
+  outline: 2px dashed var(--arcade-neon);
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arcade-card,
+  .arcade-button {
+    transition: none;
+  }
+}

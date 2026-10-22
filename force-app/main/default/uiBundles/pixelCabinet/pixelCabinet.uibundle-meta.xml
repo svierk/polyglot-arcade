@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <UIBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <masterLabel>Pixel Cabinet</masterLabel>
-    <description>A Salesforce UI Bundle.</description>
+    <description>Arcade cabinet built with React: the real-time games, standalone and embeddable via lightning-ui-embedding.</description>
     <isActive>true</isActive>
     <version>1</version>
+    <target>CustomApplication</target>
 </UIBundle>
