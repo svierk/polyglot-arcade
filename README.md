@@ -33,20 +33,22 @@ React and Angular are generally available for UI bundles as of Winter '27. Embed
 
 ## 🎮 Games
 
-| Game              | Mechanic                                             | Framework | Lives in            | Status          |
-| ----------------- | ---------------------------------------------------- | --------- | ------------------- | --------------- |
-| **Block Drop**    | falling blocks, line clears, levels                  | React     | Pixel Cabinet       | ✅ Playable     |
-| **Four in a Row** | turn-based vs. a minimax CPU with three difficulties | Angular   | Polyglot Arcade hub | ✅ Playable     |
-| **Pellet Chase**  | maze chase                                           | React     | Pixel Cabinet       | 🚧 Next release |
-| **Brick Breaker** | paddle and ball                                      | Angular   | Polyglot Arcade hub | 🚧 Next release |
+| Game              | Mechanic                                             | Framework | Lives in            | Status      |
+| ----------------- | ---------------------------------------------------- | --------- | ------------------- | ----------- |
+| **Block Drop**    | falling blocks, line clears, levels                  | React     | Pixel Cabinet       | ✅ Playable |
+| **Four in a Row** | turn-based vs. a minimax CPU with three difficulties | Angular   | Polyglot Arcade hub | ✅ Playable |
+| **Brick Breaker** | paddle and ball, tougher walls every level           | Angular   | Polyglot Arcade hub | ✅ Playable |
+| **Pellet Chase**  | maze chase                                           | React     | Pixel Cabinet       | 🚧 Planned  |
 
 > The games are original implementations of classic mechanics. Names and artwork are deliberately generic - no trademarks of the original arcade titles are used.
 
-| Four in a Row (Angular hub)                                                                                                                   | Block Drop (React cabinet)                                                                                                   |
-| --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| <img src="./images/four-in-a-row.png" alt="Four in a Row won against the CPU, with the hub leaderboard" width="440"/>                         | <img src="./images/pixel-cabinet.png" alt="Block Drop in progress next to its leaderboard" width="440"/>                     |
-| **Microfrontend on a Lightning page**                                                                                                         | **Hall of fame across all surfaces**                                                                                         |
-| <img src="./images/break-room.png" alt="Block Drop embedded in the Arcade Break Room page with a toast and the LWC leaderboard" width="440"/> | <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores from the cabinet and from embedded play" width="440"/> |
+| Four in a Row (Angular hub)                                                                                                  | Brick Breaker (Angular hub)                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="./images/four-in-a-row.png" alt="Four in a Row won against the CPU, with the hub leaderboard" width="440"/>        | <img src="./images/brick-breaker.png" alt="Brick Breaker in progress next to its leaderboard" width="440"/>                                   |
+| **Block Drop (React cabinet)**                                                                                               | **Microfrontend on a Lightning page**                                                                                                         |
+| <img src="./images/pixel-cabinet.png" alt="Block Drop in progress next to its leaderboard" width="440"/>                     | <img src="./images/break-room.png" alt="Block Drop embedded in the Arcade Break Room page with a toast and the LWC leaderboard" width="440"/> |
+| **Hall of fame across all surfaces**                                                                                         |                                                                                                                                               |
+| <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores from the cabinet and from embedded play" width="440"/> |                                                                                                                                               |
 
 ## 🏗️ Architecture
 
@@ -234,8 +236,9 @@ scripts/                      org setup, project setup, connect-cabinet
 
 ## 🗺️ Roadmap
 
-- **v0.2.0** - Pellet Chase (React) and Brick Breaker (Angular)
-- **Under evaluation** - [LWC OSS Snake](https://github.com/svierk/lwc-oss-snake-game) as an externally hosted microfrontend, making the arcade truly polyglot with a third framework
+- **v0.3.0** - [LWC OSS Snake](https://github.com/svierk/lwc-oss-snake-game) as an externally hosted microfrontend: a third framework and a third integration pattern, with the host page saving the score
+- **v0.4.0** - Pellet Chase (React)
+- **v1.0.0** - localization, installation via package, mobile and accessibility polish
 - **Later** - a public arcade on Experience Cloud (trade-show lead capture) and an Agentforce question like "who is this week's champion?"
 
 ## 🤝 Contributing
