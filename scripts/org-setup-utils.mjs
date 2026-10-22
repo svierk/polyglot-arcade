@@ -18,9 +18,9 @@
  * org-setup's StepError) to avoid an import cycle; runStep handles both alike.
  */
 
-import { spawnSync } from 'node:child_process';
-import { readdirSync, existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { spawnSync } from "node:child_process";
+import { readdirSync, existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 // ---------------------------------------------------------------------------
 // Pure logic (no I/O) — unit-testable in isolation.
@@ -51,13 +51,13 @@ import { resolve } from 'node:path';
  * @returns {string} the value unchanged when valid; throws otherwise.
  */
 export function validateSoqlName(value, fieldLabel, opts = {}) {
-  const { remediation = 'org-setup.config.json' } = opts;
+  const { remediation = "org-setup.config.json" } = opts;
   const s = String(value);
   if (!/^[A-Za-z0-9 _-]+$/.test(s)) {
     throw new Error(
       `${fieldLabel} "${value}" contains an unsupported character ` +
         `(only letters, digits, spaces, hyphens, and underscores are allowed). ` +
-        `Fix it in ${remediation}.`,
+        `Fix it in ${remediation}.`
     );
   }
   return s;
@@ -69,7 +69,7 @@ export function validateSoqlName(value, fieldLabel, opts = {}) {
  * existing importers and tests need no change beyond the tightened rule.
  */
 export function validateProfileNameForSoql(name) {
-  return validateSoqlName(name, 'selfRegProfile name');
+  return validateSoqlName(name, "selfRegProfile name");
 }
 
 /**
@@ -82,7 +82,7 @@ export function validateProfileNameForSoql(name) {
  * string (no surrounding quotes — the caller supplies those).
  */
 export function escapeSoqlString(value) {
-  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 /**
@@ -109,7 +109,7 @@ export function validateApiName(value, fieldLabel) {
     throw new Error(
       `${fieldLabel} "${value}" is not a valid Salesforce API name ` +
         `(only letters, digits, and underscores are allowed). ` +
-        `Check the seed data plan (data-plan.json) and record field names.`,
+        `Check the seed data plan (data-plan.json) and record field names.`
     );
   }
   return s;
@@ -132,14 +132,15 @@ export function validateApiName(value, fieldLabel) {
  *             errors: Array<{ref:string, message:string}> }}
  */
 export function parseApexInsertResults(apexOut) {
-  const text = String(apexOut ?? '');
+  const text = String(apexOut ?? "");
 
   // Strategy: the actual System.debug output appears somewhere in the log as a JSON array.
   // First, try to find it via the USER_DEBUG line format (most reliable).
   // The line looks like: `...|USER_DEBUG|[line]|ERROR|SETUP_RESULT_JSON:[{"ref":"a","id":"001..."}]`.
   // The array can be empty ([]) for zero records, so use .*? instead of .+? to allow empty arrays.
   // Accept any log level (DEBUG, ERROR, etc) to handle both old and new logging configurations.
-  const userDebugPattern = /\|USER_DEBUG\|.*?\|(DEBUG|ERROR|INFO|WARN)\|SETUP_RESULT_JSON:(\[.*?\])(?:\n|$)/s;
+  const userDebugPattern =
+    /\|USER_DEBUG\|.*?\|(DEBUG|ERROR|INFO|WARN)\|SETUP_RESULT_JSON:(\[.*?\])(?:\n|$)/s;
   let match = text.match(userDebugPattern);
 
   if (match) {
@@ -147,32 +148,34 @@ export function parseApexInsertResults(apexOut) {
   }
 
   // Fallback: look for the marker followed by a JSON array, but skip "Execute Anonymous:" lines
-  const markerIdx = text.indexOf('SETUP_RESULT_JSON:');
+  const markerIdx = text.indexOf("SETUP_RESULT_JSON:");
   if (markerIdx === -1) {
     return {
       ok: false,
-      error: 'no SETUP_RESULT_JSON marker found in Apex output (log may be truncated or the insert did not run)',
+      error:
+        "no SETUP_RESULT_JSON marker found in Apex output (log may be truncated or the insert did not run)",
       successes: [],
-      errors: [],
+      errors: []
     };
   }
 
   // Check if this is the source code line, not the debug output
-  const lineStart = text.lastIndexOf('\n', markerIdx) + 1;
+  const lineStart = text.lastIndexOf("\n", markerIdx) + 1;
   const line = text.slice(lineStart, Math.min(text.length, lineStart + 200));
-  if (line.includes('Execute Anonymous:')) {
+  if (line.includes("Execute Anonymous:")) {
     return {
       ok: false,
-      error: 'found SETUP_RESULT_JSON in source code but not in debug output (debug output may be missing or truncated)',
+      error:
+        "found SETUP_RESULT_JSON in source code but not in debug output (debug output may be missing or truncated)",
       successes: [],
-      errors: [],
+      errors: []
     };
   }
 
   // Extract what follows the marker up to end of line. Pass it to parseJsonPayload
   // which will validate it's proper JSON and an array, giving specific error messages.
-  const afterMarker = text.slice(markerIdx + 'SETUP_RESULT_JSON:'.length);
-  const payload = afterMarker.split('\n')[0].trim();
+  const afterMarker = text.slice(markerIdx + "SETUP_RESULT_JSON:".length);
+  const payload = afterMarker.split("\n")[0].trim();
 
   return parseJsonPayload(payload);
 }
@@ -184,25 +187,26 @@ function parseJsonPayload(payload) {
   } catch {
     return {
       ok: false,
-      error: 'SETUP_RESULT_JSON payload was not valid JSON (log line may be truncated)',
+      error:
+        "SETUP_RESULT_JSON payload was not valid JSON (log line may be truncated)",
       successes: [],
-      errors: [],
+      errors: []
     };
   }
   if (!Array.isArray(parsed)) {
     return {
       ok: false,
-      error: 'SETUP_RESULT_JSON payload was not a JSON array',
+      error: "SETUP_RESULT_JSON payload was not a JSON array",
       successes: [],
-      errors: [],
+      errors: []
     };
   }
 
   const successes = [];
   const errors = [];
   for (const entry of parsed) {
-    if (!entry || typeof entry !== 'object') continue;
-    const ref = entry.ref != null ? String(entry.ref) : '';
+    if (!entry || typeof entry !== "object") continue;
+    const ref = entry.ref != null ? String(entry.ref) : "";
     if (entry.err != null) {
       errors.push({ ref, message: String(entry.err) });
     } else if (entry.id != null) {
@@ -231,7 +235,10 @@ function parseJsonPayload(payload) {
  * @param {number} [opts.overhead] fixed per-batch char cost (DML boilerplate); default 0
  * @returns {Array<{start:number, count:number}>}  batch slices over the input order
  */
-export function planApexBatches(recordSizes, { charLimit, maxBatch, overhead = 0 }) {
+export function planApexBatches(
+  recordSizes,
+  { charLimit, maxBatch, overhead = 0 }
+) {
   const batches = [];
   let start = 0;
   const n = recordSizes.length;
@@ -270,22 +277,30 @@ export function evaluateLicenseRows(rows, profileName) {
     return {
       satisfied: false,
       reason: `no UserLicense found for profile "${profileName}" — the profile is missing in the org or its name is misspelled`,
-      license: null,
+      license: null
     };
   }
   const key = lic.LicenseDefinitionKey ?? null;
-  const label = lic.Name ?? key ?? 'unknown license';
+  const label = lic.Name ?? key ?? "unknown license";
   const total = Number(lic.TotalLicenses);
   const used = Number(lic.UsedLicenses);
   const license = { key, label, status: lic.Status, total, used };
 
-  if (lic.Status !== 'Active') {
-    return { satisfied: false, reason: `license ${label} (${key}) is not Active (Status=${lic.Status})`, license };
+  if (lic.Status !== "Active") {
+    return {
+      satisfied: false,
+      reason: `license ${label} (${key}) is not Active (Status=${lic.Status})`,
+      license
+    };
   }
   // Seat counts should always be integers in practice, but guard against a
   // missing/non-numeric field so the skip reason stays legible (not "NaN/NaN").
   if (!Number.isFinite(total) || !Number.isFinite(used)) {
-    return { satisfied: false, reason: `could not read seat counts for license ${label} (${key})`, license };
+    return {
+      satisfied: false,
+      reason: `could not read seat counts for license ${label} (${key})`,
+      license
+    };
   }
   // -1 is the documented "unlimited" sentinel (defensive — unverified live).
   if (total === -1 || total - used > 0) {
@@ -294,7 +309,7 @@ export function evaluateLicenseRows(rows, profileName) {
   return {
     satisfied: false,
     reason: `license ${label} (${key}) has no available seats (${used}/${total} used)`,
-    license,
+    license
   };
 }
 
@@ -316,20 +331,21 @@ export function parseOrgList(jsonText) {
     return { orgs: [], defaultOrg: null };
   }
   const result = parsed?.result;
-  if (!result || typeof result !== 'object') return { orgs: [], defaultOrg: null };
+  if (!result || typeof result !== "object")
+    return { orgs: [], defaultOrg: null };
 
   const orgs = [];
   const seen = new Set();
   for (const val of Object.values(result)) {
     if (!Array.isArray(val)) continue;
     for (const entry of val) {
-      if (!entry || typeof entry !== 'object' || !entry.username) continue;
+      if (!entry || typeof entry !== "object" || !entry.username) continue;
       if (seen.has(entry.username)) continue;
       seen.add(entry.username);
       orgs.push({
         alias: entry.alias ?? null,
         username: entry.username,
-        isDefault: entry.isDefaultUsername === true,
+        isDefault: entry.isDefaultUsername === true
       });
     }
   }
@@ -346,10 +362,12 @@ export function parseOrgList(jsonText) {
 export function buildMultiBundleWarning(allBundleNames, chosen) {
   return [
     `⚠ Multiple UI bundles found under uiBundles/ (${allBundleNames.length}):`,
-    ...allBundleNames.map((n) => `    - ${n}${n === chosen ? '   ← using this one' : ''}`),
+    ...allBundleNames.map(
+      (n) => `    - ${n}${n === chosen ? "   ← using this one" : ""}`
+    ),
     `  Using "${chosen}" (first alphabetically). To deploy a different bundle, re-run with:`,
-    `    --ui-bundle-name <name>`,
-  ].join('\n');
+    `    --ui-bundle-name <name>`
+  ].join("\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -361,13 +379,13 @@ export function buildMultiBundleWarning(allBundleNames, chosen) {
 
 export function run(name, cmd, args, opts = {}) {
   const { cwd = process.cwd(), optional = false } = opts;
-  console.log('\n---', name, '---');
+  console.log("\n---", name, "---");
   const result = spawnSync(cmd, args, {
     cwd,
-    stdio: 'inherit',
+    stdio: "inherit",
     shell: true,
     ...(opts.env && { env: opts.env }),
-    ...(opts.timeout && { timeout: opts.timeout }),
+    ...(opts.timeout && { timeout: opts.timeout })
   });
   if (result.status !== 0 && !optional) {
     throw new Error(`${name} (exit ${result.status ?? 1})`);
@@ -386,18 +404,20 @@ export function run(name, cmd, args, opts = {}) {
  * entry script (not at import) so this module stays side-effect-free.
  */
 export function resolveSfdxSource(root) {
-  const sfdxPath = resolve(root, 'sfdx-project.json');
+  const sfdxPath = resolve(root, "sfdx-project.json");
   if (!existsSync(sfdxPath)) {
-    console.error('Error: sfdx-project.json not found at project root.');
+    console.error("Error: sfdx-project.json not found at project root.");
     process.exit(1);
   }
-  const sfdxProject = JSON.parse(readFileSync(sfdxPath, 'utf8'));
+  const sfdxProject = JSON.parse(readFileSync(sfdxPath, "utf8"));
   const pkgDir = sfdxProject?.packageDirectories?.[0]?.path;
   if (!pkgDir) {
-    console.error('Error: No packageDirectories[].path found in sfdx-project.json.');
+    console.error(
+      "Error: No packageDirectories[].path found in sfdx-project.json."
+    );
     process.exit(1);
   }
-  return resolve(root, pkgDir, 'main', 'default');
+  return resolve(root, pkgDir, "main", "default");
 }
 
 /** Basename of a bundle dir path, cross-platform. */
@@ -417,7 +437,9 @@ export function discoverAllUIBundleDirs(uiBundlesDir, uiBundleName) {
     process.exit(1);
   }
   const entries = readdirSync(uiBundlesDir, { withFileTypes: true });
-  const dirs = entries.filter((e) => e.isDirectory() && !e.name.startsWith('.'));
+  const dirs = entries.filter(
+    (e) => e.isDirectory() && !e.name.startsWith(".")
+  );
   if (dirs.length === 0) {
     console.error(`Error: No UI bundle folder found under ${uiBundlesDir}`);
     process.exit(1);
@@ -448,8 +470,8 @@ export async function discoverUIBundleDir(uiBundlesDir, uiBundleName) {
     const names = all.map(bundleName);
     if (process.stdin.isTTY) {
       const idx = await promptSelect(names, {
-        prompt: 'Multiple UI bundles found — select which one to deploy:',
-        preselectedIndex: 0,
+        prompt: "Multiple UI bundles found — select which one to deploy:",
+        preselectedIndex: 0
       });
       return all[idx];
     }
@@ -468,18 +490,22 @@ export async function discoverUIBundleDir(uiBundlesDir, uiBundleName) {
  * a TTY. Built on the same raw-mode scaffolding as promptSteps (org-setup.mjs)
  * but selects exactly one item.
  */
-export function promptSelect(options, { prompt = 'Select an option:', preselectedIndex = 0 } = {}) {
-  if (!process.stdin.isTTY || options.length === 0) return Promise.resolve(preselectedIndex);
+export function promptSelect(
+  options,
+  { prompt = "Select an option:", preselectedIndex = 0 } = {}
+) {
+  if (!process.stdin.isTTY || options.length === 0)
+    return Promise.resolve(preselectedIndex);
 
   let cursor = Math.min(Math.max(0, preselectedIndex), options.length - 1);
-  const RST = '\x1B[0m';
-  const CYAN = '\x1B[36m';
-  const GREEN = '\x1B[32m';
+  const RST = "\x1B[0m";
+  const CYAN = "\x1B[36m";
+  const GREEN = "\x1B[32m";
 
   function render() {
     return options.map((label, row) => {
-      const ptr = row === cursor ? `${CYAN}❯${RST}` : ' ';
-      const chk = row === cursor ? `${GREEN}●${RST}` : '○';
+      const ptr = row === cursor ? `${CYAN}❯${RST}` : " ";
+      const chk = row === cursor ? `${GREEN}●${RST}` : "○";
       return `${ptr} ${chk} ${label}`;
     });
   }
@@ -487,11 +513,11 @@ export function promptSelect(options, { prompt = 'Select an option:', preselecte
   return new Promise((resolvePromise) => {
     process.stdin.setRawMode(true);
     process.stdin.resume();
-    process.stdin.setEncoding('utf8');
-    process.stdout.write('\x1B[?25l');
+    process.stdin.setEncoding("utf8");
+    process.stdout.write("\x1B[?25l");
     console.log(`\n${prompt} (↑↓ move, enter confirm):\n`);
     let prevRows = options.length;
-    process.stdout.write(render().join('\n') + '\n');
+    process.stdout.write(render().join("\n") + "\n");
 
     function redraw() {
       process.stdout.write(`\x1B[${prevRows}A`);
@@ -500,24 +526,24 @@ export function promptSelect(options, { prompt = 'Select an option:', preselecte
       prevRows = lines.length;
     }
 
-    process.stdin.on('data', (key) => {
-      if (key === '\x03') {
-        process.stdout.write('\x1B[?25h\n');
+    process.stdin.on("data", (key) => {
+      if (key === "\x03") {
+        process.stdout.write("\x1B[?25h\n");
         process.exit(0);
       }
-      if (key === '\r' || key === '\n') {
-        process.stdout.write('\x1B[?25h');
+      if (key === "\r" || key === "\n") {
+        process.stdout.write("\x1B[?25h");
         process.stdin.setRawMode(false);
         process.stdin.pause();
-        process.stdin.removeAllListeners('data');
+        process.stdin.removeAllListeners("data");
         console.log();
         resolvePromise(cursor);
         return;
       }
-      if (key === '\x1B[A' || key === 'k') {
+      if (key === "\x1B[A" || key === "k") {
         cursor = Math.max(0, cursor - 1);
         redraw();
-      } else if (key === '\x1B[B' || key === 'j') {
+      } else if (key === "\x1B[B" || key === "j") {
         cursor = Math.min(options.length - 1, cursor + 1);
         redraw();
       }
@@ -537,21 +563,29 @@ export function promptSelect(options, { prompt = 'Select an option:', preselecte
 export async function resolveTargetOrg(parsed) {
   if (parsed.targetOrg) return parsed.targetOrg;
 
-  const listResult = spawnSync('sf', ['org', 'list', '--json'], {
-    encoding: 'utf8',
-    shell: true,
+  const listResult = spawnSync("sf", ["org", "list", "--json"], {
+    encoding: "utf8",
+    shell: true
   });
-  const { orgs, defaultOrg } = parseOrgList(listResult.status === 0 ? listResult.stdout : '');
+  const { orgs, defaultOrg } = parseOrgList(
+    listResult.status === 0 ? listResult.stdout : ""
+  );
 
   if (process.stdin.isTTY && orgs.length > 0) {
     // Default org first + preselected; the rest keep sf's order.
-    const ordered = [...orgs].sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
+    const ordered = [...orgs].sort(
+      (a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0)
+    );
     const labels = ordered.map((o) => {
       const name = o.alias ?? o.username;
-      const suffix = o.alias && o.alias !== o.username ? ` (${o.username})` : '';
-      return `${name}${suffix}${o.isDefault ? '  [default]' : ''}`;
+      const suffix =
+        o.alias && o.alias !== o.username ? ` (${o.username})` : "";
+      return `${name}${suffix}${o.isDefault ? "  [default]" : ""}`;
     });
-    const idx = await promptSelect(labels, { prompt: 'Select the target org:', preselectedIndex: 0 });
+    const idx = await promptSelect(labels, {
+      prompt: "Select the target org:",
+      preselectedIndex: 0
+    });
     const chosen = ordered[idx];
     return chosen.alias ?? chosen.username;
   }
@@ -562,8 +596,8 @@ export async function resolveTargetOrg(parsed) {
   }
 
   console.error(
-    'Error: --target-org <alias> is required. No default org is set and this is not an ' +
-      'interactive terminal. Set a default org (sf config set target-org=<alias>) or pass --target-org.',
+    "Error: --target-org <alias> is required. No default org is set and this is not an " +
+      "interactive terminal. Set a default org (sf config set target-org=<alias>) or pass --target-org."
   );
   process.exit(1);
 }

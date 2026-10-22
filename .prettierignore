@@ -9,3 +9,13 @@
 .vscode
 
 coverage/
+# Generated files and build output of the UI bundles
+**/dist/
+**/.angular/
+**/test-results/
+**/playwright-report/
+**/package-lock.json
+**/graphql-operations-types.ts
+schema.graphql
+# Bundle-level Prettier configs have no XML plugin
+**/*.uibundle-meta.xml

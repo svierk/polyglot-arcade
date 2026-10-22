@@ -13,3 +13,5 @@ package.xml
 
 node_modules/
 .DS_Store
+# Seed data is imported by scripts/org-setup.mjs, not deployed
+force-app/main/default/data/

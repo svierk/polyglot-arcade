@@ -29,16 +29,16 @@
  * generated app's dist/scripts.
  */
 
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser } from "fast-xml-parser";
 
-const NETWORK_ROOT = 'Network';
+const NETWORK_ROOT = "Network";
 
 /** Parser tuned to read the document faithfully: keep attributes, never coerce
  *  values (so `<selfRegistration>false</...>` stays the string "false"). */
 const parser = new XMLParser({
   ignoreAttributes: false,
   parseTagValue: false,
-  parseAttributeValue: false,
+  parseAttributeValue: false
 });
 
 /**
@@ -66,7 +66,7 @@ export function assertSafeProfileName(name) {
   if (XML_SPECIAL_CHARS.test(String(name))) {
     throw new NetworkXmlError(
       `profile name "${name}" contains an XML-special character (& < > " '); ` +
-        `use a name without these characters in org-setup.config.json`,
+        `use a name without these characters in org-setup.config.json`
     );
   }
   return String(name);
@@ -82,11 +82,15 @@ export function parseNetwork(xml) {
   try {
     parsed = parser.parse(xml);
   } catch (e) {
-    throw new NetworkXmlError(`network metadata is not well-formed XML: ${e.message}`);
+    throw new NetworkXmlError(
+      `network metadata is not well-formed XML: ${e.message}`
+    );
   }
   const network = parsed?.[NETWORK_ROOT];
-  if (network == null || typeof network !== 'object') {
-    throw new NetworkXmlError(`expected a <${NETWORK_ROOT}> root node, but none was found`);
+  if (network == null || typeof network !== "object") {
+    throw new NetworkXmlError(
+      `expected a <${NETWORK_ROOT}> root node, but none was found`
+    );
   }
   return network;
 }
@@ -110,8 +114,8 @@ function memberGroupChildIndent(xml) {
   const sibling = xml.match(/\n([ \t]+)<profile>/);
   if (sibling) return sibling[1];
   const parent = xml.match(/\n([ \t]*)<networkMemberGroups>/);
-  const parentIndent = parent ? parent[1] : '    ';
-  return parentIndent + (parentIndent || '    ');
+  const parentIndent = parent ? parent[1] : "    ";
+  return parentIndent + (parentIndent || "    ");
 }
 
 /**
@@ -124,12 +128,17 @@ function memberGroupChildIndent(xml) {
  */
 export function addProfileToMemberGroups(xml, selfRegProfile) {
   const network = parseNetwork(xml);
-  if (!('networkMemberGroups' in network) || network.networkMemberGroups == null) {
+  if (
+    !("networkMemberGroups" in network) ||
+    network.networkMemberGroups == null
+  ) {
     throw new NetworkXmlError(
-      'network metadata has no <networkMemberGroups> node to add the self-reg profile to',
+      "network metadata has no <networkMemberGroups> node to add the self-reg profile to"
     );
   }
-  const existing = asArray(network.networkMemberGroups.profile).map((p) => String(p));
+  const existing = asArray(network.networkMemberGroups.profile).map((p) =>
+    String(p)
+  );
   if (existing.includes(String(selfRegProfile))) {
     return { xml, changed: false };
   }
@@ -141,7 +150,7 @@ export function addProfileToMemberGroups(xml, selfRegProfile) {
   const indent = memberGroupChildIndent(xml);
   const updated = xml.replace(
     /(<networkMemberGroups>)/,
-    `$1\n${indent}<profile>${safeName}</profile>`,
+    `$1\n${indent}<profile>${safeName}</profile>`
   );
   return { xml: updated, changed: true };
 }
@@ -157,13 +166,13 @@ export function addProfileToMemberGroups(xml, selfRegProfile) {
  */
 export function enableSelfRegInXml(xml, selfRegProfile) {
   const network = parseNetwork(xml);
-  if (!('selfRegistration' in network)) {
+  if (!("selfRegistration" in network)) {
     throw new NetworkXmlError(
-      'network metadata has no <selfRegistration> node to enable self-registration on',
+      "network metadata has no <selfRegistration> node to enable self-registration on"
     );
   }
-  const alreadyEnabled = String(network.selfRegistration) === 'true';
-  const alreadyHasProfile = 'selfRegProfile' in network;
+  const alreadyEnabled = String(network.selfRegistration) === "true";
+  const alreadyHasProfile = "selfRegProfile" in network;
   if (alreadyEnabled || alreadyHasProfile) {
     return { xml, changed: false };
   }
@@ -172,11 +181,11 @@ export function enableSelfRegInXml(xml, selfRegProfile) {
   const safeName = assertSafeProfileName(selfRegProfile);
   let updated = xml.replace(
     /<selfRegistration>false<\/selfRegistration>/,
-    '<selfRegistration>true</selfRegistration>',
+    "<selfRegistration>true</selfRegistration>"
   );
   updated = updated.replace(
     /(\s*)(<selfRegistration>)/,
-    `$1<selfRegProfile>${safeName}</selfRegProfile>\n$1$2`,
+    `$1<selfRegProfile>${safeName}</selfRegProfile>\n$1$2`
   );
   return { xml: updated, changed: true };
 }
