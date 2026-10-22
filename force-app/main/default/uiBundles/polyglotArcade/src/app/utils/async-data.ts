@@ -10,12 +10,12 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 /** Reactive async-data snapshot: current data, loading, and error. */
 export interface AsyncData<T> {
-	/** Latest successful result. Kept visible during a refetch. */
-	readonly data: Signal<T | null>;
-	/** True while a fetch for the current args is in flight. */
-	readonly loading: Signal<boolean>;
-	/** Error message from the most recent failed fetch, else null. */
-	readonly error: Signal<string | null>;
+  /** Latest successful result. Kept visible during a refetch. */
+  readonly data: Signal<T | null>;
+  /** True while a fetch for the current args is in flight. */
+  readonly loading: Signal<boolean>;
+  /** Error message from the most recent failed fetch, else null. */
+  readonly error: Signal<string | null>;
 }
 
 /**
@@ -40,60 +40,60 @@ export interface AsyncData<T> {
  * @param injector   - Optional injector when called outside an injection context.
  */
 export function createAsyncData<TArgs, T>(
-	argsSignal: Signal<TArgs>,
-	fetcher: (args: TArgs) => Promise<T>,
-	injector?: Injector,
+  argsSignal: Signal<TArgs>,
+  fetcher: (args: TArgs) => Promise<T>,
+  injector?: Injector,
 ): AsyncData<T> {
-	const data = signal<T | null>(null);
-	const error = signal<string | null>(null);
-	// A fetch is pending from the moment args change until its response lands.
-	const pending = signal(true);
+  const data = signal<T | null>(null);
+  const error = signal<string | null>(null);
+  // A fetch is pending from the moment args change until its response lands.
+  const pending = signal(true);
 
-	const args$ = toObservable(argsSignal, injector ? { injector } : undefined);
+  const args$ = toObservable(argsSignal, injector ? { injector } : undefined);
 
-	const result = toSignal(
-		args$.pipe(
-			// Mark loading + clear stale error synchronously as new args arrive.
-			tap(() => {
-				pending.set(true);
-				error.set(null);
-			}),
-			switchMap((args) =>
-				from(fetcher(args)).pipe(
-					map((value) => ({ value, err: null as string | null })),
-					catchError((err: unknown) => {
-						console.error(err);
-						return of({
-							value: null as T | null,
-							err: err instanceof Error ? err.message : 'An error occurred',
-						});
-					}),
-				),
-			),
-			tap((outcome) => {
-				if (outcome.err !== null) {
-					error.set(outcome.err);
-					data.set(null);
-				} else {
-					data.set(outcome.value);
-				}
-				pending.set(false);
-			}),
-		),
-		{ initialValue: null, ...(injector ? { injector } : {}) },
-	);
+  const result = toSignal(
+    args$.pipe(
+      // Mark loading + clear stale error synchronously as new args arrive.
+      tap(() => {
+        pending.set(true);
+        error.set(null);
+      }),
+      switchMap((args) =>
+        from(fetcher(args)).pipe(
+          map((value) => ({ value, err: null as string | null })),
+          catchError((err: unknown) => {
+            console.error(err);
+            return of({
+              value: null as T | null,
+              err: err instanceof Error ? err.message : 'An error occurred',
+            });
+          }),
+        ),
+      ),
+      tap((outcome) => {
+        if (outcome.err !== null) {
+          error.set(outcome.err);
+          data.set(null);
+        } else {
+          data.set(outcome.value);
+        }
+        pending.set(false);
+      }),
+    ),
+    { initialValue: null, ...(injector ? { injector } : {}) },
+  );
 
-	// Keep `result` subscribed so the pipeline runs even if no template reads it.
-	effect(
-		() => {
-			result();
-		},
-		injector ? { injector } : undefined,
-	);
+  // Keep `result` subscribed so the pipeline runs even if no template reads it.
+  effect(
+    () => {
+      result();
+    },
+    injector ? { injector } : undefined,
+  );
 
-	return {
-		data: data.asReadonly(),
-		loading: pending.asReadonly(),
-		error: error.asReadonly(),
-	};
+  return {
+    data: data.asReadonly(),
+    loading: pending.asReadonly(),
+    error: error.asReadonly(),
+  };
 }

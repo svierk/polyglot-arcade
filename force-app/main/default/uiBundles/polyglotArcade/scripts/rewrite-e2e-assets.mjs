@@ -23,8 +23,8 @@ writeFileSync(indexPath, html);
 
 // SPA fallback so /non-existent-route etc. serve index.html
 writeFileSync(
-	join(distDir, 'serve.json'),
-	JSON.stringify({
-		rewrites: [{ source: '**', destination: '/index.html' }],
-	}),
+  join(distDir, 'serve.json'),
+  JSON.stringify({
+    rewrites: [{ source: '**', destination: '/index.html' }],
+  }),
 );

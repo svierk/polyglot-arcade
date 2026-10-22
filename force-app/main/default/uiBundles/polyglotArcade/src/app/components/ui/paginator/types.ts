@@ -6,8 +6,8 @@
 
 /** Payload emitted by PaginatorComponent's `(page)` output. */
 export interface PageEvent {
-	pageIndex: number;
-	previousPageIndex: number;
-	pageSize: number;
-	length: number;
+  pageIndex: number;
+  previousPageIndex: number;
+  pageSize: number;
+  length: number;
 }

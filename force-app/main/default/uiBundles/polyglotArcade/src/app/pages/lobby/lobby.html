@@ -1,0 +1,44 @@
+<section>
+  <h1 class="arcade-title mb-2 text-2xl">Insert coin</h1>
+  <p class="arcade-hint mb-8 max-w-2xl">
+    One arcade, two frameworks. Angular games run right here in the hub, the React games live in the
+    Pixel Cabinet. Every round lands in Salesforce as an Arcade Score.
+  </p>
+
+  @if (error()) {
+    <div class="arcade-panel mb-6 text-sm text-rose-300" role="alert">
+      Could not load games from Salesforce: {{ error() }}
+    </div>
+  }
+
+  @if (games() === null && !error()) {
+    <p class="arcade-hint">Loading games…</p>
+  }
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    @for (game of games(); track game.id) {
+      <article class="arcade-card" [style.--accent]="game.accent">
+        <div class="flex items-start justify-between gap-2">
+          <h2 class="arcade-title text-lg">{{ game.name }}</h2>
+          <span class="arcade-badge">{{ game.framework }}</span>
+        </div>
+        <p class="arcade-hint">{{ game.tagline }}</p>
+        <p class="text-sm">
+          High score <strong>{{ game.highScore ?? '—' }}</strong>
+          <span class="arcade-hint"> · {{ game.totalPlays }} plays</span>
+        </p>
+        @if (isHubGame(game)) {
+          <a class="arcade-button mt-2 self-start" [routerLink]="['/play', game.key]">Play</a>
+        } @else if (externalUrl(game); as url) {
+          <a class="arcade-button mt-2 self-start" [href]="url" target="_top"
+            >Play in Pixel Cabinet</a
+          >
+        } @else {
+          <p class="arcade-hint mt-2">
+            Lives in the Pixel Cabinet. Store its App URL on the game record to launch it from here.
+          </p>
+        }
+      </article>
+    }
+  </div>
+</section>

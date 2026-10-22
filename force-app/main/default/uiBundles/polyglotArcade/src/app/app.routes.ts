@@ -1,32 +1,23 @@
 import { Routes } from '@angular/router';
 import { AppLayoutComponent } from './components/layout/app-layout/app-layout';
-import { HomeComponent } from './pages/home/home';
+import { LeaderboardComponent } from './pages/leaderboard/leaderboard';
+import { LobbyComponent } from './pages/lobby/lobby';
 import { NotFoundComponent } from './pages/not-found/not-found';
-import { AccountSearchPageComponent } from "./pages/account-search/account-search-page";
-import { AccountDetailPageComponent } from "./pages/account-detail/account-detail-page";
+import { PlayComponent } from './pages/play/play';
 
 export const routes: Routes = [
   {
-    path: "",
+    path: '',
     component: AppLayoutComponent,
     children: [
+      { path: '', component: LobbyComponent, data: { showInNavigation: true, label: 'Lobby' } },
       {
-        path: "",
-        component: HomeComponent,
-        data: { showInNavigation: true, label: "Home" }
+        path: 'leaderboard',
+        component: LeaderboardComponent,
+        data: { showInNavigation: true, label: 'Hall of fame' },
       },
-      {
-        path: "accounts/:recordId",
-        component: AccountDetailPageComponent
-      },
-      {
-        path: "accounts",
-        component: AccountSearchPageComponent
-      },
-      {
-        path: '**',
-        component: NotFoundComponent
-      }
-    ]
-  }
+      { path: 'play/:gameKey', component: PlayComponent },
+      { path: '**', component: NotFoundComponent },
+    ],
+  },
 ];

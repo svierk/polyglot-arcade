@@ -29,75 +29,75 @@ const graphqlProcessor = graphqlPlugin.processor;
 const blockCountsMap = new Map();
 
 const compositeProcessor = {
-	meta: {
-		name: 'angular-graphql/composite',
-		version: '1.0.0',
-	},
-	supportsAutofix: true,
+  meta: {
+    name: 'angular-graphql/composite',
+    version: '1.0.0',
+  },
+  supportsAutofix: true,
 
-	preprocess(code, filePath) {
-		// Call both preprocessors — this populates their internal state maps
-		// Angular returns: [source, ...htmlBlocks] (source FIRST)
-		const angularResult = angularProcessor.preprocess(code, filePath);
-		// GraphQL returns: [...gqlBlocks, source] (source LAST)
-		const graphqlResult = graphqlProcessor.preprocess(code, filePath);
+  preprocess(code, filePath) {
+    // Call both preprocessors — this populates their internal state maps
+    // Angular returns: [source, ...htmlBlocks] (source FIRST)
+    const angularResult = angularProcessor.preprocess(code, filePath);
+    // GraphQL returns: [...gqlBlocks, source] (source LAST)
+    const graphqlResult = graphqlProcessor.preprocess(code, filePath);
 
-		// Extract blocks (excluding source) from each
-		const htmlBlocks = angularResult.length > 1 ? angularResult.slice(1) : [];
-		const gqlBlocks = graphqlResult.length > 1 ? graphqlResult.slice(0, -1) : [];
+    // Extract blocks (excluding source) from each
+    const htmlBlocks = angularResult.length > 1 ? angularResult.slice(1) : [];
+    const gqlBlocks = graphqlResult.length > 1 ? graphqlResult.slice(0, -1) : [];
 
-		// Store counts for postprocess routing
-		blockCountsMap.set(filePath, {
-			gqlCount: gqlBlocks.length,
-			htmlCount: htmlBlocks.length,
-		});
+    // Store counts for postprocess routing
+    blockCountsMap.set(filePath, {
+      gqlCount: gqlBlocks.length,
+      htmlCount: htmlBlocks.length,
+    });
 
-		// Return unified: [gqlBlocks..., htmlBlocks..., source]
-		// Source appears exactly ONCE at the end
-		return [...gqlBlocks, ...htmlBlocks, code];
-	},
+    // Return unified: [gqlBlocks..., htmlBlocks..., source]
+    // Source appears exactly ONCE at the end
+    return [...gqlBlocks, ...htmlBlocks, code];
+  },
 
-	postprocess(messages, filePath) {
-		const { gqlCount, htmlCount } = blockCountsMap.get(filePath) || { gqlCount: 0, htmlCount: 0 };
-		blockCountsMap.delete(filePath);
+  postprocess(messages, filePath) {
+    const { gqlCount, htmlCount } = blockCountsMap.get(filePath) || { gqlCount: 0, htmlCount: 0 };
+    blockCountsMap.delete(filePath);
 
-		const sourceIndex = gqlCount + htmlCount;
-		const sourceMessages = messages[sourceIndex] || [];
+    const sourceIndex = gqlCount + htmlCount;
+    const sourceMessages = messages[sourceIndex] || [];
 
-		// Short-circuit: neither processor extracted blocks
-		if (gqlCount === 0 && htmlCount === 0) {
-			return sourceMessages;
-		}
+    // Short-circuit: neither processor extracted blocks
+    if (gqlCount === 0 && htmlCount === 0) {
+      return sourceMessages;
+    }
 
-		// Short-circuit: only Angular had blocks
-		if (gqlCount === 0) {
-			const angularMessages = [sourceMessages, ...messages.slice(0, htmlCount)];
-			return angularProcessor.postprocess(angularMessages, filePath);
-		}
+    // Short-circuit: only Angular had blocks
+    if (gqlCount === 0) {
+      const angularMessages = [sourceMessages, ...messages.slice(0, htmlCount)];
+      return angularProcessor.postprocess(angularMessages, filePath);
+    }
 
-		// Short-circuit: only GraphQL had blocks
-		if (htmlCount === 0) {
-			const gqlMessages = [...messages.slice(0, gqlCount), sourceMessages];
-			return graphqlProcessor.postprocess(gqlMessages, filePath);
-		}
+    // Short-circuit: only GraphQL had blocks
+    if (htmlCount === 0) {
+      const gqlMessages = [...messages.slice(0, gqlCount), sourceMessages];
+      return graphqlProcessor.postprocess(gqlMessages, filePath);
+    }
 
-		// Both had blocks — route to each postprocess and merge
-		// GraphQL expects: [gqlBlock0Msgs, ..., gqlBlockNMsgs, sourceMessages]
-		const gqlInput = [...messages.slice(0, gqlCount), sourceMessages];
-		const gqlResult = graphqlProcessor.postprocess(gqlInput, filePath);
+    // Both had blocks — route to each postprocess and merge
+    // GraphQL expects: [gqlBlock0Msgs, ..., gqlBlockNMsgs, sourceMessages]
+    const gqlInput = [...messages.slice(0, gqlCount), sourceMessages];
+    const gqlResult = graphqlProcessor.postprocess(gqlInput, filePath);
 
-		// Angular expects: [sourceMessages, htmlBlock0Msgs, ..., htmlBlockMMsgs]
-		const angularInput = [sourceMessages, ...messages.slice(gqlCount, gqlCount + htmlCount)];
-		const angularResult = angularProcessor.postprocess(angularInput, filePath);
+    // Angular expects: [sourceMessages, htmlBlock0Msgs, ..., htmlBlockMMsgs]
+    const angularInput = [sourceMessages, ...messages.slice(gqlCount, gqlCount + htmlCount)];
+    const angularResult = angularProcessor.postprocess(angularInput, filePath);
 
-		// Deduplicate source messages (both postprocessors pass them through by reference)
-		const sourceSet = new Set(sourceMessages);
-		const gqlOnly = gqlResult.filter((m) => !sourceSet.has(m));
+    // Deduplicate source messages (both postprocessors pass them through by reference)
+    const sourceSet = new Set(sourceMessages);
+    const gqlOnly = gqlResult.filter((m) => !sourceSet.has(m));
 
-		// angularResult = [...sourceMessages, ...adjustedHtmlMessages]
-		// gqlOnly = [...adjustedGqlMessages] (source messages filtered out)
-		return [...angularResult, ...gqlOnly].sort((a, b) => a.line - b.line || a.column - b.column);
-	},
+    // angularResult = [...sourceMessages, ...adjustedHtmlMessages]
+    // gqlOnly = [...adjustedGqlMessages] (source messages filtered out)
+    return [...angularResult, ...gqlOnly].sort((a, b) => a.line - b.line || a.column - b.column);
+  },
 };
 
 /**
@@ -106,43 +106,43 @@ const compositeProcessor = {
  * - If no schema → Angular-only inline template processor, no GraphQL rules
  */
 export function createPlugin({ schemaPath } = {}) {
-	const schemaExists = !!(schemaPath && existsSync(schemaPath));
+  const schemaExists = !!(schemaPath && existsSync(schemaPath));
 
-	const configs = [
-		{
-			files: ['**/*.ts'],
-			processor: schemaExists ? compositeProcessor : angularProcessor,
-		},
-		...(schemaExists
-			? [
-					{
-						files: ['**/*.graphql'],
-						languageOptions: {
-							parser: graphqlPlugin.parser,
-							parserOptions: {
-								graphQLConfig: {
-									schema: schemaPath,
-									documents: 'src/**/*.ts',
-								},
-							},
-						},
-						plugins: {
-							'@graphql-eslint': graphqlPlugin,
-						},
-						rules: {
-							'@graphql-eslint/no-anonymous-operations': 'error',
-							'@graphql-eslint/no-duplicate-fields': 'error',
-							'@graphql-eslint/known-fragment-names': 'error',
-							'@graphql-eslint/no-undefined-variables': 'error',
-							'@graphql-eslint/no-unused-variables': 'error',
-						},
-					},
-				]
-			: []),
-	];
+  const configs = [
+    {
+      files: ['**/*.ts'],
+      processor: schemaExists ? compositeProcessor : angularProcessor,
+    },
+    ...(schemaExists
+      ? [
+          {
+            files: ['**/*.graphql'],
+            languageOptions: {
+              parser: graphqlPlugin.parser,
+              parserOptions: {
+                graphQLConfig: {
+                  schema: schemaPath,
+                  documents: 'src/**/*.ts',
+                },
+              },
+            },
+            plugins: {
+              '@graphql-eslint': graphqlPlugin,
+            },
+            rules: {
+              '@graphql-eslint/no-anonymous-operations': 'error',
+              '@graphql-eslint/no-duplicate-fields': 'error',
+              '@graphql-eslint/known-fragment-names': 'error',
+              '@graphql-eslint/no-undefined-variables': 'error',
+              '@graphql-eslint/no-unused-variables': 'error',
+            },
+          },
+        ]
+      : []),
+  ];
 
-	return {
-		meta: { name: 'eslint-plugin-angular-graphql', version: '1.0.0' },
-		configs,
-	};
+  return {
+    meta: { name: 'eslint-plugin-angular-graphql', version: '1.0.0' },
+    configs,
+  };
 }

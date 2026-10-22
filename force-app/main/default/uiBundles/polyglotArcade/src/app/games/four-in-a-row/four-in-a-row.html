@@ -1,0 +1,44 @@
+<div class="flex flex-col items-center gap-4">
+  <p class="arcade-title text-sm" aria-live="polite">{{ status() }}</p>
+
+  @if (phase() === 'setup') {
+    <div class="flex flex-wrap justify-center gap-3">
+      @for (level of difficulties; track level) {
+        <button type="button" class="arcade-button" (click)="start(level)">{{ level }}</button>
+      }
+    </div>
+  }
+
+  <div
+    class="board"
+    [class.locked]="phase() !== 'human'"
+    role="group"
+    aria-label="Four in a Row board"
+  >
+    @for (col of columns; track col) {
+      <button
+        type="button"
+        class="column"
+        [class.cursor]="cursor() === col && phase() === 'human'"
+        [attr.aria-label]="'Drop disc in column ' + (col + 1)"
+        [disabled]="phase() !== 'human' || isColumnFull(col)"
+        (click)="cursor.set(col); play(col)"
+        (mouseenter)="cursor.set(col)"
+      >
+        @for (row of rows; track row) {
+          <span class="cell">
+            <span
+              class="disc"
+              [class]="disc(row, col)"
+              [class.win]="isWinning(row, col)"
+              [class.drop]="lastDrop() === row + ':' + col"
+              [style.--fall]="row + 1"
+            ></span>
+          </span>
+        }
+      </button>
+    }
+  </div>
+
+  <p class="arcade-hint">Click a column or use ← → and Enter · keys 1–7 drop directly</p>
+</div>

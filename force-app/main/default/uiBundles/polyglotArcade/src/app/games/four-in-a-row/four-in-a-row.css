@@ -1,0 +1,89 @@
+:host {
+  display: block;
+  outline: none;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100%, 420px);
+  padding: 10px;
+  border-radius: 14px;
+  background: #1e1b4b;
+  box-shadow:
+    inset 0 0 0 3px #312e81,
+    0 0 32px rgba(244, 63, 94, 0.15);
+}
+
+.column {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  gap: 6px;
+  padding: 4px 2px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.column.cursor {
+  background: rgba(34, 211, 238, 0.12);
+}
+
+.locked .column {
+  cursor: default;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #07071a;
+  overflow: hidden;
+}
+
+.disc {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.disc-human {
+  background: radial-gradient(circle at 35% 35%, #fda4af, #f43f5e 60%, #9f1239);
+}
+
+.disc-cpu {
+  background: radial-gradient(circle at 35% 35%, #fef08a, #facc15 60%, #a16207);
+}
+
+.disc.drop {
+  animation: fall 260ms ease-in;
+}
+
+/* A static ring keeps the winning line visible when motion is reduced. */
+.disc.win {
+  box-shadow: inset 0 0 0 4px #fff;
+  animation: pulse 700ms ease-in-out infinite alternate;
+}
+
+@keyframes fall {
+  from {
+    transform: translateY(calc(var(--fall) * -110%));
+  }
+}
+
+@keyframes pulse {
+  to {
+    box-shadow:
+      inset 0 0 0 4px #fff,
+      0 0 14px 4px #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disc.drop,
+  .disc.win {
+    animation: none;
+  }
+}

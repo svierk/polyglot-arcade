@@ -11,21 +11,21 @@ import { classes } from '@spartan-ng/styles/utils';
 export type AppSeparatorOrientation = 'horizontal' | 'vertical';
 
 @Component({
-	selector: 'app-separator',
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	hostDirectives: [{ directive: BrnSeparator, inputs: ['orientation', 'decorative'] }],
-	host: {
-		'data-slot': 'separator',
-	},
-	template: '',
+  selector: 'app-separator',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [{ directive: BrnSeparator, inputs: ['orientation', 'decorative'] }],
+  host: {
+    'data-slot': 'separator',
+  },
+  template: '',
 })
 export class SeparatorComponent {
-	readonly orientation = input<AppSeparatorOrientation>('horizontal');
-	readonly decorative = input(true, { transform: booleanAttribute });
+  readonly orientation = input<AppSeparatorOrientation>('horizontal');
+  readonly decorative = input(true, { transform: booleanAttribute });
 
-	constructor() {
-		classes(() => hlmSeparatorClass);
-	}
+  constructor() {
+    classes(() => hlmSeparatorClass);
+  }
 }
 
 export const SeparatorImports = [SeparatorComponent] as const;

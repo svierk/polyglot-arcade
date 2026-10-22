@@ -1,85 +1,33 @@
-# Base Angular App
+# Polyglot Arcade hub (Angular)
 
-Base Angular App is a template application that demonstrates how to build an Angular UI Bundle on the Salesforce platform with the Angular CLI, TypeScript, Tailwind, and the Salesforce UI Bundle SDK. It provides a minimal shell (home, 404), routing with standalone components and signals, so feature apps can extend it via the patches pipeline.
+The Angular UI bundle of [Polyglot Arcade](../../../../../README.md): lobby, hall of fame and the Angular games, launched from the App Launcher.
 
-This UI Bundle lives inside an SFDX project. The project root is the directory that contains `force-app/` and `sfdx-project.json`. Run the commands in the sections below from the paths indicated.
+| Route            | Purpose                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| `/`              | Lobby built from `Arcade_Game__c`; launches hub games here and cabinet games via their App URL |
+| `/leaderboard`   | Hall of fame across all games and surfaces                                                     |
+| `/play/:gameKey` | A hub game with its leaderboard, e.g. `/play/four-in-a-row`                                    |
 
-## Table of contents
+## Structure
 
-- [Run (development)](#run-development)
-- [Build](#build)
-- [Deploy](#deploy)
-- [Test](#test)
-- [Lint](#lint)
-
-## Run (development)
-
-From the UI Bundle directory (`force-app/main/default/uiBundles/base-angular-app`):
-
-```bash
-npm install
-npm run dev
+```
+src/app/
+├── api/                   Data SDK client + ArcadeApi (games, scores, leaderboards)
+├── components/            app layout, leaderboard table, template UI kit (spartan)
+├── games/                 registry, shared types, four-in-a-row/ (engine.ts + component)
+└── pages/                 lobby, play, leaderboard, not-found
+src/arcade.css             shared arcade theme (kept in sync with the cabinet)
 ```
 
-This starts the Salesforce Angular dev server (`sf-angular-serve`).
+## Commands
 
-## Build
-
-From the UI Bundle directory:
+Run from this folder:
 
 ```bash
-npm install
-npm run build
+npm run dev                  # Angular dev server, data calls proxied to the default org
+npm run build                # lint + production build into dist/
+npx ng test --watch=false    # unit tests (game engine + components)
+npm run build:e2e && npx playwright test   # end-to-end tests against the built app, no org needed
 ```
 
-The production build is written to `dist/` inside the UI Bundle folder. Use `npm run watch` to rebuild on change in development mode. Deploy using the steps in [Deploy](#deploy).
-
-## Deploy
-
-From the **SFDX project root** (the directory that contains `force-app/`):
-
-1. Build the UI Bundle:
-
-   ```bash
-   cd force-app/main/default/uiBundles/base-angular-app && npm install && npm run build && cd -
-   ```
-
-2. Deploy the UI Bundle only:
-
-   ```bash
-   sf project deploy start --source-dir force-app/main/default/ui-bundles --target-org <alias>
-   ```
-
-   Or deploy all metadata:
-
-   ```bash
-   sf project deploy start --source-dir force-app --target-org <alias>
-   ```
-
-   Replace `<alias>` with your target org alias.
-
-## Test
-
-From the UI Bundle directory:
-
-```bash
-npm install
-npm run test
-```
-
-This runs the unit test suite via `ng test`. For end-to-end tests:
-
-```bash
-npm run build:e2e
-npm run e2e
-```
-
-This builds with E2E asset rewrites and runs Playwright against the static build. Ensure Chromium is installed (`npx playwright install chromium` if needed).
-
-## Lint
-
-From the UI Bundle directory:
-
-```bash
-npm run lint
-```
+Deploy from the project root with `sf project deploy start --source-dir force-app/main/default/uiBundles/polyglotArcade`. The bundle is deployed with its built `dist/` folder, so build before deploying.

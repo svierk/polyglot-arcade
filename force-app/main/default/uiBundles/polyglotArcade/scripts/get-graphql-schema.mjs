@@ -18,52 +18,52 @@ const DEFAULT_SCHEMA_PATH = '../../../../../schema.graphql';
 const TARGET_ORG = process.env.SF_TARGET_ORG || undefined;
 
 async function executeSalesforceGraphQLQuery(query, variables, operationName) {
-	const orgInfo = await getOrgInfo(TARGET_ORG);
-	if (!orgInfo) {
-		throw new Error('Could not resolve a Salesforce org. Set SF_TARGET_ORG or a default org.');
-	}
-	const { rawInstanceUrl: instanceUrl, apiVersion, accessToken } = orgInfo;
+  const orgInfo = await getOrgInfo(TARGET_ORG);
+  if (!orgInfo) {
+    throw new Error('Could not resolve a Salesforce org. Set SF_TARGET_ORG or a default org.');
+  }
+  const { rawInstanceUrl: instanceUrl, apiVersion, accessToken } = orgInfo;
 
-	const targetUrl = `${instanceUrl}/services/data/v${apiVersion}/graphql`;
+  const targetUrl = `${instanceUrl}/services/data/v${apiVersion}/graphql`;
 
-	console.log(`Executing introspection query against ${targetUrl}`);
-	const response = await fetch(targetUrl, {
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${accessToken}`,
-			'Content-Type': 'application/json',
-			'X-Chatter-Entity-Encoding': 'false',
-		},
-		body: JSON.stringify({ query, variables, operationName }),
-	});
+  console.log(`Executing introspection query against ${targetUrl}`);
+  const response = await fetch(targetUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'X-Chatter-Entity-Encoding': 'false',
+    },
+    body: JSON.stringify({ query, variables, operationName }),
+  });
 
-	if (!response.ok) {
-		const errorText = await response.text();
-		throw new Error(
-			`Salesforce GraphQL request failed: ${response.status} ${response.statusText} - ${errorText}`,
-		);
-	}
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Salesforce GraphQL request failed: ${response.status} ${response.statusText} - ${errorText}`,
+    );
+  }
 
-	return response.json();
+  return response.json();
 }
 
 try {
-	const outputPath = resolve(process.argv[2] || DEFAULT_SCHEMA_PATH);
+  const outputPath = resolve(process.argv[2] || DEFAULT_SCHEMA_PATH);
 
-	const introspectionResult = await executeSalesforceGraphQLQuery(
-		getIntrospectionQuery(),
-		{},
-		'IntrospectionQuery',
-	);
+  const introspectionResult = await executeSalesforceGraphQLQuery(
+    getIntrospectionQuery(),
+    {},
+    'IntrospectionQuery',
+  );
 
-	const schema = buildClientSchema(introspectionResult.data);
-	const prunedSchema = pruneSchema(schema);
-	const sdl = printSchema(prunedSchema);
+  const schema = buildClientSchema(introspectionResult.data);
+  const prunedSchema = pruneSchema(schema);
+  const sdl = printSchema(prunedSchema);
 
-	writeFileSync(outputPath, sdl);
+  writeFileSync(outputPath, sdl);
 
-	console.log(`Schema saved to ${outputPath}`);
+  console.log(`Schema saved to ${outputPath}`);
 } catch (error) {
-	console.error('Error:', error.message);
-	process.exit(1);
+  console.error('Error:', error.message);
+  process.exit(1);
 }

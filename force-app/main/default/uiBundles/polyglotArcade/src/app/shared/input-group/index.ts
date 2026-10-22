@@ -11,9 +11,9 @@ export * from './hlm-input-group-input';
 export * from './hlm-input-group-text';
 
 export const HlmInputGroupImports = [
-	HlmInputGroup,
-	HlmInputGroupAddon,
-	HlmInputGroupButton,
-	HlmInputGroupInput,
-	HlmInputGroupText,
+  HlmInputGroup,
+  HlmInputGroupAddon,
+  HlmInputGroupButton,
+  HlmInputGroupInput,
+  HlmInputGroupText,
 ] as const;
