@@ -40,6 +40,11 @@ jobs:
       - name: Check Formatting
         run: npm run prettier:verify
 
+      # Exercises the zod schema the org setup script relies on, so dependency
+      # updates that break `npm run setup` fail here instead of in a user's org.
+      - name: Validate Org Setup Config
+        run: npm run validate:org-setup-config
+
       - name: Lint LWC
         run: npm run lint
 
