@@ -1,0 +1,34 @@
+name: 💡 Feature request
+description: Suggest a new game, an improvement or another Salesforce integration pattern.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the suggestion! New games and new ways to show Salesforce Multi-Framework are especially welcome.
+  - type: input
+    id: area
+    attributes:
+      label: Related area
+      placeholder: e.g. a new game, the hall of fame, Experience Cloud, Agentforce
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What would this add or show?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

@@ -1,0 +1,62 @@
+# Dependabot keeps this repository's dependencies current on its own:
+#
+#   * npm            - the SFDX project tooling (LWC Jest, ESLint, Prettier) and
+#                      both UI bundles (Angular hub, React cabinet), each with
+#                      its own package.json / package-lock.json
+#   * github-actions - every action pinned in .github/workflows (each `uses:`
+#                      reference is pinned to an exact release tag, so an update
+#                      is always an explicit, reviewable change of that pin)
+#
+# All updates are grouped into a single pull request per directory and merged
+# autonomously by .github/workflows/dependabot-auto-merge.yml once the required
+# checks pass. The quality gate is therefore the Validation workflow, which
+# builds and tests both bundles end to end.
+#
+# Options reference:
+# https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/force-app/main/default/uiBundles/polyglotArcade"
+      - "/force-app/main/default/uiBundles/pixelCabinet"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    cooldown:
+      # Let a release settle before adopting it - a compromised or broken
+      # version is usually pulled within a few days. Security updates are not
+      # affected by this.
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/" # for this ecosystem "/" means .github/workflows
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+    cooldown:
+      default-days: 3
+    groups:
+      actions:
+        applies-to: version-updates
+        patterns:
+          - "*"

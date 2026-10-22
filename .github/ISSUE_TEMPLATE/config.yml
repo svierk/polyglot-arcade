@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Salesforce Multi-Framework documentation
+    url: https://developer.salesforce.com/docs/platform/microfrontend/guide/get-started.html
+    about: Questions about UI bundles or lightning-ui-embedding in general are best answered by the official docs.
