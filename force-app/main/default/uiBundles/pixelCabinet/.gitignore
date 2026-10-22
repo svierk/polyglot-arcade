@@ -48,3 +48,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# TypeScript build output of the Vite config (tsc -b)
+/build
+*.tsbuildinfo
