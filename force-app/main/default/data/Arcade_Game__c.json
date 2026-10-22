@@ -1,0 +1,44 @@
+{
+  "records": [
+    {
+      "attributes": { "type": "Arcade_Game__c", "referenceId": "BlockDrop" },
+      "Name": "Block Drop",
+      "Game_Key__c": "block-drop",
+      "Framework__c": "React",
+      "Tagline__c": "Stack falling blocks, clear lines, chase the next level.",
+      "Sort_Order__c": 10,
+      "Is_Active__c": true,
+      "Accent_Color__c": "#22d3ee"
+    },
+    {
+      "attributes": { "type": "Arcade_Game__c", "referenceId": "PelletChase" },
+      "Name": "Pellet Chase",
+      "Game_Key__c": "pellet-chase",
+      "Framework__c": "React",
+      "Tagline__c": "Clear the maze before the ghosts catch you.",
+      "Sort_Order__c": 20,
+      "Is_Active__c": true,
+      "Accent_Color__c": "#facc15"
+    },
+    {
+      "attributes": { "type": "Arcade_Game__c", "referenceId": "FourInARow" },
+      "Name": "Four in a Row",
+      "Game_Key__c": "four-in-a-row",
+      "Framework__c": "Angular",
+      "Tagline__c": "Outsmart the CPU: connect four discs before it does.",
+      "Sort_Order__c": 30,
+      "Is_Active__c": true,
+      "Accent_Color__c": "#f43f5e"
+    },
+    {
+      "attributes": { "type": "Arcade_Game__c", "referenceId": "BrickBreaker" },
+      "Name": "Brick Breaker",
+      "Game_Key__c": "brick-breaker",
+      "Framework__c": "Angular",
+      "Tagline__c": "Bounce, smash, repeat. Leave no brick standing.",
+      "Sort_Order__c": 40,
+      "Is_Active__c": true,
+      "Accent_Color__c": "#a3e635"
+    }
+  ]
+}
