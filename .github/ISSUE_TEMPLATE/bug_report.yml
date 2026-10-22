@@ -1,0 +1,70 @@
+name: 🐞 Bug report
+description: Report a problem with a game, the hub, the cabinet or the Salesforce integration.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug report! Please fill out the sections below so we can reproduce and fix the issue.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Polyglot Arcade hub (Angular)
+        - Pixel Cabinet (React)
+        - Embedded cabinet / LWC components
+        - Data model, permissions or setup scripts
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open '...'
+        2. Play '...'
+        3. See error '...'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console or CLI output
+      description: Browser console errors or `sf` CLI output (redact org URLs and user names). Automatically formatted, no backticks needed.
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - Org type: Scratch / Developer Edition / Sandbox
+        - Salesforce release: Winter '27
+        - Browser: Chrome 141
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am using the latest release or the latest state of the `main` branch.
+          required: false
