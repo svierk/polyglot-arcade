@@ -8,10 +8,12 @@ test.describe('Pixel Cabinet', () => {
     await expect(
       page.getByRole('heading', { name: 'Insert coin' })
     ).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: /Block Drop/ }).first()
-    ).toBeVisible();
-    await expect(page.getByText('Coming soon')).toBeVisible();
+    for (const name of ['Block Drop', 'Pellet Chase']) {
+      await expect(
+        page.getByRole('link', { name: new RegExp(`${name}.*Play`) })
+      ).toBeVisible();
+    }
+    await expect(page.getByText('Coming soon')).toHaveCount(0);
   });
 
   test('a Block Drop round can be played to the end', async ({ page }) => {
@@ -25,6 +27,28 @@ test.describe('Pixel Cabinet', () => {
     await expect(
       page.getByRole('button', { name: 'Play again' })
     ).toBeVisible();
+  });
+
+  test('a Pellet Chase round starts, pauses and resumes', async ({ page }) => {
+    await page.goto('/play/pellet-chase');
+    await page.getByRole('button', { name: 'Press start' }).click();
+    await page.keyboard.press('ArrowUp');
+    const score = page
+      .locator('.arcade-stat', { hasText: 'Score' })
+      .locator('strong');
+    // After the ready freeze the player runs into the first pellets.
+    await expect(score).not.toHaveText('0');
+
+    await page.keyboard.press('p');
+    await expect(page.getByText('Paused')).toBeVisible();
+    const pausedScore = await score.textContent();
+    await page.waitForTimeout(500);
+    await expect(score).toHaveText(pausedScore!);
+
+    await page.getByRole('button', { name: 'Resume' }).click();
+    await expect(page.getByText('Paused')).toBeHidden();
+    await page.keyboard.press('Escape');
+    await expect(page.getByText('Paused')).toBeVisible();
   });
 
   test('embed route offers a game picker without host props', async ({

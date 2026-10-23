@@ -37,20 +37,20 @@ React and Angular are generally available for UI bundles as of Winter '27. Embed
 | Game              | Mechanic                                               | Framework | Lives in                                  | Status      |
 | ----------------- | ------------------------------------------------------ | --------- | ----------------------------------------- | ----------- |
 | **Block Drop**    | falling blocks, line clears, levels                    | React     | Pixel Cabinet                             | ✅ Playable |
+| **Pellet Chase**  | maze chase: four ghosts with their own tactics         | React     | Pixel Cabinet                             | ✅ Playable |
 | **Four in a Row** | turn-based vs. a minimax CPU with three difficulties   | Angular   | Polyglot Arcade hub                       | ✅ Playable |
 | **Brick Breaker** | paddle and ball, tougher walls every level             | Angular   | Polyglot Arcade hub                       | ✅ Playable |
 | **Snake**         | eat, grow, don't bite your own tail - on a retro phone | LWC OSS   | Vercel, embedded in the Arcade Break Room | ✅ Playable |
-| **Pellet Chase**  | maze chase                                             | React     | Pixel Cabinet                             | 🚧 Planned  |
 
 > The games are original implementations of classic mechanics. Names and artwork are deliberately generic - no trademarks of the original arcade titles are used.
 
-| Four in a Row (Angular hub)                                                                                                  | Brick Breaker (Angular hub)                                                                                                                               |
-| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <img src="./images/four-in-a-row.png" alt="Four in a Row won against the CPU, with the hub leaderboard" width="440"/>        | <img src="./images/brick-breaker.png" alt="Brick Breaker in progress next to its leaderboard" width="440"/>                                               |
-| **Block Drop (React cabinet)**                                                                                               | **Microfrontend on a Lightning page**                                                                                                                     |
-| <img src="./images/pixel-cabinet.png" alt="Block Drop in progress next to its leaderboard" width="440"/>                     | <img src="./images/break-room.png" alt="Snake embedded in the Arcade Break Room page after a round, with the toast and the LWC leaderboard" width="440"/> |
-| **Hall of fame across all surfaces**                                                                                         |                                                                                                                                                           |
-| <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores from the cabinet and from embedded play" width="440"/> |                                                                                                                                                           |
+| Four in a Row (Angular hub)                                                                                                                               | Brick Breaker (Angular hub)                                                                                                                      |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| <img src="./images/four-in-a-row.png" alt="Four in a Row won against the CPU, with the hub leaderboard" width="440"/>                                     | <img src="./images/brick-breaker.png" alt="Brick Breaker in progress next to its leaderboard" width="440"/>                                      |
+| **Block Drop (React cabinet)**                                                                                                                            | **Pellet Chase (React cabinet)**                                                                                                                 |
+| <img src="./images/pixel-cabinet.png" alt="Block Drop in progress next to its leaderboard" width="440"/>                                                  | <img src="./images/pellet-chase.png" alt="Pellet Chase right after a power pellet, two frightened ghosts, next to its leaderboard" width="440"/> |
+| **Microfrontend on a Lightning page**                                                                                                                     | **Hall of fame across all surfaces**                                                                                                             |
+| <img src="./images/break-room.png" alt="Snake embedded in the Arcade Break Room page after a round, with the toast and the LWC leaderboard" width="440"/> | <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores from the cabinet and from embedded play" width="440"/>                     |
 
 ## 🏗️ Architecture
 
@@ -63,7 +63,7 @@ flowchart LR
             HubGames["Four in a Row<br/>Brick Breaker"]
         end
         subgraph Cab["Pixel Cabinet · React UI bundle"]
-            BD["Block Drop"]
+            BD["Block Drop<br/>Pellet Chase"]
             Embed["/embed route"]
         end
         subgraph LEX["Lightning page · Arcade Break Room"]
@@ -211,6 +211,15 @@ npm run connect:cabinet -- --target-org my-org
 
 Then open **Polyglot Arcade** or **Pixel Cabinet** from the App Launcher, or the **Arcade Break Room** tab for the embedded Block Drop and Snake.
 
+### Upgrade from v0.3.0
+
+Pellet Chase brings no new metadata or data - its game record, App URL and embed route are already in place. Deploy the new cabinet build without the data step:
+
+```bash
+git pull && npm install
+npm run setup -- --target-org my-org --skip-data
+```
+
 ### Upgrade from v0.2.0
 
 Keep your scores: deploy without the data step, store the cabinet's embed route on the React games and add the Snake record.
@@ -261,7 +270,7 @@ Tests and checks - the [Validation workflow](.github/workflows/ci.yml) runs all 
 | Scope         | Command                                                                                    | What it covers                                            |
 | ------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
 | SFDX project  | `npm run prettier:verify` · `npm run lint` · `npm run test:unit`                           | formatting, LWC linting, LWC Jest + accessibility (sa11y) |
-| React cabinet | `npm run lint` · `npx vitest run` · `npm run build:e2e && npx playwright test`             | Block Drop engine, production build, end-to-end play      |
+| React cabinet | `npm run lint` · `npx vitest run` · `npm run build:e2e && npx playwright test`             | game engines, production build, end-to-end play           |
 | Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, end-to-end play       |
 
 GraphQL operations are validated against your org's schema with `npm run graphql:codegen` inside each bundle.
@@ -272,7 +281,7 @@ GraphQL operations are validated against your org's schema with `npm run graphql
 force-app/main/default/
 ├── uiBundles/
 │   ├── polyglotArcade/       Angular hub: lobby, hall of fame, Four in a Row, Brick Breaker
-│   └── pixelCabinet/         React cabinet: Block Drop, /embed microfrontend route
+│   └── pixelCabinet/         React cabinet: Block Drop, Pellet Chase, /embed microfrontend route
 ├── lwc/
 │   ├── arcadeGameHost/       <lightning-ui-embedding> host, event bridge, saves external rounds
 │   └── arcadeLeaderboard/    native LWC leaderboard (GraphQL wire + LMS refresh)
@@ -289,7 +298,6 @@ scripts/                      org setup, project setup, connect-cabinet
 
 ## 🗺️ Roadmap
 
-- **v0.4.0** - Pellet Chase (React)
 - **v1.0.0** - localization, installation via package, mobile and accessibility polish
 - **Later** - a public arcade on Experience Cloud (trade-show lead capture) and an Agentforce question like "who is this week's champion?"
 
