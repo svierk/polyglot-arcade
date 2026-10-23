@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import BlockDrop from './block-drop/BlockDrop';
+import PelletChase from './pellet-chase/PelletChase';
 import type { GameKey, GameProps } from './types';
 
 export interface CabinetGame {
@@ -24,7 +25,7 @@ export const CABINET_GAMES: readonly CabinetGame[] = [
     name: 'Pellet Chase',
     tagline: 'Clear the maze before the ghosts catch you.',
     accent: '#facc15',
-    component: null,
+    component: PelletChase,
   },
 ];
 
