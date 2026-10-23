@@ -2,8 +2,9 @@
   display: block;
 }
 
-/* No fixed frame height: guests report theirs and the frame follows it. */
-.stage {
+/* Prefixed: Lightning Experience styles a global .stage class. No fixed frame
+   height: guests report theirs and the frame follows it. */
+.arcade-stage {
   min-height: 12rem;
 }
 
