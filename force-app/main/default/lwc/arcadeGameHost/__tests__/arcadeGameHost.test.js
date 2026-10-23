@@ -7,6 +7,8 @@ import { publish } from "lightning/messageService";
 const CABINET_URL =
   "https://org--c.scratch.my.salesforce.app/app/c__pixelCabinet";
 const SNAKE_URL = "https://lwc-oss-snake-game.vercel.app";
+const HUB_URL =
+  "https://org--c.scratch.my.salesforce.app/app/c__polyglotArcade";
 const ACCOUNT_ID = "001000000000001AAA";
 
 const BLOCK_DROP = {
@@ -24,7 +26,7 @@ const SNAKE = {
   hostSavesScore: true
 };
 
-function gameResponse(game) {
+function gameResponse(game, hubUrl = null) {
   const edges = game
     ? [
         {
@@ -38,7 +40,10 @@ function gameResponse(game) {
         }
       ]
     : [];
-  return { uiapi: { query: { Arcade_Game__c: { edges } } } };
+  const hub = {
+    edges: hubUrl ? [{ node: { App_Url__c: { value: hubUrl } } }] : []
+  };
+  return { uiapi: { query: { Arcade_Game__c: { edges }, hub } } };
 }
 
 function mount(props = {}) {
@@ -63,9 +68,9 @@ const embedding = (element) =>
 const cardTitle = (element) =>
   element.shadowRoot.querySelector("lightning-card").title;
 
-async function mountWithGame(game, props = {}) {
+async function mountWithGame(game, props = {}, hubUrl = null) {
   const element = mount(props);
-  graphql.emit(gameResponse(game));
+  graphql.emit(gameResponse(game, hubUrl));
   await flushPromises();
   const toastHandler = jest.fn();
   element.addEventListener("lightning__showtoast", toastHandler);
@@ -163,7 +168,7 @@ describe("c-arcade-game-host", () => {
       const { element } = await mountWithGame({ ...BLOCK_DROP, appUrl: null });
       expect(embedding(element)).toBeNull();
       expect(element.shadowRoot.querySelector(".setup").textContent).toContain(
-        "connect:cabinet"
+        "npm run connect"
       );
     });
 
@@ -195,6 +200,27 @@ describe("c-arcade-game-host", () => {
       expect(
         element.shadowRoot.querySelector('[role="alert"]').textContent
       ).toBe("HEARTBEAT_TIMEOUT: No answer");
+    });
+  });
+
+  describe("way back to the hub", () => {
+    const hubLink = (element) =>
+      element.shadowRoot.querySelector('a[slot="actions"]');
+
+    it("links to the hub lobby once npm run connect stored its URL", async () => {
+      const { element } = await mountWithGame(
+        SNAKE,
+        { game: "snake" },
+        HUB_URL
+      );
+      const link = hubLink(element);
+      expect(link.textContent).toBe("← Polyglot Arcade");
+      expect(link.href).toBe(HUB_URL);
+    });
+
+    it("shows no link while the hub URL is unknown", async () => {
+      const { element } = await mountWithGame(SNAKE, { game: "snake" });
+      expect(hubLink(element)).toBeNull();
     });
   });
 
@@ -339,7 +365,7 @@ describe("c-arcade-game-host", () => {
   });
 
   it("is accessible", async () => {
-    const { element } = await mountWithGame(SNAKE, { game: "snake" });
+    const { element } = await mountWithGame(SNAKE, { game: "snake" }, HUB_URL);
     await expect(element).toBeAccessible();
   });
 });
