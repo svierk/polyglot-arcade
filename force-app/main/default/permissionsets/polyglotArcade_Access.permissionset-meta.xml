@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <applicationVisibilities>
+        <application>arcadeFloor</application>
+        <visible>true</visible>
+    </applicationVisibilities>
+    <applicationVisibilities>
         <application>pixelCabinet</application>
         <visible>true</visible>
     </applicationVisibilities>
@@ -9,7 +13,7 @@
         <visible>true</visible>
     </applicationVisibilities>
     <description
-  >Play every Polyglot Arcade game and record scores. Players can create and read scores but not edit them.</description>
+  >Play every Polyglot Arcade game on every surface and record scores. Players can create and read scores but not edit them.</description>
     <fieldPermissions>
         <editable>false</editable>
         <field>Arcade_Game__c.Tagline__c</field>
@@ -101,15 +105,15 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <tabSettings>
-        <tab>Arcade_Break_Room</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
         <tab>Arcade_Game__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
         <tab>Arcade_Score__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Arcade_Snake</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <userPermissions>

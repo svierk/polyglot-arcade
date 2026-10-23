@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>game</name>
+                    <value>snake</value>
+                </componentInstanceProperties>
+                <componentName>arcadeGameHost</componentName>
+                <identifier>c_arcadeGameHost</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>column1</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cardTitle</name>
+                    <value>Snake Champions</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>gameKey</name>
+                    <value>snake</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxEntries</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentName>arcadeLeaderboard</componentName>
+                <identifier>c_arcadeLeaderboard</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>column2</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <masterLabel>Snake</masterLabel>
+    <description
+  >Externally hosted microfrontend: the LWC OSS Snake from Vercel, framed by the Arcade Game Host, next to a native LWC leaderboard. The host saves each round.</description>
+    <template>
+        <name>flexipage:appHomeTemplateTwoColumns</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>
