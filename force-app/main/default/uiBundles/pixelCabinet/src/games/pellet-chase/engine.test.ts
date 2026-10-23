@@ -18,6 +18,7 @@ import {
   freshPellets,
   frightMs,
   ghostSpeed,
+  playerSpeed,
   ghostTarget,
   phaseOf,
   positionOf,
@@ -48,6 +49,9 @@ function run(state: PelletChaseState, ms: number): PelletChaseState {
     next = tick(next, Math.min(16, left));
   return next;
 }
+
+/** How long the player needs for a number of tiles on level 1. */
+const tilesMs = (tiles: number) => (tiles * 1000) / playerSpeed(1);
 
 /** A game past its "ready" freeze. */
 function started(overrides: Partial<PelletChaseState> = {}): PelletChaseState {
@@ -163,7 +167,7 @@ describe('Pellet Chase engine', () => {
   describe('movement', () => {
     it('moves the player at a steady speed and stops at walls', () => {
       const game = started({ ghosts: [] });
-      expect(positionOf(run(game, 500).player).x).toBeCloseTo(5);
+      expect(positionOf(run(game, tilesMs(3)).player).x).toBeCloseTo(6);
       const stopped = run(game, 2000).player;
       expect(stopped).toMatchObject({ x: 4, y: 15, progress: 0 });
     });
@@ -172,7 +176,7 @@ describe('Pellet Chase engine', () => {
       // Above the start is a wall; the first opening upwards is one tile left.
       const game = steer(started({ ghosts: [] }), 'up');
       expect(game.player.next).toBe('up');
-      const turned = run(game, 250).player;
+      const turned = run(game, tilesMs(2)).player;
       expect(turned.dir).toBe('up');
       expect(turned.next).toBeNull();
       expect(positionOf(turned).x).toBeCloseTo(8);
@@ -191,13 +195,13 @@ describe('Pellet Chase engine', () => {
     it('wraps around through the tunnel', () => {
       const game = started({ ghosts: [], player: player(2, 9, 'left') });
       // Four tiles: 1, 0, then out the left edge and in at the right one.
-      expect(run(game, 500).player).toMatchObject({ x: COLS - 2, y: 9 });
+      expect(run(game, tilesMs(4)).player).toMatchObject({ x: COLS - 2, y: 9 });
     });
   });
 
   describe('scoring', () => {
     it('scores 10 per pellet', () => {
-      const ate = run(started({ ghosts: [] }), 125);
+      const ate = run(started({ ghosts: [] }), tilesMs(1));
       expect(ate.score).toBe(10);
       expect(ate.pelletsEaten).toBe(1);
       expect(ate.pellets[15][8]).toBeNull();
@@ -254,11 +258,18 @@ describe('Pellet Chase engine', () => {
       expect(after.phaseMs).toBeGreaterThan(500);
     });
 
-    it('gets shorter while the ghosts get faster with every level', () => {
+    it('gets shorter while the pace picks up with every level', () => {
       expect(frightMs(2)).toBeLessThan(frightMs(1));
       expect(frightMs(20)).toBeGreaterThan(0);
-      expect(ghostSpeed(2)).toBeGreaterThan(ghostSpeed(1));
-      expect(ghostSpeed(20)).toBe(ghostSpeed(10));
+      for (const speed of [playerSpeed, ghostSpeed]) {
+        expect(speed(2)).toBeGreaterThan(speed(1));
+        expect(speed(5)).toBeGreaterThan(speed(4));
+        expect(speed(20)).toBe(speed(5));
+      }
+      // The player always keeps a small edge over the roaming ghosts.
+      for (const level of [1, 2, 5]) {
+        expect(playerSpeed(level)).toBeGreaterThan(ghostSpeed(level));
+      }
     });
   });
 

@@ -107,9 +107,12 @@ export const HOUSE_CENTER: Point = { x: 9, y: 9 };
 export const HOUSE_EXIT: Point = { x: 9, y: 7 };
 
 export const READY_MS = 1500;
-/** Tiles per second. */
-export const PLAYER_SPEED = 8;
-const FRIGHTENED_SPEED = 4.5;
+/**
+ * Full speed in tiles per second. Player and ghosts move at a share of it
+ * that grows with the level, following the proportions of the arcade classic.
+ */
+const FULL_SPEED = 7.5;
+const FRIGHTENED_SPEED = FULL_SPEED * 0.5;
 const LEAVING_SPEED = 4;
 const EATEN_SPEED = 14;
 
@@ -230,9 +233,14 @@ function countPellets(pellets: Pellets): number {
   return pellets.flat().filter(Boolean).length;
 }
 
-/** Ghosts in the scatter/chase rhythm get faster with every level. */
+/** Level 1 starts calm; levels 2-4 and 5+ step the pace up. */
+export function playerSpeed(level: number): number {
+  return FULL_SPEED * (level === 1 ? 0.8 : level < 5 ? 0.9 : 1);
+}
+
+/** Ghosts in the scatter/chase rhythm stay a little slower than the player. */
 export function ghostSpeed(level: number): number {
-  return Math.min(8.5, 7 + 0.5 * (level - 1));
+  return FULL_SPEED * (level === 1 ? 0.75 : level < 5 ? 0.85 : 0.95);
 }
 
 /** Power pellets frighten the ghosts for a shorter time with every level. */
@@ -426,10 +434,11 @@ function playerCanEnter(player: Player, dir: Direction): boolean {
 /** Moves the player along; reports whether it reached a new tile. */
 function movePlayer(
   player: Player,
+  level: number,
   dtMs: number
 ): { player: Player; arrived: boolean } {
   let p = player;
-  let left = (PLAYER_SPEED * dtMs) / 1000;
+  let left = (playerSpeed(level) * dtMs) / 1000;
   let arrived = false;
   while (left > 0) {
     if (p.progress === 0) {
@@ -559,7 +568,7 @@ function step(state: PelletChaseState, dtMs: number): PelletChaseState {
   }
 
   let next = advanceTimers({ ...state, playMs }, dtMs);
-  const moved = movePlayer(next.player, dtMs);
+  const moved = movePlayer(next.player, next.level, dtMs);
   next = { ...next, player: moved.player };
   if (moved.arrived) {
     const level = next.level;
