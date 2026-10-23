@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Embed_Path__c</fullName>
+    <description
+  >Path the Arcade Game Host LWC appends to the App URL when it embeds the game, e.g. /embed for the Pixel Cabinet. Leave empty to embed the App URL as is.</description>
+    <label>Embed Path</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

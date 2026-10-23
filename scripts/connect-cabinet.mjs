@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Stores the Pixel Cabinet URL on every React game record (Arcade_Game__c.App_Url__c),
- * so the hub can launch the cabinet and the Pixel Cabinet Host LWC can embed it.
+ * Stores the Pixel Cabinet URL and its embed route on every React game record
+ * (Arcade_Game__c.App_Url__c, Embed_Path__c), so the hub can launch the cabinet
+ * and the Arcade Game Host LWC can embed it.
  *
  * Internal UI bundle URLs are org-specific; the platform exposes them as the
  * StartUrl of the app's AppMenuItem.
@@ -51,7 +52,7 @@ for (const game of games) {
     "--record-id",
     game.Id,
     "--values",
-    `App_Url__c='${menuItem.StartUrl}'`
+    `App_Url__c='${menuItem.StartUrl}' Embed_Path__c='/embed'`
   ]);
-  console.log(`  ${game.Name}: App URL set`);
+  console.log(`  ${game.Name}: App URL and embed path set`);
 }

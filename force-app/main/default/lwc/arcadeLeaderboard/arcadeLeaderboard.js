@@ -2,8 +2,8 @@
  * Arcade Leaderboard
  *
  * Native LWC view on the same Arcade_Score__c data the React and Angular apps
- * write. Refreshes when the Pixel Cabinet Host publishes a finished round on
- * Arcade_Score_Channel. On an Account record page it only shows rounds played
+ * and the Arcade Game Host write. Refreshes when the host publishes a finished
+ * round on Arcade_Score_Channel. On an Account record page it only shows rounds played
  * from that Account.
  */
 import { LightningElement, api, wire } from "lwc";

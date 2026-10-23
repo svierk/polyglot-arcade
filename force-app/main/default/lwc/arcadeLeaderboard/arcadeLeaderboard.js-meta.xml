@@ -24,7 +24,7 @@
         name="gameKey"
         type="String"
         label="Game"
-        datasource=",block-drop,pellet-chase,four-in-a-row,brick-breaker"
+        datasource=",block-drop,pellet-chase,four-in-a-row,brick-breaker,snake"
         description="Leave empty to rank all games together."
       />
             <property

@@ -32,6 +32,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Arcade_Game__c.Embed_Path__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Arcade_Game__c.Host_Saves_Score__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Arcade_Game__c.Accent_Color__c</field>
         <readable>true</readable>
     </fieldPermissions>

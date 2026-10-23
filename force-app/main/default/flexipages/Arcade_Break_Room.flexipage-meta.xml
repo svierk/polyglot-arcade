@@ -4,15 +4,21 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>cardTitle</name>
-                    <value>Block Drop</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>game</name>
                     <value>block-drop</value>
                 </componentInstanceProperties>
-                <componentName>pixelCabinetHost</componentName>
-                <identifier>c_pixelCabinetHost</identifier>
+                <componentName>arcadeGameHost</componentName>
+                <identifier>c_arcadeGameHost</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>game</name>
+                    <value>snake</value>
+                </componentInstanceProperties>
+                <componentName>arcadeGameHost</componentName>
+                <identifier>c_arcadeGameHost2</identifier>
             </componentInstance>
         </itemInstances>
         <name>column1</name>
@@ -37,12 +43,30 @@
                 <identifier>c_arcadeLeaderboard</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cardTitle</name>
+                    <value>Snake Champions</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>gameKey</name>
+                    <value>snake</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxEntries</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentName>arcadeLeaderboard</componentName>
+                <identifier>c_arcadeLeaderboard2</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>column2</name>
         <type>Region</type>
     </flexiPageRegions>
     <masterLabel>Arcade Break Room</masterLabel>
     <description
-  >Microfrontend demo: the React Block Drop game embedded next to a native LWC leaderboard.</description>
+  >Microfrontend demo: the React Block Drop from the Pixel Cabinet and the externally hosted LWC OSS Snake, each next to a native LWC leaderboard.</description>
     <template>
         <name>flexipage:appHomeTemplateTwoColumns</name>
     </template>

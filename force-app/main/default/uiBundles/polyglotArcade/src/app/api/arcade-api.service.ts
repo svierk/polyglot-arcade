@@ -9,7 +9,7 @@ interface FieldValue<T> {
   value: T | null;
 }
 
-export type Framework = 'React' | 'Angular';
+export type Framework = 'React' | 'Angular' | 'LWC OSS';
 
 export interface ArcadeGame {
   id: string;
@@ -18,6 +18,8 @@ export interface ArcadeGame {
   tagline: string;
   framework: Framework | null;
   appUrl: string | null;
+  /** Externally hosted game without a Salesforce session: only playable embedded in Lightning. */
+  hostSavesScore: boolean;
   accent: string;
   highScore: number | null;
   totalPlays: number;
@@ -45,6 +47,7 @@ interface GameNode {
   Tagline__c: FieldValue<string>;
   Framework__c: FieldValue<Framework>;
   App_Url__c: FieldValue<string>;
+  Host_Saves_Score__c: FieldValue<boolean>;
   Accent_Color__c: FieldValue<string>;
   High_Score__c: FieldValue<number>;
   Total_Plays__c: FieldValue<number>;
@@ -105,6 +108,9 @@ const GAMES = /* GraphQL */ `
                 value
               }
               App_Url__c {
+                value
+              }
+              Host_Saves_Score__c {
                 value
               }
               Accent_Color__c {
@@ -183,6 +189,7 @@ export class ArcadeApi {
       tagline: node.Tagline__c.value ?? '',
       framework: node.Framework__c.value,
       appUrl: node.App_Url__c.value,
+      hostSavesScore: node.Host_Saves_Score__c.value === true,
       accent: node.Accent_Color__c.value ?? '#22d3ee',
       highScore: node.High_Score__c.value,
       totalPlays: node.Total_Plays__c.value ?? 0,

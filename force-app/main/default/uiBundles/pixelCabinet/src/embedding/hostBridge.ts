@@ -1,6 +1,6 @@
 /**
  * Bridge between the cabinet and a Lightning page that embeds it through the
- * Pixel Cabinet Host LWC (<lightning-ui-embedding>).
+ * Arcade Game Host LWC (<lightning-ui-embedding>).
  *
  * Off an embedding surface getViewSDK() resolves to an empty SDK, so every call
  * is feature-detected and the cabinet works the same when launched standalone.
@@ -16,7 +16,7 @@ export interface HostProps {
   objectApiName?: string | null;
 }
 
-/** Detail of the `gameover` event; mirrored by pixelCabinetHost.handleGameOver. */
+/** Detail of the `gameover` event; mirrored by arcadeGameHost.handleGameOver. */
 export interface GameOverDetail {
   gameKey: GameKey;
   gameName: string;

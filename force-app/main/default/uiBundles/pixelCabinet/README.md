@@ -1,6 +1,6 @@
 # Pixel Cabinet (React)
 
-The React UI bundle of [Polyglot Arcade](../../../../../README.md): the real-time games, launchable from the App Launcher and embeddable in Lightning pages as a microfrontend through the `pixelCabinetHost` LWC.
+The React UI bundle of [Polyglot Arcade](../../../../../README.md): the real-time games, launchable from the App Launcher and embeddable in Lightning pages as a microfrontend through the `arcadeGameHost` LWC.
 
 | Route            | Purpose                                                                                 |
 | ---------------- | --------------------------------------------------------------------------------------- |

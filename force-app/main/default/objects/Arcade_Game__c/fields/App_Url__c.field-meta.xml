@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>App_Url__c</fullName>
     <description
-  >Base URL of the UI bundle that hosts this game when it is not part of the Polyglot Arcade hub, e.g. the Pixel Cabinet URL copied from the App Launcher. Used by the hub to launch the game and by the Pixel Cabinet Host LWC to embed it.</description>
+  >Base URL of the app that hosts this game when it is not part of the Polyglot Arcade hub, e.g. the Pixel Cabinet URL copied from the App Launcher or the URL of an externally hosted game. Used by the hub to launch the game and by the Arcade Game Host LWC to embed it.</description>
     <label>App URL</label>
     <required>false</required>
     <type>Url</type>

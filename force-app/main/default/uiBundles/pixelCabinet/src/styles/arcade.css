@@ -28,9 +28,12 @@
   font-family: var(--arcade-font);
 }
 
-/* Inside <lightning-ui-embedding> the page provides the frame. */
+/* Inside <lightning-ui-embedding> the page provides the frame. The frame takes
+   the height the app reports, so nothing may be sized by the viewport: a
+   min-height of 100vh would grow the frame with every resize. */
 html.embedded,
-html.embedded body {
+html.embedded body,
+html.embedded #root {
   background: transparent;
   min-height: 0;
 }

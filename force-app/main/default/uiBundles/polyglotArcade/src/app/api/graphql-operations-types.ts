@@ -134,7 +134,7 @@ export enum UiBehavior {
 export type HubGamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type HubGamesQuery = { uiapi: { query: { Arcade_Game__c?: { edges?: Array<{ node?: { Id: string, Name?: { value?: string | null } | null, Game_Key__c?: { value?: string | null } | null, Tagline__c?: { value?: string | null } | null, Framework__c?: { value?: string | null } | null, App_Url__c?: { value?: string | null } | null, Accent_Color__c?: { value?: string | null } | null, High_Score__c?: { value?: number | null } | null, Total_Plays__c?: { value?: number | null } | null } | null } | null> | null } | null } } };
+export type HubGamesQuery = { uiapi: { query: { Arcade_Game__c?: { edges?: Array<{ node?: { Id: string, Name?: { value?: string | null } | null, Game_Key__c?: { value?: string | null } | null, Tagline__c?: { value?: string | null } | null, Framework__c?: { value?: string | null } | null, App_Url__c?: { value?: string | null } | null, Host_Saves_Score__c?: { value?: boolean | null } | null, Accent_Color__c?: { value?: string | null } | null, High_Score__c?: { value?: number | null } | null, Total_Plays__c?: { value?: number | null } | null } | null } | null> | null } | null } } };
 
 export type HubLeaderboardQueryVariables = Exact<{
   gameKey?: InputMaybe<Scalars['String']['input']>;

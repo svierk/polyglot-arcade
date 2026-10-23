@@ -4,7 +4,7 @@
     <canAccessMicrophone>false</canAccessMicrophone>
     <context>All</context>
     <description
-  >Lets the Pixel Cabinet Host LWC frame the internally hosted Pixel Cabinet UI bundle.</description>
+  >Lets the Arcade Game Host LWC frame the internally hosted Pixel Cabinet UI bundle.</description>
     <endpointUrl>https://*.salesforce.app</endpointUrl>
     <isActive>true</isActive>
     <isApplicableToConnectSrc>false</isApplicableToConnectSrc>
