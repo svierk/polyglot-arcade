@@ -10,6 +10,9 @@
  *   Host_Saves_Score__c         the guest has no Salesforce session (externally
  *                               hosted), so the host saves the round itself
  *
+ * The App URL of an Angular game is the Polyglot Arcade hub, the arcade's only
+ * lobby. The card links back to it.
+ *
  *   host -> guest  `props` (game, recordId, objectApiName). The Pixel Cabinet
  *                  reads them with viewSDK.getUiState() and switches game
  *                  without a reload.
@@ -58,13 +61,26 @@ const GAME_QUERY = gql`
             }
           }
         }
+        hub: Arcade_Game__c(
+          where: { Framework__c: { eq: "Angular" }, App_Url__c: { ne: null } }
+          orderBy: { Sort_Order__c: { order: ASC } }
+          first: 1
+        ) {
+          edges {
+            node {
+              App_Url__c {
+                value
+              }
+            }
+          }
+        }
       }
     }
   }
 `;
 
-// The cabinet lobby has no game record of its own; any cabinet game carries
-// the cabinet's URL and embed path.
+// The cabinet's game picker ('lobby') has no game record of its own; any
+// cabinet game carries the cabinet's URL and embed path.
 const LOBBY = "lobby";
 const LOBBY_LOOKUP_KEY = "block-drop";
 
@@ -98,6 +114,8 @@ export default class ArcadeGameHost extends LightningElement {
 
   /** undefined while loading, null when the game record does not exist. */
   gameRecord;
+  /** Lobby of the Polyglot Arcade hub; null until `npm run connect` stored it. */
+  hubUrl = null;
   lookupError;
   embeddingError;
 
@@ -116,6 +134,8 @@ export default class ArcadeGameHost extends LightningElement {
             hostSavesScore: node.Host_Saves_Score__c?.value === true
           }
         : null;
+      this.hubUrl =
+        data.uiapi.query.hub?.edges[0]?.node.App_Url__c?.value ?? null;
       this.lookupError = undefined;
     } else if (errors) {
       this.lookupError = errors.map((e) => e.message).join("; ");
@@ -156,7 +176,7 @@ export default class ArcadeGameHost extends LightningElement {
     if (this.gameRecord === null) {
       return `There is no Arcade Game record with the key "${this.lookupKey}". Import the seed data or create the record.`;
     }
-    return "Store the game's URL in the App URL field of its Arcade Game record or in this component's App URL property. For the Pixel Cabinet games, npm run connect:cabinet does that.";
+    return "Store the game's URL in the App URL field of its Arcade Game record or in this component's App URL property. For the Pixel Cabinet games, npm run connect does that.";
   }
 
   /**

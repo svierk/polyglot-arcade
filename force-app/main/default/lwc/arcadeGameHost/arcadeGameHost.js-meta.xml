@@ -20,7 +20,7 @@
         label="Game"
         datasource="block-drop,pellet-chase,snake,lobby"
         default="block-drop"
-        description="Which game to show. 'lobby' shows the Pixel Cabinet lobby, where players pick a game."
+        description="Which game to show. 'lobby' shows the Pixel Cabinet game picker, where players pick a cabinet game."
       />
             <property
         name="cardTitle"

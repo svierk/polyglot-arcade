@@ -143,6 +143,25 @@ html.embedded #root {
   color: var(--arcade-neon);
 }
 
+/* Marquee bar: the one piece of chrome every standalone surface shares. The
+   way back to the lobby comes first, the badge naming the surface last, so a
+   switch between bundles reads as a feature, not as a break. */
+.arcade-marquee {
+  border-bottom: 1px solid var(--arcade-line);
+  background: rgba(7, 7, 26, 0.6);
+}
+
+.arcade-tech-badge {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--arcade-line);
+  border-radius: 999px;
+  color: var(--arcade-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
 .arcade-stat {
   display: flex;
   flex-direction: column;

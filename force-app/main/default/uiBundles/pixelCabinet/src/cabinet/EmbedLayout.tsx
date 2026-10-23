@@ -35,7 +35,7 @@ export default function EmbedLayout() {
               className="arcade-nav-link mb-4"
               onClick={() => setPicked(null)}
             >
-              ← Lobby
+              ← All games
             </button>
           )}
           <GameStage

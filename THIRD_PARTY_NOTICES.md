@@ -6,7 +6,7 @@ Polyglot Arcade is licensed under the [MIT License](LICENSE). Parts of it are de
 
 The project was scaffolded with the Salesforce CLI templates `angularinternalapp` and `reactbasic` (`sf template generate project` / `sf template generate ui-bundle`, package [`@salesforce/templates`](https://github.com/forcedotcom/salesforcedx-templates)). The following parts are derived from these templates and remain under the BSD 3-Clause License below:
 
-- the project tooling in `scripts/` (org setup, project setup, GraphQL helpers), except `scripts/connect-cabinet.mjs`
+- the project tooling in `scripts/` (org setup, project setup, GraphQL helpers), except `scripts/connect.mjs`
 - the build, lint and test configuration of both UI bundles (`angular.json`, `vite.config.ts`, `esbuild/`, `middleware/`, ESLint, Playwright and codegen configs)
 - the UI kits and helpers of the bundles: `src/app/components/ui/`, `src/app/shared/`, `src/app/utils/`, `src/app/api/data-client.service.ts` (Angular) and `src/components/ui/`, `src/lib/`, `src/api/graphqlClient.ts` (React)
 

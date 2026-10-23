@@ -1,7 +1,7 @@
 {
   "name": "polyglot-arcade",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Retro arcade on the Salesforce Platform showing Salesforce Multi-Framework: an Angular hub, a React cabinet and an LWC microfrontend host sharing CRM data.",
   "author": {
     "name": "Sebastiano Schwarz",
@@ -28,7 +28,8 @@
     "precommit": "lint-staged",
     "setup": "node scripts/org-setup.mjs",
     "dev:preview": "node scripts/org-setup-dev.mjs",
-    "connect:cabinet": "node scripts/connect-cabinet.mjs"
+    "connect": "node scripts/connect.mjs",
+    "connect:cabinet": "node scripts/connect.mjs"
   },
   "dependencies": {
     "fast-xml-parser": "^5.9.3",

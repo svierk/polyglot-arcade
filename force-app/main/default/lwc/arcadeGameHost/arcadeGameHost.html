@@ -1,5 +1,10 @@
 <template>
   <lightning-card title={title} icon-name="custom:custom48">
+    <template lwc:if={hubUrl}>
+      <a slot="actions" class="slds-button slds-button_neutral" href={hubUrl}
+        >← Polyglot Arcade</a
+      >
+    </template>
     <div class="arcade-stage">
       <template for:each={embeddings} for:item="embedding">
         <lightning-ui-embedding

@@ -47,6 +47,15 @@ test.describe('Polyglot Arcade hub', () => {
     await expect(page.getByText('Paused')).toBeHidden();
   });
 
+  test('marquee bar names the hub and leads back to the lobby', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Angular · Polyglot Arcade hub')).toBeVisible();
+    await expect(page.getByRole('link', { name: '← Lobby' })).toHaveCount(0);
+    await page.getByRole('link', { name: 'Hall of fame' }).click();
+    await page.getByRole('link', { name: '← Lobby' }).click();
+    await expect(page.getByRole('heading', { name: 'Insert coin' })).toBeVisible();
+  });
+
   test('hall of fame and 404 pages render', async ({ page }) => {
     await page.goto('/leaderboard');
     await expect(page.getByRole('heading', { name: 'Hall of fame' })).toBeVisible();
