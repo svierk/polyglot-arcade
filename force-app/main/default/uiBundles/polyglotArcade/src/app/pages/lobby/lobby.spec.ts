@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
-import { LobbyComponent, breakRoomUrl } from './lobby';
+import { LobbyComponent, arcadeFloorUrl } from './lobby';
 
 const game = (overrides: Partial<ArcadeGame>): ArcadeGame => ({
   id: overrides.key ?? 'id',
@@ -50,11 +50,12 @@ describe('LobbyComponent', () => {
     delete (globalThis as { SFDC_ENV?: unknown }).SFDC_ENV;
   });
 
-  it('builds the Break Room URL from the org URL', () => {
-    expect(breakRoomUrl('https://org.my.salesforce.com/')).toBe(
-      'https://org.my.salesforce.com/lightning/n/Arcade_Break_Room',
+  it('builds the Arcade Floor URL from the org URL', () => {
+    expect(arcadeFloorUrl('https://org.my.salesforce.com/', 'Arcade_Snake')).toBe(
+      'https://org.my.salesforce.com/lightning/app/c__arcadeFloor/n/Arcade_Snake',
     );
-    expect(breakRoomUrl(undefined)).toBeNull();
+    expect(arcadeFloorUrl(undefined, 'Arcade_Snake')).toBeNull();
+    expect(arcadeFloorUrl('https://org.my.salesforce.com', undefined)).toBeNull();
   });
 
   it('links each game to where it is played', async () => {
@@ -70,17 +71,17 @@ describe('LobbyComponent', () => {
     expect(card(root, 'Pellet Chase').querySelector('a')).toBeNull();
 
     const snake = card(root, 'Snake').querySelector('a');
-    expect(snake?.textContent).toContain('Play in Arcade Break Room');
+    expect(snake?.textContent).toContain('Play on the Arcade Floor');
     expect(snake?.getAttribute('href')).toBe(
-      'https://org.my.salesforce.com/lightning/n/Arcade_Break_Room',
+      'https://org.my.salesforce.com/lightning/app/c__arcadeFloor/n/Arcade_Snake',
     );
     expect(snake?.getAttribute('target')).toBe('_top');
   });
 
-  it('points to the Break Room tab when the org URL is unknown', async () => {
+  it('points to the Arcade Floor app when the org URL is unknown', async () => {
     const root = await renderLobby();
     const snake = card(root, 'Snake');
     expect(snake.querySelector('a')).toBeNull();
-    expect(snake.textContent).toContain('open the Arcade Break Room tab');
+    expect(snake.textContent).toContain('open its tab in the Arcade Floor app');
   });
 });

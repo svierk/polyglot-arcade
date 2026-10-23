@@ -1,17 +1,17 @@
 <div class="arcade-shell min-h-screen">
-  <header class="border-b border-white/10">
-    <nav class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4">
-      <a routerLink="/" class="arcade-logo mr-auto">Polyglot Arcade</a>
-      <a
-        routerLink="/"
-        class="arcade-nav-link"
-        routerLinkActive="arcade-nav-link-active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        >Lobby</a
-      >
+  <header class="arcade-marquee">
+    <nav
+      class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4"
+      aria-label="Arcade"
+    >
+      @if (!onLobby()) {
+        <a routerLink="/" class="arcade-nav-link">← Lobby</a>
+      }
+      <a routerLink="/" class="arcade-logo">Polyglot Arcade</a>
       <a routerLink="/leaderboard" class="arcade-nav-link" routerLinkActive="arcade-nav-link-active"
         >Hall of fame</a
       >
+      <span class="arcade-tech-badge">Angular · Polyglot Arcade hub</span>
     </nav>
   </header>
   <main class="mx-auto max-w-5xl px-4 py-8">
