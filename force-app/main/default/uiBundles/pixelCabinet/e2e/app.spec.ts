@@ -3,17 +3,45 @@ import { expect, test } from '@playwright/test';
 // Runs against the static build without a Salesforce org: games are playable,
 // saving a score fails gracefully.
 test.describe('Pixel Cabinet', () => {
-  test('lobby lists the cabinet games', async ({ page }) => {
+  test('has no lobby of its own', async ({ page }) => {
     await page.goto('/');
     await expect(
-      page.getByRole('heading', { name: 'Insert coin' })
+      page.getByText('Pick a game in the Polyglot Arcade lobby')
     ).toBeVisible();
-    for (const name of ['Block Drop', 'Pellet Chase']) {
+    await expect(
+      page.getByText('React · Pixel Cabinet UI bundle')
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Block Drop' })).toHaveCount(0);
+  });
+
+  test.describe('inside an org', () => {
+    // What the platform injects when it serves the cabinet from *.salesforce.app.
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript(() => {
+        (globalThis as { SFDC_ENV?: unknown }).SFDC_ENV = {
+          basePath: '/app/c__pixelCabinet',
+          appName: 'pixelCabinet',
+        };
+      });
+    });
+
+    test('the marquee bar leads back to the hub lobby', async ({ page }) => {
+      await page.goto('/app/c__pixelCabinet/play/block-drop');
       await expect(
-        page.getByRole('link', { name: new RegExp(`${name}.*Play`) })
+        page.getByRole('button', { name: 'Press start' })
       ).toBeVisible();
-    }
-    await expect(page.getByText('Coming soon')).toHaveCount(0);
+      await expect(page.getByRole('link', { name: '← Lobby' })).toHaveAttribute(
+        'href',
+        '/app/c__polyglotArcade'
+      );
+    });
+
+    test('opening the cabinet itself sends the player to the hub', async ({
+      page,
+    }) => {
+      await page.goto('/app/c__pixelCabinet');
+      await expect(page).toHaveURL(/\/app\/c__polyglotArcade$/);
+    });
   });
 
   test('a Block Drop round can be played to the end', async ({ page }) => {
@@ -59,7 +87,9 @@ test.describe('Pixel Cabinet', () => {
     await expect(
       page.getByRole('button', { name: 'Press start' })
     ).toBeVisible();
-    await expect(page.getByRole('button', { name: '← Lobby' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: '← All games' })
+    ).toBeVisible();
   });
 
   test('unknown routes show the 404 page', async ({ page }) => {
