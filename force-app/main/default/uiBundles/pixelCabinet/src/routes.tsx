@@ -15,6 +15,6 @@ export const routes: RouteObject[] = [
       { path: '*', element: <NotFound /> },
     ],
   },
-  // Framed by the Pixel Cabinet Host LWC via <lightning-ui-embedding>.
+  // Framed by the Arcade Game Host LWC via <lightning-ui-embedding>.
   { path: '/embed', element: <EmbedLayout /> },
 ];

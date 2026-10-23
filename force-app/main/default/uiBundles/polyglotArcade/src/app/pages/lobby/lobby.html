@@ -1,8 +1,9 @@
 <section>
   <h1 class="arcade-title mb-2 text-2xl">Insert coin</h1>
   <p class="arcade-hint mb-8 max-w-2xl">
-    One arcade, two frameworks. Angular games run right here in the hub, the React games live in the
-    Pixel Cabinet. Every round lands in Salesforce as an Arcade Score.
+    One arcade, three frameworks. Angular games run right here in the hub, the React games live in
+    the Pixel Cabinet and the LWC OSS Snake joins from outside, embedded in a Lightning page. Every
+    round lands in Salesforce as an Arcade Score.
   </p>
 
   @if (error()) {
@@ -29,6 +30,16 @@
         </p>
         @if (isHubGame(game)) {
           <a class="arcade-button mt-2 self-start" [routerLink]="['/play', game.key]">Play</a>
+        } @else if (game.hostSavesScore) {
+          @if (breakRoomUrl; as url) {
+            <a class="arcade-button mt-2 self-start" [href]="url" target="_top"
+              >Play in Arcade Break Room</a
+            >
+          } @else {
+            <p class="arcade-hint mt-2">
+              Played embedded in Lightning: open the Arcade Break Room tab.
+            </p>
+          }
         } @else if (externalUrl(game); as url) {
           <a class="arcade-button mt-2 self-start" [href]="url" target="_top"
             >Play in Pixel Cabinet</a

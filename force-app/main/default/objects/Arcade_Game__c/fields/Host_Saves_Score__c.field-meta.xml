@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Host_Saves_Score__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >Set for externally hosted games that have no Salesforce session: the Arcade Game Host LWC saves each finished round as an Arcade Score. Such games are played embedded on a Lightning page.</description>
+    <label>Host Saves Score</label>
+    <type>Checkbox</type>
+</CustomField>

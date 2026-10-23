@@ -19,6 +19,11 @@
                 <default>false</default>
                 <label>Angular</label>
             </value>
+            <value>
+                <fullName>LWC OSS</fullName>
+                <default>false</default>
+                <label>LWC OSS</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

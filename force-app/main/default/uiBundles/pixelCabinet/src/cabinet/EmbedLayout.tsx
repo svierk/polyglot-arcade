@@ -1,5 +1,5 @@
 /**
- * Chromeless surface for the /embed route that the Pixel Cabinet Host LWC
+ * Chromeless surface for the /embed route that the Arcade Game Host LWC
  * frames. The game comes from host props, so admins switch games in Lightning
  * App Builder without touching the cabinet.
  */

@@ -2,9 +2,9 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>67.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Pixel Cabinet Host</masterLabel>
+    <masterLabel>Arcade Game Host</masterLabel>
     <description
-  >Embeds the Pixel Cabinet React games as a microfrontend and reports finished rounds to the page.</description>
+  >Embeds an arcade game as a microfrontend - a Pixel Cabinet React game or the externally hosted LWC OSS Snake - and reports finished rounds to the page.</description>
     <targets>
         <target>lightning__AppPage</target>
         <target>lightning__RecordPage</target>
@@ -15,24 +15,24 @@
       targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage"
     >
             <property
-        name="cardTitle"
-        type="String"
-        label="Title"
-        default="Pixel Cabinet"
-      />
-            <property
         name="game"
         type="String"
         label="Game"
-        datasource="block-drop,pellet-chase,lobby"
+        datasource="block-drop,pellet-chase,snake,lobby"
         default="block-drop"
-        description="Which cabinet game to show. 'lobby' lets players pick."
+        description="Which game to show. 'lobby' shows the Pixel Cabinet lobby, where players pick a game."
       />
             <property
-        name="cabinetUrl"
+        name="cardTitle"
         type="String"
-        label="Cabinet URL"
-        description="Pixel Cabinet URL copied from the App Launcher (https://....salesforce.app/...). Leave empty to use the App URL stored on the game record."
+        label="Title"
+        description="Leave empty to use the game's name."
+      />
+            <property
+        name="appUrl"
+        type="String"
+        label="App URL"
+        description="Overrides the App URL of the game record, e.g. with a local dev server. Leave empty to use the record's App URL."
       />
         </targetConfig>
     </targetConfigs>

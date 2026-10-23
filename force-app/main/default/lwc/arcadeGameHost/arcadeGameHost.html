@@ -1,12 +1,12 @@
 <template>
-  <lightning-card title={cardTitle} icon-name="custom:custom48">
-    <div class="cabinet">
+  <lightning-card title={title} icon-name="custom:custom48">
+    <div class="stage">
       <template for:each={embeddings} for:item="embedding">
         <lightning-ui-embedding
           key={embedding.key}
           src={embedding.src}
           sandbox="allow-scripts allow-same-origin allow-forms"
-          shell-title={cardTitle}
+          shell-title={title}
           props={embedProps}
           ongameover={handleGameOver}
         ></lightning-ui-embedding>
@@ -22,14 +22,9 @@
       <template lwc:elseif={showSetup}>
         <div class="slds-p-around_medium setup">
           <p class="slds-text-heading_small slds-m-bottom_x-small">
-            Insert coin: the cabinet is not plugged in yet.
+            Insert coin: this game is not plugged in yet.
           </p>
-          <p class="slds-text-body_regular">
-            Open <strong>Pixel Cabinet</strong> from the App Launcher, copy its
-            URL and either paste it into this component's
-            <em>Cabinet URL</em> property or store it in the
-            <em>App URL</em> field of the Block Drop game record.
-          </p>
+          <p class="slds-text-body_regular">{setupHint}</p>
         </div>
       </template>
     </div>

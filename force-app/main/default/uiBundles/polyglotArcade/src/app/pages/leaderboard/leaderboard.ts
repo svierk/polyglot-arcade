@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
 import { LeaderboardTableComponent } from '../../components/leaderboard-table/leaderboard-table';
 
-/** Hall of fame across all games, React and Angular alike. */
+/** Hall of fame across all games, whatever framework they are built with. */
 @Component({
   selector: 'app-leaderboard',
   changeDetection: ChangeDetectionStrategy.OnPush,

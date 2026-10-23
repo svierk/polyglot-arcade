@@ -2,7 +2,8 @@
   display: block;
 }
 
-.cabinet {
+/* No fixed frame height: guests report theirs and the frame follows it. */
+.stage {
   min-height: 12rem;
 }
 

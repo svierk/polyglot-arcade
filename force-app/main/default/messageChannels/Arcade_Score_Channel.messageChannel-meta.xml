@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
     <description
-  >Published by the Pixel Cabinet Host when an embedded round ends, so leaderboards on the same page refresh.</description>
+  >Published by the Arcade Game Host when an embedded round ends, so leaderboards on the same page refresh.</description>
     <isExposed>true</isExposed>
     <lightningMessageFields>
         <description

@@ -6,7 +6,7 @@
 
 <img src="./images/lobby.png" alt="Polyglot Arcade lobby with Block Drop, Pellet Chase, Four in a Row and Brick Breaker" width="900"/>
 
-A retro arcade that runs on the Salesforce Platform and shows **Salesforce Multi-Framework** end to end: an **Angular** app and a **React** app live side by side in one org, share the same CRM data and embed into Lightning pages as **microfrontends**.
+A retro arcade that runs on the Salesforce Platform and shows **Salesforce Multi-Framework** end to end: an **Angular** app and a **React** app live side by side in one org, share the same CRM data and embed into Lightning pages as **microfrontends** - next to an **LWC OSS** game that is hosted outside Salesforce altogether.
 
 Every finished round is stored as an `Arcade_Score__c` record. Leaderboards, high scores and play counts are ordinary Salesforce data: sharing, field-level security and roll-up summaries do the work, no custom backend required.
 
@@ -16,9 +16,9 @@ Salesforce Multi-Framework lets teams build Salesforce apps with the frameworks 
 
 Polyglot Arcade turns that into a playful reference project:
 
-- **Two frameworks, one platform.** The arcade hub is Angular, the real-time games run in a React "cabinet". Each framework is used where it fits.
+- **Three frameworks, one platform.** The arcade hub is Angular, the real-time games run in a React "cabinet", and the [LWC OSS Snake](https://github.com/svierk/lwc-oss-snake-game) joins from Vercel. Each framework is used where it fits.
 - **CRM data as the score sheet.** Every round becomes a record - visible in reports, in a native LWC leaderboard and in both apps.
-- **Microfrontends in Lightning.** The React cabinet drops onto any Lightning page, talks to the page through events, and attributes rounds to the Account it is placed on.
+- **Microfrontends in Lightning.** One host LWC drops any game onto a Lightning page, talks to it through events, and attributes rounds to the Account it is placed on. Games without a Salesforce session of their own get their score saved by the host.
 
 ## 🧩 Salesforce Multi-Framework in a nutshell
 
@@ -26,19 +26,21 @@ Polyglot Arcade turns that into a playful reference project:
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **UI bundle** (`UIBundle` metadata) | A React or Angular app built with its usual tooling, deployed as metadata and launched from the App Launcher on its own `*.salesforce.app` domain, isolated from Lightning      | [`uiBundles/polyglotArcade`](force-app/main/default/uiBundles/polyglotArcade) (Angular), [`uiBundles/pixelCabinet`](force-app/main/default/uiBundles/pixelCabinet) (React)                         |
 | **Data SDK**                        | `createDataSDK()` from `@salesforce/platform-sdk`: UI API GraphQL queries and mutations with the user's session; object/field security and sharing are enforced by the platform | [`arcade-api.service.ts`](force-app/main/default/uiBundles/polyglotArcade/src/app/api/arcade-api.service.ts), [`arcadeApi.ts`](force-app/main/default/uiBundles/pixelCabinet/src/api/arcadeApi.ts) |
-| **Microfrontend**                   | The `<lightning-ui-embedding>` base component frames an app inside an LWC on a Lightning page                                                                                   | [`pixelCabinetHost`](force-app/main/default/lwc/pixelCabinetHost)                                                                                                                                  |
+| **Microfrontend**                   | The `<lightning-ui-embedding>` base component frames an app inside an LWC on a Lightning page                                                                                   | [`arcadeGameHost`](force-app/main/default/lwc/arcadeGameHost)                                                                                                                                      |
 | **View SDK**                        | Inside the frame, `getViewSDK()` reads the host's `props` and dispatches events back to the page                                                                                | [`hostBridge.ts`](force-app/main/default/uiBundles/pixelCabinet/src/embedding/hostBridge.ts)                                                                                                       |
+| **Package-free bridge**             | The same host protocol without `@salesforce/platform-sdk` (`postMessage` handshake, then JSON-RPC over a `MessagePort`) for guests that cannot load the SDK                     | [`snake/embedding`](https://github.com/svierk/lwc-oss-snake-game/tree/main/src/modules/snake/embedding) in the Snake repo                                                                          |
 
-React and Angular are generally available for UI bundles as of Winter '27. Embedding an **internally hosted** bundle (served from `*.salesforce.app`) is currently in beta and supports React; any externally hosted app can be embedded regardless of framework. That is why the embeddable games live in the React cabinet.
+React and Angular are generally available for UI bundles as of Winter '27. Embedding an **internally hosted** bundle (served from `*.salesforce.app`) is currently in beta and supports React; any **externally hosted** app can be embedded regardless of framework. That is why the embeddable games of the org live in the React cabinet - and why an LWC OSS app on Vercel can join as well.
 
 ## 🎮 Games
 
-| Game              | Mechanic                                             | Framework | Lives in            | Status      |
-| ----------------- | ---------------------------------------------------- | --------- | ------------------- | ----------- |
-| **Block Drop**    | falling blocks, line clears, levels                  | React     | Pixel Cabinet       | ✅ Playable |
-| **Four in a Row** | turn-based vs. a minimax CPU with three difficulties | Angular   | Polyglot Arcade hub | ✅ Playable |
-| **Brick Breaker** | paddle and ball, tougher walls every level           | Angular   | Polyglot Arcade hub | ✅ Playable |
-| **Pellet Chase**  | maze chase                                           | React     | Pixel Cabinet       | 🚧 Planned  |
+| Game              | Mechanic                                               | Framework | Lives in                                  | Status      |
+| ----------------- | ------------------------------------------------------ | --------- | ----------------------------------------- | ----------- |
+| **Block Drop**    | falling blocks, line clears, levels                    | React     | Pixel Cabinet                             | ✅ Playable |
+| **Four in a Row** | turn-based vs. a minimax CPU with three difficulties   | Angular   | Polyglot Arcade hub                       | ✅ Playable |
+| **Brick Breaker** | paddle and ball, tougher walls every level             | Angular   | Polyglot Arcade hub                       | ✅ Playable |
+| **Snake**         | eat, grow, don't bite your own tail - on a retro phone | LWC OSS   | Vercel, embedded in the Arcade Break Room | ✅ Playable |
+| **Pellet Chase**  | maze chase                                             | React     | Pixel Cabinet                             | 🚧 Planned  |
 
 > The games are original implementations of classic mechanics. Names and artwork are deliberately generic - no trademarks of the original arcade titles are used.
 
@@ -58,43 +60,53 @@ flowchart LR
         direction LR
         subgraph Hub["Polyglot Arcade · Angular UI bundle"]
             Lobby["Lobby & hall of fame"]
-            FIAR["Four in a Row"]
+            HubGames["Four in a Row<br/>Brick Breaker"]
         end
         subgraph Cab["Pixel Cabinet · React UI bundle"]
             BD["Block Drop"]
             Embed["/embed route"]
         end
         subgraph LEX["Lightning page · Arcade Break Room"]
-            Host["pixelCabinetHost LWC<br/>&lt;lightning-ui-embedding&gt;"]
+            Host["arcadeGameHost LWC<br/>&lt;lightning-ui-embedding&gt;"]
             LB["arcadeLeaderboard LWC"]
         end
         Data[("Arcade_Game__c<br/>Arcade_Score__c")]
     end
+    subgraph Ext["Vercel · outside Salesforce"]
+        Snake["LWC OSS Snake"]
+    end
     Lobby -- "GraphQL · Data SDK" --> Data
-    FIAR -- "create score" --> Data
+    HubGames -- "create score" --> Data
     BD -- "create score" --> Data
     Embed -- "create score" --> Data
     Lobby -. "launch via App URL" .-> Cab
+    Lobby -. "link to the Break Room" .-> LEX
     Host -- "props: game, recordId" --> Embed
-    Embed -- "gameover event" --> Host
+    Embed -- "gameover: saved" --> Host
+    Host -- "frames the App URL" --> Snake
+    Snake -- "gameover: score" --> Host
+    Host -- "create score for Snake" --> Data
     Host -- "Lightning Message Service" --> LB
     LB -- "GraphQL wire" --> Data
 ```
 
-The demo covers three integration patterns:
+The demo covers four integration patterns:
 
 1. **Native Angular UI bundle.** `polyglotArcade` launches from the App Launcher and reads and writes data with the Data SDK. The lobby is data driven: tiles, colors, high scores and launch targets come from `Arcade_Game__c`.
 2. **Native React UI bundle.** `pixelCabinet` runs standalone the same way, with its own routes and leaderboard.
-3. **Microfrontend.** The `pixelCabinetHost` LWC frames the cabinet's `/embed` route. Admins pick the game in Lightning App Builder; on an Account record page every round is attributed to that Account.
+3. **Internally hosted microfrontend - the guest saves.** The `arcadeGameHost` LWC frames the cabinet's `/embed` route. The cabinet has the user's session and saves the round itself. Admins pick the game in Lightning App Builder; on an Account record page every round is attributed to that Account.
+4. **Externally hosted microfrontend - the host saves.** The same LWC frames the Snake on Vercel. The Snake has no Salesforce session, so it only reports the round and the host saves it with `createRecord`. The hub lobby links Snake to the Arcade Break Room, where it is played.
 
-What happens when an embedded round ends:
+Which pattern applies comes from the game record: `App_Url__c` plus `Embed_Path__c` build the frame URL (`/embed` for the cabinet, nothing for the Snake), and `Host_Saves_Score__c` tells the host to save rounds itself.
+
+What happens when an embedded cabinet round ends:
 
 ```mermaid
 sequenceDiagram
     participant Player
     participant Cabinet as Pixel Cabinet (React, in iframe)
     participant Data as Salesforce data
-    participant Host as pixelCabinetHost (LWC)
+    participant Host as arcadeGameHost (LWC)
     participant Board as arcadeLeaderboard (LWC)
     Host->>Cabinet: props { game, recordId, objectApiName }
     Player->>Cabinet: plays Block Drop
@@ -105,6 +117,29 @@ sequenceDiagram
     Host->>Board: publish Arcade_Score_Channel
     Board->>Data: refresh GraphQL wire
 ```
+
+And when a Snake round ends:
+
+```mermaid
+sequenceDiagram
+    participant Player
+    participant Snake as Snake (LWC OSS on Vercel, in iframe)
+    participant Host as arcadeGameHost (LWC)
+    participant Data as Salesforce data
+    participant Board as arcadeLeaderboard (LWC)
+    Host->>Data: read Arcade_Game__c (App URL, Host Saves Score)
+    Host->>Snake: frame the App URL, bridge handshake
+    Snake->>Host: ui/notifications/resize (height of the phone)
+    Player->>Snake: plays Snake
+    Snake->>Host: gameover { score, level, durationSeconds }
+    Host->>Data: createRecord Arcade_Score__c (source Embedded)
+    Data-->>Host: record Id
+    Host->>Player: Lightning toast
+    Host->>Board: publish Arcade_Score_Channel
+    Board->>Data: refresh GraphQL wire
+```
+
+LWR, the runtime of LWC OSS, cannot load `@salesforce/platform-sdk`, so the Snake speaks the [package-free bridge](https://developer.salesforce.com/docs/platform/microfrontend/guide/package-free-bridge.html) directly; its [README](https://github.com/svierk/lwc-oss-snake-game#embedding-in-salesforce) has the details. The host saves a Snake round only for the game record it embeds and only with a whole, non-negative score. Like with any game that runs in the browser, the score itself is what the game reports.
 
 Game rules live in framework-free TypeScript (`games/*/engine.ts`) with their own unit tests; the React and Angular components only render and handle input.
 
@@ -117,8 +152,10 @@ erDiagram
     User ||--o{ Arcade_Score__c : "CreatedBy = player"
     Arcade_Game__c {
         Text Game_Key__c "external ID, e.g. block-drop"
-        Picklist Framework__c "React | Angular"
-        Url App_Url__c "bundle URL for games outside the hub"
+        Picklist Framework__c "React | Angular | LWC OSS"
+        Url App_Url__c "app URL for games outside the hub"
+        Text Embed_Path__c "appended when embedded, e.g. /embed"
+        Checkbox Host_Saves_Score__c "external guest, host saves"
         Text Tagline__c
         Text Accent_Color__c
         Number Sort_Order__c
@@ -168,25 +205,39 @@ npm run setup -- --target-org my-org
 npm run connect:cabinet -- --target-org my-org
 ```
 
-`npm run setup` installs and builds both UI bundles, deploys the metadata, assigns the permission set to you, imports the four games and fetches the GraphQL schema. `npm run connect:cabinet` stores the org-specific Pixel Cabinet URL (read from its App Launcher entry) on the React games, so the hub can launch them and the host LWC can embed them.
+`npm run setup` installs and builds both UI bundles, deploys the metadata, assigns the permission set to you, imports the five games and fetches the GraphQL schema. `npm run connect:cabinet` stores the org-specific Pixel Cabinet URL (read from its App Launcher entry) and its `/embed` route on the React games, so the hub can launch them and the host LWC can embed them. The Snake needs no extra step: its Vercel URL ships with the seed data and the CSP Trusted Site `Snake_Vercel` lets Lightning frame it.
 
 > ⚠️ The data step of `npm run setup` re-imports the games. In an org that already has scores, this deletes them (they are master-detail children of the games). Run `npm run setup -- --target-org my-org --skip-data` for later deployments.
 
-Then open **Polyglot Arcade** or **Pixel Cabinet** from the App Launcher, or the **Arcade Break Room** tab for the embedded cabinet.
+Then open **Polyglot Arcade** or **Pixel Cabinet** from the App Launcher, or the **Arcade Break Room** tab for the embedded Block Drop and Snake.
+
+### Upgrade from v0.2.0
+
+Keep your scores: deploy without the data step, store the cabinet's embed route on the React games and add the Snake record.
+
+```bash
+git pull && npm install
+npm run setup -- --target-org my-org --skip-data
+npm run connect:cabinet -- --target-org my-org
+sf data create record -o my-org -s Arcade_Game__c -v "Name=Snake Game_Key__c=snake Framework__c='LWC OSS' Tagline__c='Eat, grow and never bite your own tail.' Sort_Order__c=50 Accent_Color__c=#c084fc App_Url__c=https://lwc-oss-snake-game.vercel.app Host_Saves_Score__c=true"
+```
+
+The host LWC is now called **Arcade Game Host** (`arcadeGameHost`). The Arcade Break Room switches over automatically. If you placed the old **Pixel Cabinet Host** on other pages, it keeps working there until you replace it with the new host (its **Cabinet URL** property is now called **App URL**) and delete it.
 
 ### Optional steps
 
 - **More players:** `sf org assign permset -n polyglotArcade_Access -b <username> -o my-org`
-- **Cabinet on Account pages:** add **Pixel Cabinet Host** and **Arcade Leaderboard** to the Account record page in Lightning App Builder. Both pick up the record ID automatically, and the leaderboard shows only that Account's rounds.
+- **Games on Account pages:** add **Arcade Game Host** (any game, including Snake) and **Arcade Leaderboard** to the Account record page in Lightning App Builder. Both pick up the record ID automatically, and the leaderboard shows only that Account's rounds.
 
 ### Troubleshooting
 
-| Symptom                                                         | Fix                                                                                                                                                     |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The embedded cabinet stays blank or reports `HEARTBEAT_TIMEOUT` | Check that the CSP Trusted Site `PixelCabinet_SalesforceApp` (`https://*.salesforce.app`, frame-src) is active                                          |
-| The host shows "the cabinet is not plugged in yet"              | Run `npm run connect:cabinet`, or paste the Pixel Cabinet URL into the **App URL** field of the React games or into the host's **Cabinet URL** property |
-| A UI bundle does not open from the App Launcher                 | Enable **Salesforce Edge Network** in My Domain                                                                                                         |
-| The lobby says it could not load games                          | Assign the **Polyglot Arcade Player** permission set                                                                                                    |
+| Symptom                                                         | Fix                                                                                                                                                                                    |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| An embedded game stays blank or reports `HEARTBEAT_TIMEOUT`     | Check that the CSP Trusted Sites `PixelCabinet_SalesforceApp` (`https://*.salesforce.app`) and `Snake_Vercel` (`https://lwc-oss-snake-game.vercel.app`) are active, both for frame-src |
+| The host shows "this game is not plugged in yet"                | Run `npm run connect:cabinet`, or paste the game's URL into the **App URL** field of its game record or into the host's **App URL** property                                           |
+| The embedded cabinet shows the full cabinet instead of the game | The React games miss their **Embed Path** `/embed`: run `npm run connect:cabinet`                                                                                                      |
+| A UI bundle does not open from the App Launcher                 | Enable **Salesforce Edge Network** in My Domain                                                                                                                                        |
+| The lobby says it could not load games                          | Assign the **Polyglot Arcade Player** permission set                                                                                                                                   |
 
 ## 🛠️ Development
 
@@ -197,11 +248,13 @@ cd force-app/main/default/uiBundles/pixelCabinet && npm run dev     # React cabi
 cd force-app/main/default/uiBundles/polyglotArcade && npm run dev   # Angular hub
 ```
 
-Both dev servers proxy data calls to your default org (`sf config set target-org=polyglot-arcade`). To embed the local cabinet in Lightning while you iterate, deploy the development-only trusted site for `http://localhost:5173` and set the host's **Cabinet URL** to it:
+Both dev servers proxy data calls to your default org (`sf config set target-org=polyglot-arcade`). To embed a local game in Lightning while you iterate, deploy the development-only trusted sites for the cabinet (`http://localhost:5173`) and the Snake (`yarn dev` in the Snake repo, `http://localhost:3000`) and set the host's **App URL** to the dev server:
 
 ```bash
 sf project deploy start --source-dir dev
 ```
+
+Chrome's Local Network Access checks can block a Salesforce page from framing `localhost` (`ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS`); allow local network access for the org's domain in the site settings.
 
 Tests and checks - the [Validation workflow](.github/workflows/ci.yml) runs all of them on every push and pull request, no org required:
 
@@ -209,7 +262,7 @@ Tests and checks - the [Validation workflow](.github/workflows/ci.yml) runs all 
 | ------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
 | SFDX project  | `npm run prettier:verify` · `npm run lint` · `npm run test:unit`                           | formatting, LWC linting, LWC Jest + accessibility (sa11y) |
 | React cabinet | `npm run lint` · `npx vitest run` · `npm run build:e2e && npx playwright test`             | Block Drop engine, production build, end-to-end play      |
-| Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | Four in a Row engine and components, end-to-end play      |
+| Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, end-to-end play       |
 
 GraphQL operations are validated against your org's schema with `npm run graphql:codegen` inside each bundle.
 
@@ -218,25 +271,24 @@ GraphQL operations are validated against your org's schema with `npm run graphql
 ```
 force-app/main/default/
 ├── uiBundles/
-│   ├── polyglotArcade/       Angular hub: lobby, hall of fame, Four in a Row
+│   ├── polyglotArcade/       Angular hub: lobby, hall of fame, Four in a Row, Brick Breaker
 │   └── pixelCabinet/         React cabinet: Block Drop, /embed microfrontend route
 ├── lwc/
-│   ├── pixelCabinetHost/     <lightning-ui-embedding> host and event bridge
+│   ├── arcadeGameHost/       <lightning-ui-embedding> host, event bridge, saves external rounds
 │   └── arcadeLeaderboard/    native LWC leaderboard (GraphQL wire + LMS refresh)
 ├── objects/                  Arcade_Game__c, Arcade_Score__c
 ├── messageChannels/          Arcade_Score_Channel
 ├── flexipages/, tabs/        Arcade Break Room app page
-├── cspTrustedSites/          frame-src for *.salesforce.app
+├── cspTrustedSites/          frame-src for *.salesforce.app and the Snake on Vercel
 ├── permissionsets/           Polyglot Arcade Player
 ├── applications/             Polyglot Arcade and Pixel Cabinet apps
 └── data/                     seed data for the games (imported by npm run setup)
-dev/                          development-only metadata (localhost trusted site)
+dev/                          development-only metadata (localhost trusted sites)
 scripts/                      org setup, project setup, connect-cabinet
 ```
 
 ## 🗺️ Roadmap
 
-- **v0.3.0** - [LWC OSS Snake](https://github.com/svierk/lwc-oss-snake-game) as an externally hosted microfrontend: a third framework and a third integration pattern, with the host page saving the score
 - **v0.4.0** - Pellet Chase (React)
 - **v1.0.0** - localization, installation via package, mobile and accessibility polish
 - **Later** - a public arcade on Experience Cloud (trade-show lead capture) and an Agentforce question like "who is this week's champion?"
