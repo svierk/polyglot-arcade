@@ -4,7 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/svierk/polyglot-arcade?sort=semver)](https://github.com/svierk/polyglot-arcade/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-<img src="./images/lobby.png" alt="Polyglot Arcade lobby with Block Drop, Pellet Chase, Four in a Row and Brick Breaker" width="900"/>
+<img src="./images/lobby.png" alt="Polyglot Arcade lobby with Block Drop, Pellet Chase, Four in a Row, Brick Breaker and Snake" width="900"/>
 
 A retro arcade that runs on the Salesforce Platform and shows **Salesforce Multi-Framework** end to end: an **Angular** app and a **React** app live side by side in one org, share the same CRM data and embed into Lightning pages as **microfrontends** - next to an **LWC OSS** game that is hosted outside Salesforce altogether.
 
@@ -44,13 +44,13 @@ React and Angular are generally available for UI bundles as of Winter '27. Embed
 
 > The games are original implementations of classic mechanics. Names and artwork are deliberately generic - no trademarks of the original arcade titles are used.
 
-| Four in a Row (Angular hub)                                                                                                  | Brick Breaker (Angular hub)                                                                                                                   |
-| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| <img src="./images/four-in-a-row.png" alt="Four in a Row won against the CPU, with the hub leaderboard" width="440"/>        | <img src="./images/brick-breaker.png" alt="Brick Breaker in progress next to its leaderboard" width="440"/>                                   |
-| **Block Drop (React cabinet)**                                                                                               | **Microfrontend on a Lightning page**                                                                                                         |
-| <img src="./images/pixel-cabinet.png" alt="Block Drop in progress next to its leaderboard" width="440"/>                     | <img src="./images/break-room.png" alt="Block Drop embedded in the Arcade Break Room page with a toast and the LWC leaderboard" width="440"/> |
-| **Hall of fame across all surfaces**                                                                                         |                                                                                                                                               |
-| <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores from the cabinet and from embedded play" width="440"/> |                                                                                                                                               |
+| Four in a Row (Angular hub)                                                                                                  | Brick Breaker (Angular hub)                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="./images/four-in-a-row.png" alt="Four in a Row won against the CPU, with the hub leaderboard" width="440"/>        | <img src="./images/brick-breaker.png" alt="Brick Breaker in progress next to its leaderboard" width="440"/>                                               |
+| **Block Drop (React cabinet)**                                                                                               | **Microfrontend on a Lightning page**                                                                                                                     |
+| <img src="./images/pixel-cabinet.png" alt="Block Drop in progress next to its leaderboard" width="440"/>                     | <img src="./images/break-room.png" alt="Snake embedded in the Arcade Break Room page after a round, with the toast and the LWC leaderboard" width="440"/> |
+| **Hall of fame across all surfaces**                                                                                         |                                                                                                                                                           |
+| <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores from the cabinet and from embedded play" width="440"/> |                                                                                                                                                           |
 
 ## 🏗️ Architecture
 
