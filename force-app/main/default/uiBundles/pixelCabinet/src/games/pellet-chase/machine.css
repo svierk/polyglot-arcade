@@ -1,7 +1,8 @@
 /*
  * Pellet Chase machine: an upright arcade cabinet. Backlit marquee, a CRT
- * with scanlines behind a black bezel, a control panel with a joystick and a
- * coin door. Its high-score card is the attract screen's table.
+ * with scanlines behind a black bezel and a control panel with a joystick;
+ * the cabinet is cut off below the panel so it fits on the screen. Its
+ * high-score card is the attract screen's table.
  */
 @import '@fontsource/press-start-2p/latin-400.css';
 
@@ -13,8 +14,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(100%, 460px);
-  padding: 0 calc(var(--pc-edge) + 12px);
+  width: min(100%, 420px);
+  padding: 0 calc(var(--pc-edge) + 12px) 18px;
   border-radius: 20px 20px 6px 6px;
   background:
     linear-gradient(
@@ -46,7 +47,7 @@
   justify-content: center;
   gap: 14px;
   margin: 0 calc(-1 * (var(--pc-edge) + 12px));
-  padding: 18px 12px;
+  padding: 14px 12px;
   border-radius: 20px 20px 0 0;
   border-bottom: 5px solid var(--pc-ink);
   background:
@@ -103,7 +104,7 @@
 
 /* Bezel and CRT. */
 .pc-bezel {
-  margin-top: 20px;
+  margin-top: 16px;
   padding: 14px;
   border-radius: 10px;
   background: linear-gradient(160deg, #1d1d24, #050507);
@@ -288,8 +289,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 22px calc(-1 * var(--pc-edge) - 18px) 0;
-  padding: 16px 28px 20px;
+  margin: 18px calc(-1 * var(--pc-edge) - 18px) 0;
+  padding: 12px 28px 16px;
   border-top: 3px solid var(--pc-yellow);
   border-radius: 10px 10px 4px 4px;
   background: linear-gradient(180deg, #321a6b, #170b36);
@@ -379,41 +380,6 @@
   box-shadow: 0 2px 0 #164e63;
 }
 
-/* Coin door at the foot of the cabinet. */
-.pc-coin-door {
-  display: flex;
-  justify-content: center;
-  gap: 28px;
-  align-self: center;
-  margin-top: 36px;
-  padding: 16px 26px 22px;
-  border-radius: 6px 6px 0 0;
-  background: linear-gradient(#17171c, #0b0b0e);
-  box-shadow: inset 0 0 0 2px #2a2a33;
-}
-
-.pc-coin-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 4px;
-  background: linear-gradient(#3f3f46, #18181b);
-  box-shadow: inset 0 0 0 2px #52525b;
-  color: #fb923c;
-  font-size: 6px;
-}
-
-.pc-coin-slot::before {
-  content: '';
-  width: 4px;
-  height: 18px;
-  border-radius: 2px;
-  background: #000;
-  box-shadow: 0 0 6px 1px #f97316;
-}
-
 /* High-score card: the table of the attract screen. */
 .machine-pellet-chase .hiscores {
   width: min(100%, 340px);
@@ -484,7 +450,7 @@
   text-align: center;
 }
 
-/* Embedded on a Lightning page: the compact cabinet without its coin door. */
+/* Embedded on a Lightning page: the compact cabinet. */
 html.embedded .pc-cabinet {
   --pc-edge: 8px;
   width: min(100%, 380px);
@@ -511,10 +477,6 @@ html.embedded .pc-panel {
   padding: 10px 18px 12px;
   transform: none;
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.12);
-}
-
-html.embedded .pc-coin-door {
-  display: none;
 }
 
 @media (max-width: 420px) {

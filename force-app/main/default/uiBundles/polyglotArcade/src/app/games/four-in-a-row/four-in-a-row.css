@@ -4,8 +4,8 @@
  * high-score card is the side of that box.
  */
 app-four-in-a-row {
-  --fr-frame: #16a34a;
-  --fr-frame-dark: #14532d;
+  --fr-frame: #2563eb;
+  --fr-frame-dark: #1e3a8a;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -284,7 +284,7 @@ app-four-in-a-row .fr-help {
   padding: 18px 20px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(90deg, #16a34a 0 10px, transparent 10px), #fffbeb;
+  background: linear-gradient(90deg, #2563eb 0 10px, transparent 10px), #fffbeb;
   color: #1e1b4b;
   font-family: 'Fredoka', var(--arcade-font);
   font-weight: 600;
@@ -302,7 +302,7 @@ app-four-in-a-row .fr-help {
 }
 
 .machine-four-in-a-row .hiscores-score {
-  color: #15803d;
+  color: #1d4ed8;
 }
 
 .machine-four-in-a-row .hiscores .hiscores-note {

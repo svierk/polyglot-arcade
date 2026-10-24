@@ -99,7 +99,7 @@ const BRICK_BREAKER: PixelArt = {
 
 const FOUR_IN_A_ROW: PixelArt = {
   background: '#120a24',
-  palette: { g: '#16a34a', h: '#05030c', r: '#f43f5e', y: '#facc15' },
+  palette: { g: '#2563eb', h: '#05030c', r: '#f43f5e', y: '#facc15' },
   rows: [
     '.......................rr.......................',
     '.......................rr.......................',

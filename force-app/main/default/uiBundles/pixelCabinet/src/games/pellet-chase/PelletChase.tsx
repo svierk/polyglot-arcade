@@ -513,11 +513,6 @@ export default function PelletChase({
           ❚❚
         </button>
       </div>
-
-      <div className="pc-coin-door" aria-hidden="true">
-        <span className="pc-coin-slot">1 coin</span>
-        <span className="pc-coin-slot">1 coin</span>
-      </div>
     </div>
   );
 }

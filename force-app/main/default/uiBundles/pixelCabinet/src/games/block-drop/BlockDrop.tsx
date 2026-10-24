@@ -28,7 +28,7 @@ import {
 import type { GameProps } from '@/games/types';
 import './machine.css';
 
-const CELL = 20;
+const CELL = 14;
 /** Monochrome LCD: segments are lit, half lit (the ghost piece) or off. */
 const LCD = '#c2c7a1';
 const INK = '#1f2417';
@@ -130,7 +130,7 @@ function drawBoard(ctx: CanvasRenderingContext2D, state: BlockDropState) {
 }
 
 function drawPreview(ctx: CanvasRenderingContext2D, type: PieceType | null) {
-  const size = 14;
+  const size = 11;
   ctx.fillStyle = LCD;
   ctx.fillRect(0, 0, 4 * size, 4 * size);
   for (let y = 0; y < 4; y++)
@@ -247,7 +247,7 @@ export default function BlockDrop({
   useEffect(() => {
     if (boardRef.current)
       setupCanvas(boardRef.current, COLS * CELL, ROWS * CELL);
-    if (previewRef.current) setupCanvas(previewRef.current, 56, 56);
+    if (previewRef.current) setupCanvas(previewRef.current, 44, 44);
     // Attract screen: an empty well. A finished state hides the active piece.
     const ctx = boardRef.current?.getContext('2d');
     if (ctx) drawBoard(ctx, { ...createGame(), status: 'over' });
@@ -306,112 +306,125 @@ export default function BlockDrop({
       ref={rootRef}
       tabIndex={0}
       onKeyDown={onKeyDown}
-      className="bd-handheld arcade-focus"
+      className="bd-machine arcade-focus"
       aria-label="Block Drop game board. Arrow keys move and rotate, space drops."
     >
-      <div className="bd-bezel">
-        <p className="bd-bezel-label" aria-hidden="true">
-          <span className="bd-led" /> 10 × 20 LCD
-        </p>
-        <div className="bd-lcd">
-          <div className="bd-well">
-            <canvas
-              ref={boardRef}
-              className="bd-canvas"
-              style={{ aspectRatio: `${COLS} / ${ROWS}` }}
-            />
-            {hud.status === 'ready' && (
-              <div className="bd-overlay">
-                <p className="bd-overlay-title">Block Drop</p>
-                <button type="button" className="bd-lcd-button" onClick={start}>
-                  Press start
-                </button>
-              </div>
-            )}
-            {hud.status === 'paused' && (
-              <div className="bd-overlay">
-                <p className="bd-overlay-title">Paused</p>
-                <button
-                  type="button"
-                  className="bd-lcd-button"
-                  onClick={() => press(togglePause)}
-                >
-                  Resume
-                </button>
-              </div>
-            )}
-            {hud.status === 'over' && (
-              <div className="bd-overlay">
-                <p className="bd-overlay-title">Game over</p>
-                {result}
-              </div>
-            )}
-          </div>
-          <div className="bd-panel">
-            <Segments label="Score" value={hud.score} digits={6} hud="score" />
-            {highScore !== undefined && (
-              <Segments
-                label="Hi-score"
-                value={Math.max(highScore, hud.score)}
-                digits={6}
+      <div className="bd-handheld">
+        <div className="bd-bezel">
+          <p className="bd-bezel-label" aria-hidden="true">
+            <span className="bd-led" /> 10 × 20 LCD
+          </p>
+          <div className="bd-lcd">
+            <div className="bd-well">
+              <canvas
+                ref={boardRef}
+                className="bd-canvas"
+                style={{ aspectRatio: `${COLS} / ${ROWS}` }}
               />
-            )}
-            <div className="bd-next">
-              <span className="bd-seg-label">Next</span>
-              <canvas ref={previewRef} style={{ width: 56, height: 56 }} />
+              {hud.status === 'ready' && (
+                <div className="bd-overlay">
+                  <p className="bd-overlay-title">Block Drop</p>
+                  <button
+                    type="button"
+                    className="bd-lcd-button"
+                    onClick={start}
+                  >
+                    Press start
+                  </button>
+                </div>
+              )}
+              {hud.status === 'paused' && (
+                <div className="bd-overlay">
+                  <p className="bd-overlay-title">Paused</p>
+                  <button
+                    type="button"
+                    className="bd-lcd-button"
+                    onClick={() => press(togglePause)}
+                  >
+                    Resume
+                  </button>
+                </div>
+              )}
+              {hud.status === 'over' && (
+                <div className="bd-overlay">
+                  <p className="bd-overlay-title">Game over</p>
+                  {result}
+                </div>
+              )}
             </div>
-            <Segments label="Level" value={hud.level} digits={2} />
-            <Segments label="Lines" value={hud.lines} digits={3} />
-            <p className="bd-flags" aria-hidden="true">
-              <span className={hud.status === 'paused' ? 'bd-on' : ''}>
-                Pause
-              </span>
-              <span className={hud.status === 'over' ? 'bd-on' : ''}>
-                Game over
-              </span>
-            </p>
+            <div className="bd-panel">
+              <Segments
+                label="Score"
+                value={hud.score}
+                digits={6}
+                hud="score"
+              />
+              {highScore !== undefined && (
+                <Segments
+                  label="Hi-score"
+                  value={Math.max(highScore, hud.score)}
+                  digits={6}
+                />
+              )}
+              <div className="bd-next">
+                <span className="bd-seg-label">Next</span>
+                <canvas ref={previewRef} style={{ width: 44, height: 44 }} />
+              </div>
+              <Segments label="Level" value={hud.level} digits={2} />
+              <Segments label="Lines" value={hud.lines} digits={3} />
+              <p className="bd-flags" aria-hidden="true">
+                <span className={hud.status === 'paused' ? 'bd-on' : ''}>
+                  Pause
+                </span>
+                <span className={hud.status === 'over' ? 'bd-on' : ''}>
+                  Game over
+                </span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <p className="bd-brand" aria-hidden="true">
-        Block Drop
-      </p>
+        <p className="bd-brand" aria-hidden="true">
+          Block Drop
+        </p>
 
-      <div className="bd-controls" role="group" aria-label="Controls">
-        <div className="bd-dpad">
-          {DPAD.map(key => (
+        <div className="bd-controls" role="group" aria-label="Controls">
+          <div className="bd-dpad">
+            {DPAD.map(key => (
+              <button
+                key={key.name}
+                type="button"
+                className={`bd-dpad-key ${key.className}`}
+                onClick={() => press(key.action)}
+                aria-label={key.name}
+              >
+                {key.label}
+              </button>
+            ))}
+          </div>
+          <span className="bd-key bd-rotate">
             <button
-              key={key.name}
               type="button"
-              className={`bd-dpad-key ${key.className}`}
-              onClick={() => press(key.action)}
-              aria-label={key.name}
-            >
-              {key.label}
-            </button>
-          ))}
+              onClick={() => press(s => rotate(s, 1))}
+              aria-label="Rotate"
+            />
+            <span aria-hidden="true">Rotate</span>
+          </span>
         </div>
-        <span className="bd-key bd-rotate">
-          <button
-            type="button"
-            onClick={() => press(s => rotate(s, 1))}
-            aria-label="Rotate"
-          />
-          <span aria-hidden="true">Rotate</span>
-        </span>
-      </div>
 
-      <div className="bd-small-keys">
-        <span className="bd-key">
-          <button
-            type="button"
-            onClick={startOrPause}
-            disabled={hud.status === 'over'}
-            aria-label="Start or pause"
-          />
-          <span aria-hidden="true">Start / Pause</span>
-        </span>
+        <div className="bd-small-keys">
+          <span className="bd-key">
+            <button
+              type="button"
+              onClick={startOrPause}
+              disabled={hud.status === 'over'}
+              aria-label="Start or pause"
+            />
+            <span aria-hidden="true">Start / Pause</span>
+          </span>
+        </div>
+
+        <span className="bd-speaker" aria-hidden="true" />
       </div>
 
       <p className="bd-help">

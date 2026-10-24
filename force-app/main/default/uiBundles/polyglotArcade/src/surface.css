@@ -53,3 +53,19 @@
 .hiscores-score {
   color: var(--surface);
 }
+
+.hiscores-pages {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--arcade-line);
+  color: var(--arcade-muted);
+  font-size: 0.75rem;
+}
+
+.hiscores-pages button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

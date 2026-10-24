@@ -162,12 +162,47 @@ html.embedded #root {
 /* Marquee bar: the one piece of chrome every standalone surface shares. The
    way back to the lobby comes first, the badge naming the surface last. Its
    neon line and badge glow in the surface color, so a switch between bundles
-   is seen at once and reads as a feature, not as a break. */
+   is seen at once and reads as a feature, not as a break. It stays on top
+   while the page scrolls. */
 .arcade-marquee {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 20;
   border-bottom: 2px solid var(--surface);
-  background: rgba(7, 7, 26, 0.82);
+  background: rgba(7, 7, 26, 0.86);
   box-shadow: 0 2px 22px color-mix(in srgb, var(--surface) 40%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* The way out to Salesforce, in the Arcade Floor's color. */
+.arcade-nav-link.arcade-nav-floor {
+  color: var(--surface-floor);
+}
+
+/* Who plays, and the way to log out: takes the place of the platform's
+   session banner. */
+.arcade-player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  color: var(--arcade-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.arcade-player strong {
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--arcade-text);
+  font-weight: 600;
+}
+
+.arcade-player + .arcade-tech-badge {
+  margin-left: 0;
 }
 
 .arcade-tech-badge {

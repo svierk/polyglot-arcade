@@ -152,3 +152,8 @@ export type CabinetLeaderboardQueryVariables = Exact<{
 
 
 export type CabinetLeaderboardQuery = { uiapi: { query: { Arcade_Score__c?: { edges?: Array<{ node?: { Id: string, Score__c?: { value?: number | null } | null, CreatedDate?: { value?: string | null } | null, CreatedBy?: { Name?: { value?: string | null } | null } | null } | null } | null> | null } | null } } };
+
+export type CabinetCurrentPlayerQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CabinetCurrentPlayerQuery = { uiapi: { currentUser?: { Name?: { value?: string | null } | null } | null } };

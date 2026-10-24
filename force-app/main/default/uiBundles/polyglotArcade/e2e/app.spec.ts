@@ -17,7 +17,7 @@ test.describe('Polyglot Arcade hub', () => {
 
   test('lobby renders and reports missing org data', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Insert coin' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Polyglot Arcade lobby' })).toBeVisible();
     await expect(page.getByRole('alert')).toContainText('Could not load games');
   });
 
@@ -83,7 +83,7 @@ test.describe('Polyglot Arcade hub', () => {
     await expect(page.getByRole('link', { name: '← Lobby' })).toHaveCount(0);
     await page.getByRole('link', { name: 'Hall of fame' }).click();
     await page.getByRole('link', { name: '← Lobby' }).click();
-    await expect(page.getByRole('heading', { name: 'Insert coin' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Polyglot Arcade lobby' })).toBeVisible();
   });
 
   test('hall of fame and 404 pages render', async ({ page }) => {

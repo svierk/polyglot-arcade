@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
-import { LobbyComponent, arcadeFloorUrl } from './lobby';
+import { arcadeFloorUrl } from '../../arcade-floor';
+import { LobbyComponent } from './lobby';
 
 const game = (overrides: Partial<ArcadeGame>): ArcadeGame => ({
   id: overrides.key ?? 'id',

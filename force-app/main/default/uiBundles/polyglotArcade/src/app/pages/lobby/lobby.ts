@@ -11,6 +11,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
+import { arcadeFloorUrl } from '../../arcade-floor';
 import { TeaserMarqueeComponent } from '../../components/teaser-marquee/teaser-marquee';
 import { teaserMarquee, type PixelArt } from '../../games/marquees';
 import { findHubGame } from '../../games/registry';
@@ -85,17 +86,4 @@ export class LobbyComponent {
   protected externalUrl(game: ArcadeGame): string | null {
     return game.appUrl ? `${game.appUrl.replace(/\/+$/, '')}/play/${game.key}` : null;
   }
-}
-
-/**
- * Opens the tab inside the Arcade Floor app. A plain /lightning/n/<tab> URL
- * would open it as a temporary tab in whatever app the player used last.
- */
-export function arcadeFloorUrl(
-  orgUrl: string | null | undefined,
-  tab: string | undefined,
-): string | null {
-  return orgUrl && tab
-    ? `${orgUrl.replace(/\/+$/, '')}/lightning/app/c__arcadeFloor/n/${tab}`
-    : null;
 }

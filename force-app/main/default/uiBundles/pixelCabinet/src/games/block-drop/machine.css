@@ -1,8 +1,9 @@
 /*
- * Block Drop machine: a handheld brick-game console. Red plastic, a grey-olive
- * reflective LCD with segment digits (unlike the Snake phone's mint screen),
- * four direction keys and a big rotate key that are the touch controls. Its
- * high-score card is a second little LCD.
+ * Block Drop machine: a handheld brick-game console in the proportions of an
+ * early-90s handheld (about 3 : 5). Aged ivory plastic, a slate bezel and a
+ * grey-olive reflective LCD with segment digits (unlike the Snake phone's
+ * mint screen). Four direction keys and a big rotate key are the touch
+ * controls. Its high-score card is a second little LCD.
  */
 @import '@fontsource/press-start-2p/latin-400.css';
 
@@ -13,47 +14,62 @@
   font-display: swap;
 }
 
-.bd-handheld {
+.bd-machine {
   --bd-lcd: #c2c7a1;
   --bd-ink: #1f2417;
-  --bd-body: #dc2626;
-  position: relative;
+  --bd-plastic: #d9d3c4;
+  --bd-plastic-dark: #b3ac9b;
+  --bd-slate: #565c69;
+  --bd-navy: #2f3a56;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  width: min(100%, 400px);
-  padding: 22px 22px 26px;
-  border-radius: 28px;
-  background:
-    radial-gradient(
-      ellipse at 20% 0%,
-      rgba(255, 255, 255, 0.35),
-      transparent 45%
-    ),
-    linear-gradient(165deg, #f87171, var(--bd-body) 50%, #991b1b);
-  box-shadow:
-    0 30px 50px -18px rgba(0, 0, 0, 0.7),
-    inset 0 -6px 0 rgba(69, 10, 10, 0.4),
-    inset 0 3px 0 rgba(255, 255, 255, 0.35);
-  color: #fee2e2;
+  align-items: center;
+  width: min(100%, 380px);
   font-family: 'Press Start 2P', var(--arcade-font);
   text-transform: uppercase;
 }
 
-.bd-handheld button {
+.bd-machine button {
   font-family: inherit;
   text-transform: inherit;
   cursor: pointer;
 }
 
+.bd-handheld {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  aspect-ratio: 3 / 5;
+  padding: 20px 20px 24px;
+  border-radius: 16px 16px 40px 40px;
+  background:
+    radial-gradient(
+      ellipse at 25% 0%,
+      rgba(255, 255, 255, 0.45),
+      transparent 50%
+    ),
+    linear-gradient(
+      170deg,
+      #e6e1d4,
+      var(--bd-plastic) 45%,
+      var(--bd-plastic-dark)
+    );
+  box-shadow:
+    0 30px 50px -18px rgba(0, 0, 0, 0.75),
+    inset 0 -6px 0 rgba(90, 80, 60, 0.25),
+    inset 0 3px 0 rgba(255, 255, 255, 0.6);
+  color: var(--bd-navy);
+}
+
 /* Bezel and LCD. */
 .bd-bezel {
-  padding: 10px 16px 18px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #3f3f46, #27272a);
+  padding: 10px 18px 16px;
+  border-radius: 10px 10px 28px 10px;
+  background: linear-gradient(180deg, #626875, var(--bd-slate));
   box-shadow:
-    inset 0 2px 6px rgba(0, 0, 0, 0.55),
-    0 1px 0 rgba(255, 255, 255, 0.45);
+    inset 0 2px 6px rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .bd-bezel-label {
@@ -61,7 +77,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 9px;
-  color: #d1d5db;
+  color: #c9ccd3;
   font-size: 6px;
   letter-spacing: 0.08em;
 }
@@ -70,15 +86,16 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #ef4444;
-  box-shadow: 0 0 6px #ef4444;
+  background: #d9534f;
+  box-shadow: 0 0 6px #d9534f;
 }
 
 .bd-lcd {
+  position: relative;
   display: flex;
   gap: 10px;
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 3px;
   background: var(--bd-lcd);
   box-shadow:
     inset 3px 3px 6px rgba(0, 0, 0, 0.3),
@@ -87,8 +104,7 @@
 }
 
 .bd-well {
-  position: relative;
-  flex: 0 1 200px;
+  flex: 0 1 144px;
   min-width: 0;
   padding: 2px;
   border: 2px solid var(--bd-ink);
@@ -99,6 +115,7 @@
   width: 100%;
 }
 
+/* Start, pause and result screens cover the whole LCD. */
 .bd-overlay {
   position: absolute;
   inset: 0;
@@ -106,46 +123,46 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   padding: 10px;
-  background: rgba(194, 199, 161, 0.9);
+  background: rgba(194, 199, 161, 0.94);
   color: var(--bd-ink);
-  font-size: 8px;
+  font-size: 7px;
   line-height: 1.7;
   text-align: center;
 }
 
 .bd-overlay-title {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .bd-lcd-button,
-.bd-handheld .round-result-again {
-  padding: 8px 10px;
+.bd-machine .round-result-again {
+  padding: 7px 10px;
   border: 2px solid var(--bd-ink);
   background: transparent;
   color: var(--bd-ink);
-  font-size: 8px;
+  font-size: 7px;
 }
 
 .bd-lcd-button:hover,
-.bd-handheld .round-result-again:hover {
+.bd-machine .round-result-again:hover {
   background: var(--bd-ink);
   color: var(--bd-lcd);
 }
 
-.bd-handheld .round-result {
-  gap: 10px;
+.bd-machine .round-result {
+  gap: 8px;
 }
 
-.bd-handheld .round-result-score {
+.bd-machine .round-result-score {
   font-family: 'DSEG7 Classic', var(--arcade-font);
-  font-size: 18px;
+  font-size: 16px;
 }
 
-.bd-handheld .round-result-status {
+.bd-machine .round-result-status {
   color: var(--bd-ink);
-  font-size: 7px;
+  font-size: 6px;
   line-height: 1.8;
 }
 
@@ -154,7 +171,7 @@
   display: flex;
   flex: 1 1 0;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -165,14 +182,14 @@
 }
 
 .bd-seg-label {
-  font-size: 6px;
+  font-size: 5px;
 }
 
 .bd-seg strong {
   position: relative;
   align-self: flex-end;
   font-family: 'DSEG7 Classic', var(--arcade-font);
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1;
 }
@@ -188,15 +205,15 @@
 
 .bd-next canvas {
   display: block;
-  margin: 4px 0 0 auto;
+  margin: 3px 0 0 auto;
 }
 
 .bd-flags {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   margin-top: auto;
-  font-size: 6px;
+  font-size: 5px;
 }
 
 .bd-flags span {
@@ -208,49 +225,47 @@
 }
 
 .bd-brand {
-  margin-top: 14px;
-  color: #fef3c7;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-align: center;
-  text-shadow: 0 2px 0 #7f1d1d;
+  margin: 12px 4px 0;
+  color: var(--bd-navy);
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
 
 /* Controls: four direction keys left, the rotate key right, start below. */
 .bd-controls {
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: space-between;
-  margin-top: 18px;
-  padding: 0 6px;
+  padding: 0 4px;
 }
 
 .bd-dpad {
   display: grid;
-  grid-template-columns: repeat(3, 40px);
-  grid-template-rows: repeat(3, 40px);
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(3, 36px);
 }
 
 .bd-dpad-key,
 .bd-key button {
   border: none;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #fde047, #facc15 50%, #a16207);
-  color: #713f12;
+  background: radial-gradient(circle at 38% 32%, #6b6e76, #3d3f45 55%, #26272b);
+  color: #a3a6ad;
   box-shadow:
-    0 4px 0 #713f12,
-    0 6px 10px rgba(0, 0, 0, 0.3);
+    0 4px 0 #1d1e21,
+    0 6px 10px rgba(0, 0, 0, 0.25);
 }
 
 .bd-dpad-key {
   margin: 2px;
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .bd-dpad-key:active,
 .bd-key button:active {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 #713f12;
+  box-shadow: 0 1px 0 #1d1e21;
 }
 
 .bd-up {
@@ -278,32 +293,57 @@
 }
 
 .bd-rotate button {
-  width: 74px;
-  height: 74px;
+  width: 64px;
+  height: 64px;
+  background: radial-gradient(circle at 38% 32%, #d08a6c, #a95b3f 55%, #7c3f2a);
+  box-shadow:
+    0 5px 0 #5a2c1d,
+    0 6px 10px rgba(0, 0, 0, 0.25);
+}
+
+.bd-rotate button:active {
+  box-shadow: 0 1px 0 #5a2c1d;
 }
 
 .bd-small-keys {
   display: flex;
   justify-content: center;
-  margin-top: 14px;
+  margin-bottom: 18px;
 }
 
 .bd-small-keys .bd-key button {
-  width: 22px;
-  height: 22px;
-  background: radial-gradient(circle at 38% 32%, #a1a1aa, #52525b 60%);
-  box-shadow: 0 3px 0 #27272a;
+  width: 40px;
+  height: 11px;
+  border-radius: 999px;
+  background: #8d8a83;
+  box-shadow: 0 3px 0 #5f5c56;
 }
 
 .bd-key button:disabled {
   cursor: default;
 }
 
+/* Speaker slots in the lower corner. */
+.bd-speaker {
+  position: absolute;
+  right: 26px;
+  bottom: 26px;
+  width: 42px;
+  height: 26px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(90, 80, 60, 0.45) 0 4px,
+    transparent 4px 8px
+  );
+  border-radius: 4px;
+  transform: rotate(-24deg);
+}
+
 .bd-help {
-  margin-top: 16px;
-  color: #fecaca;
+  margin-top: 14px;
+  color: var(--arcade-muted);
   font-family: var(--arcade-font);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   line-height: 1.4;
   text-align: center;
   text-transform: none;
@@ -313,26 +353,27 @@
 .machine-block-drop .hiscores {
   width: min(100%, 320px);
   padding: 14px;
-  border-radius: 16px;
-  background: linear-gradient(165deg, #f87171, #dc2626 50%, #991b1b);
+  border-radius: 14px;
+  background: linear-gradient(170deg, #e6e1d4, #d9d3c4 45%, #b3ac9b);
   box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.7);
+  color: #2f3a56;
   font-family: 'Press Start 2P', var(--arcade-font);
   text-transform: uppercase;
 }
 
 .machine-block-drop .hiscores-title {
   margin-bottom: 10px;
-  color: #fef3c7;
+  color: #2f3a56;
   font-size: 10px;
   font-weight: 400;
   text-align: center;
-  text-shadow: 0 2px 0 #7f1d1d;
+  text-shadow: none;
 }
 
 .machine-block-drop .hiscores-list,
 .machine-block-drop .hiscores .hiscores-note {
   padding: 12px 10px;
-  border: 10px solid #3f3f46;
+  border: 10px solid #565c69;
   border-radius: 6px;
   background: #c2c7a1;
   color: #1f2417;
@@ -362,9 +403,8 @@
 }
 
 /* Embedded on a Lightning page: the compact handheld. */
-html.embedded .bd-handheld {
-  width: min(100%, 360px);
-  padding: 16px 16px 20px;
+html.embedded .bd-machine {
+  width: min(100%, 340px);
 }
 
 html.embedded .bd-help {
@@ -373,14 +413,10 @@ html.embedded .bd-help {
 
 @media (max-width: 420px) {
   .bd-handheld {
-    padding: 16px 14px 22px;
+    padding: 16px 14px 20px;
   }
 
   .bd-bezel {
     padding: 8px 10px 14px;
-  }
-
-  .bd-help {
-    display: none;
   }
 }

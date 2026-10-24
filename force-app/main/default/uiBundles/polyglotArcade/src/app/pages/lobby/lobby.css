@@ -40,18 +40,12 @@
   overflow: hidden;
 }
 
-/* Backlit marquee on top of the card, framed by two rows of bulbs. */
+/* Backlit marquee on top of the card. */
 .lobby-marquee {
   margin: -1.25rem -1.25rem 0.5rem;
-  padding: 16px 14px;
+  padding: 14px;
   border-bottom: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
-  background:
-    radial-gradient(circle, rgba(253, 230, 138, 0.95) 2px, transparent 3px) 0 4px / 14px 8px
-      repeat-x,
-    radial-gradient(circle, rgba(253, 230, 138, 0.95) 2px, transparent 3px) 7px calc(100% - 4px) /
-      14px 8px repeat-x,
-    #07040f;
-  animation: lobby-bulbs 1.4s steps(1) infinite;
+  background: #07040f;
 }
 
 .lobby-marquee svg {
@@ -60,20 +54,4 @@
   height: auto;
   border-radius: 4px;
   box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 35%, transparent);
-}
-
-/* Chasing lights: the bulb rows swap places every step. */
-@keyframes lobby-bulbs {
-  50% {
-    background-position:
-      7px 4px,
-      0 calc(100% - 4px),
-      0 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lobby-marquee {
-    animation: none;
-  }
 }

@@ -8,9 +8,9 @@
     <p class="hiscores-note">No scores yet. Be the first!</p>
   } @else {
     <ol class="hiscores-list">
-      @for (entry of entries(); track entry.id; let i = $index) {
+      @for (entry of visible(); track entry.id; let i = $index) {
         <li class="hiscores-row">
-          <span class="hiscores-rank">{{ rank(i) }}</span>
+          <span class="hiscores-rank">{{ rank(offset() + i) }}</span>
           <span class="hiscores-player">
             <span class="hiscores-name">{{ entry.player }}</span>
             @if (showDetails()) {
@@ -24,5 +24,26 @@
         </li>
       }
     </ol>
+    @if (pageCount() > 1) {
+      <nav class="hiscores-pages" aria-label="High score pages">
+        <button
+          type="button"
+          class="arcade-nav-link"
+          [disabled]="page() === 0"
+          (click)="page.set(page() - 1)"
+        >
+          ‹ Prev
+        </button>
+        <span>{{ offset() + 1 }}–{{ offset() + visible().length }} of {{ entries()!.length }}</span>
+        <button
+          type="button"
+          class="arcade-nav-link"
+          [disabled]="page() === pageCount() - 1"
+          (click)="page.set(page() + 1)"
+        >
+          Next ›
+        </button>
+      </nav>
+    }
   }
 </section>
