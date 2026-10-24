@@ -175,33 +175,7 @@ html.embedded #root {
   backdrop-filter: blur(8px);
 }
 
-/* The way out to Salesforce, in the Arcade Floor's color. */
-.arcade-nav-link.arcade-nav-floor {
-  color: var(--surface-floor);
-}
-
-/* Who plays, and the way to log out: takes the place of the platform's
-   session banner. */
-.arcade-player {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: auto;
-  color: var(--arcade-muted);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-}
-
-.arcade-player strong {
-  max-width: 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--arcade-text);
-  font-weight: 600;
-}
-
-.arcade-player + .arcade-tech-badge {
+.arcade-tech-badge {
   margin-left: 0;
 }
 
@@ -216,6 +190,31 @@ html.embedded #root {
   letter-spacing: 0.08em;
   white-space: nowrap;
   box-shadow: 0 0 14px color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+/* Footer row below the credits: the way out to Salesforce, the player and
+   the way to log out. The player takes the place of the platform's session
+   banner. */
+.arcade-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.arcade-nav-link.arcade-nav-floor {
+  color: var(--surface-floor);
+}
+
+.arcade-player {
+  max-width: 14rem;
+  overflow: hidden;
+  color: var(--arcade-text);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Keyboard focus on a machine: the element that takes the game keys. */

@@ -7,9 +7,9 @@ import { LOGOUT_URL, arcadeFloorHomeUrl } from '../../../arcade-floor';
 
 /**
  * Arcade chrome around every hub page. The header is the marquee bar every
- * standalone surface shares: the way back to the lobby, the way out to
- * Salesforce, the player and a badge naming the surface. The hub is the
- * lobby, so the back link hides on the lobby itself.
+ * standalone surface shares: the way back to the lobby and a badge naming the
+ * surface. The hub is the lobby, so the back link hides on the lobby itself.
+ * The footer leads out to Salesforce and names the player.
  */
 @Component({
   selector: 'app-layout',

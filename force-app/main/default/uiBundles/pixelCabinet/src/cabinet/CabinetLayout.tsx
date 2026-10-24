@@ -6,8 +6,8 @@ import { LOGOUT_URL, arcadeFloorUrl, hubLobbyUrl } from './hub';
 /**
  * Chrome for the standalone cabinet launched from the hub. The cabinet is a
  * machine, not a second hub: its header is the marquee bar every standalone
- * surface shares, with the way back to the hub lobby, the way out to
- * Salesforce, the player and a badge naming the surface.
+ * surface shares, with the way back to the hub lobby and a badge naming the
+ * surface. The footer leads out to Salesforce and names the player.
  */
 export default function CabinetLayout() {
   const hubUrl = hubLobbyUrl();
@@ -18,7 +18,7 @@ export default function CabinetLayout() {
     <div className="arcade-shell min-h-screen">
       <header className="arcade-marquee">
         <nav
-          className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4"
+          className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4"
           aria-label="Arcade"
         >
           {hubUrl && (
@@ -27,24 +27,6 @@ export default function CabinetLayout() {
             </a>
           )}
           <span className="arcade-logo">Pixel Cabinet</span>
-          {floorUrl && (
-            <a
-              href={floorUrl}
-              target="_top"
-              className="arcade-nav-link arcade-nav-floor"
-              title="Open the Arcade Floor app in Salesforce"
-            >
-              Salesforce ↗
-            </a>
-          )}
-          {player && (
-            <span className="arcade-player">
-              <strong>{player}</strong>
-              <a href={LOGOUT_URL} className="arcade-nav-link">
-                Log out
-              </a>
-            </span>
-          )}
           <span className="arcade-tech-badge">
             React · Pixel Cabinet UI bundle
           </span>
@@ -55,6 +37,26 @@ export default function CabinetLayout() {
       </main>
       <footer className="arcade-hint px-4 pb-6 text-center">
         React UI bundle · Salesforce Multi-Framework · part of Polyglot Arcade
+        {(floorUrl || player) && (
+          <div className="arcade-footer-row">
+            {floorUrl && (
+              <a
+                href={floorUrl}
+                target="_top"
+                className="arcade-nav-link arcade-nav-floor"
+                title="Open the Arcade Floor app in Salesforce"
+              >
+                Salesforce ↗
+              </a>
+            )}
+            {player && <span className="arcade-player">{player}</span>}
+            {player && (
+              <a href={LOGOUT_URL} className="arcade-nav-link">
+                Log out
+              </a>
+            )}
+          </div>
+        )}
       </footer>
     </div>
   );

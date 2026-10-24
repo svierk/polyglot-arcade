@@ -33,6 +33,7 @@ test.describe('Polyglot Arcade hub', () => {
   test('full columns cannot be played', async ({ page }) => {
     await page.goto('/play/four-in-a-row');
     await page.getByRole('button', { name: 'easy' }).click();
+    await expect(yourMove(page)).toBeVisible();
     const column = page.getByRole('button', { name: 'Drop disc in column 1' });
     // Six discs fill a column; the CPU may help fill it, so stop once disabled.
     for (let i = 0; i < 6 && (await column.isEnabled()); i++) {

@@ -1,7 +1,7 @@
 <div class="arcade-shell min-h-screen">
   <header class="arcade-marquee">
     <nav
-      class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4"
+      class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4"
       aria-label="Arcade"
     >
       @if (!onLobby()) {
@@ -11,21 +11,6 @@
       <a routerLink="/leaderboard" class="arcade-nav-link" routerLinkActive="arcade-nav-link-active"
         >Hall of fame</a
       >
-      @if (floorUrl) {
-        <a
-          [href]="floorUrl"
-          target="_top"
-          class="arcade-nav-link arcade-nav-floor"
-          title="Open the Arcade Floor app in Salesforce"
-          >Salesforce ↗</a
-        >
-      }
-      @if (player(); as name) {
-        <span class="arcade-player">
-          <strong>{{ name }}</strong>
-          <a [href]="logoutUrl" class="arcade-nav-link">Log out</a>
-        </span>
-      }
       <span class="arcade-tech-badge">Angular · Polyglot Arcade hub</span>
     </nav>
   </header>
@@ -34,5 +19,22 @@
   </main>
   <footer class="arcade-hint px-4 pb-6 text-center">
     Angular UI bundle · Salesforce Multi-Framework · Pixel Cabinet runs on React, Snake on LWC OSS
+    @if (floorUrl || player()) {
+      <div class="arcade-footer-row">
+        @if (floorUrl) {
+          <a
+            [href]="floorUrl"
+            target="_top"
+            class="arcade-nav-link arcade-nav-floor"
+            title="Open the Arcade Floor app in Salesforce"
+            >Salesforce ↗</a
+          >
+        }
+        @if (player(); as name) {
+          <span class="arcade-player">{{ name }}</span>
+          <a [href]="logoutUrl" class="arcade-nav-link">Log out</a>
+        }
+      </div>
+    }
   </footer>
 </div>
