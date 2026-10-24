@@ -14,10 +14,10 @@ Polyglot Arcade exists to show Salesforce Multi-Framework. That two frameworks r
 
 **Same hall, different machines - and two halls, one bar.** There are two levels of identity:
 
-| Level   | What is shared                                                                                     | What is its own                                                                                                                                                                                                            |
-| ------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Surface | The marquee bar's layout (`← Lobby`, logo, badge), base tokens, round result and high-score markup | A surface color and a room: the Angular hub is a **magenta arcade hall** with a carpet pattern, the React cabinet a **cyan machine room** with a blueprint grid. Lightning's Arcade Floor is **blue**.                     |
-| Machine | Nothing but the data: score, level, the leaderboard rows                                           | Cabinet, screen, HUD, controls, result screen and high-score card: an upright CRT cabinet (Pellet Chase), a handheld brick game (Block Drop), a console on a wood-grain TV (Brick Breaker), a tabletop toy (Four in a Row) |
+| Level   | What is shared                                                                                                             | What is its own                                                                                                                                                                                                            |
+| ------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Surface | The marquee bar's layout (`← Lobby`, logo, `Salesforce ↗`, player, badge), base tokens, round result and high-score markup | A surface color and a room: the Angular hub is a **magenta arcade hall** with a carpet pattern, the React cabinet a **cyan machine room** with a blueprint grid. Lightning's Arcade Floor is **blue**.                     |
+| Machine | Nothing but the data: score, level, the leaderboard rows                                                                   | Cabinet, screen, HUD, controls, result screen and high-score card: an upright CRT cabinet (Pellet Chase), a handheld brick game (Block Drop), a console on a wood-grain TV (Brick Breaker), a tabletop toy (Four in a Row) |
 
 The surface colors are used wherever a surface is named: the marquee bar and badge, a legend and a "Lives in" line on every lobby card, the launch buttons (they take the color of the surface they open), the source of each round in the hall of fame, and a slim `React · Pixel Cabinet UI bundle` tag below the compact machine that Lightning frames at `/embed`.
 
@@ -28,7 +28,8 @@ How it is built:
 - Fonts (Press Start 2P, DSEG7, VT323, Fredoka) come from npm under the SIL Open Font License and are bundled at build time. No CDN, no CSP change.
 - Teaser marquees in the lobby are pixel art per `Game_Key__c`, kept as data in the hub (`games/marquees.ts`) and drawn as SVG, so they need no asset path. Unknown games keep the plain card.
 - Game rules stay untouched in `engine.ts`. Canvas games only changed how they draw (an LCD for Block Drop, chunky 80s colors for Brick Breaker); scanlines and glare are CSS overlays above the canvas.
-- Nothing in a machine is sized by the viewport, and flicker, blinking lights and bounces stop under `prefers-reduced-motion`.
+- Nothing in a machine is sized by the viewport, and flicker, blinking lights and bounces stop under `prefers-reduced-motion`. Machines fit a 1280 × 860 window below the bar; the Pellet Chase cabinet is cut off below its control panel for that.
+- The marquee bar is sticky. It shows the player (`uiapi.currentUser`) and `Log out` (`/secur/logout.jsp`), so the platform's "Logged in as" banner is switched off with `<meta name="sf-session-banner" content="disabled">` in both `index.html` files - also inside the Lightning frame, where Lightning already shows who is logged in.
 
 ## Consequences
 
@@ -41,5 +42,5 @@ How it is built:
 
 - **Color only.** Same room for both bundles, only the bar in the surface color. Easy to miss once the machines fill the page.
 - **Framed surfaces.** A frame in the surface color around every page with a corner label, like a boundary in an architecture diagram. Very explicit, but it overlaps with the Tech X-ray planned for v0.8.0.
-- **Machine look-alikes of real products.** A blue four-in-a-row frame or a yellow handheld with slanted A/B buttons read as specific trademarked products. The machines keep the mechanics' classic shapes but their own colors and layouts.
+- **Machine look-alikes of real products.** The machines keep the classic shapes and colors players remember - the blue frame of the toy, the early-90s proportions of the handheld - but no names, logos or signature details of specific products (no slanted A/B buttons or cross d-pad on the handheld, no brand lettering).
 - **Fonts from a CDN.** Would need a CSP Trusted Site per font host and breaks without network access to it.

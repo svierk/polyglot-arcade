@@ -48,13 +48,13 @@ React and Angular are generally available for UI bundles as of Winter '27. Embed
 
 **Same hall, different machines.** Every game has a cabinet of its own, with its HUD, result screen and high-score card in its style:
 
-| Game          | Machine                                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Pellet Chase  | Upright arcade cabinet: backlit marquee, CRT with scanlines, joystick panel, coin door, attract-screen high scores |
-| Block Drop    | Handheld brick-game console: grey-olive LCD with segment digits, direction and rotate keys as touch controls       |
-| Brick Breaker | 80s home console on a wood-grain CRT TV, with the cartridge box as high-score card                                 |
-| Four in a Row | Tabletop toy: glossy frame on feet, discs that drop and bounce, the result on the lid of the game box              |
-| Snake         | Retro phone with its own LCD; embedded, the Lightning page shows the part with the screen and the navigation keys  |
+| Game          | Machine                                                                                                                                      |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pellet Chase  | Upright arcade cabinet: backlit marquee, CRT with scanlines, joystick panel, attract-screen high scores                                      |
+| Block Drop    | Handheld brick game in early-90s proportions: ivory plastic, grey-olive LCD with segment digits, direction and rotate keys as touch controls |
+| Brick Breaker | 80s home console on a wood-grain CRT TV, with the cartridge box as high-score card                                                           |
+| Four in a Row | Tabletop toy: glossy blue frame on feet, discs that drop and bounce, the result on the lid of the game box                                   |
+| Snake         | Retro phone with its own LCD; embedded, the Lightning page shows the part with the screen and the navigation keys                            |
 
 In the hub lobby every game card carries a teaser marquee in the look of its machine and says where the game lives.
 
@@ -62,9 +62,9 @@ In the hub lobby every game card carries a teaser marquee in the look of its mac
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <img src="./images/four-in-a-row.png" alt="Four in a Row as a tabletop toy, won against the CPU, the result on the game box lid next to its high scores" width="440"/> | <img src="./images/brick-breaker.png" alt="Brick Breaker on a wood-grain CRT TV with the console and cartridge, next to the cartridge box high scores" width="440"/> |
 | **Block Drop (React cabinet)**                                                                                                                                         | **Pellet Chase (React cabinet)**                                                                                                                                     |
-| <img src="./images/pixel-cabinet.png" alt="Block Drop on a red handheld brick game with an LCD, in the cyan machine room of the Pixel Cabinet" width="440"/>           | <img src="./images/pellet-chase.png" alt="Pellet Chase in an upright arcade cabinet with CRT, joystick panel and the attract-screen high scores" width="440"/>       |
+| <img src="./images/pixel-cabinet.png" alt="Block Drop on an ivory handheld brick game with an LCD, in the cyan machine room of the Pixel Cabinet" width="440"/>        | <img src="./images/pellet-chase.png" alt="Pellet Chase in an upright arcade cabinet with CRT, joystick panel and the attract-screen high scores" width="440"/>       |
 | **Microfrontend on a Lightning page**                                                                                                                                  | **Hall of fame across all surfaces**                                                                                                                                 |
-| <img src="./images/snake.png" alt="Snake embedded on its page in the Arcade Floor app, with the way back to the hub and the LWC leaderboard" width="440"/>             | <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores, the source of each round in the color of its surface" width="440"/>                           |
+| <img src="./images/snake.png" alt="Snake embedded on its page in the Arcade Floor app, with the way back to the hub and the LWC leaderboard" width="440"/>             | <img src="./images/hall-of-fame.png" alt="Hall of fame listing ten scores per page, the source of each round in the color of its surface" width="440"/>              |
 
 ## 🏗️ Architecture
 
@@ -114,7 +114,7 @@ Every surface has one role (see [ADR 0001](docs/decisions/0001-surface-roles.md)
 | **Pixel Cabinet** (React UI bundle)     | cyan machine room   | A machine, not a second hub. It has no lobby: opening it sends the player to the hub lobby. The hub launches its games at `/play/<game>`, Lightning frames them at `/embed`.                                                                    |
 | **Arcade Floor** (Lightning app)        | blue                | Where microfrontends are composed: the **Snake** page with the Snake and its leaderboard, and the **Arcade Account** record page (app default for Accounts) with the cabinet and the Account's leaderboard. Rounds there count for the Account. |
 
-Every standalone page starts with the same marquee bar: `← Lobby` and a badge naming the surface (`Angular · Polyglot Arcade hub`, `React · Pixel Cabinet UI bundle`). The bar is laid out the same everywhere but glows in the color of its surface, and the room below it is the surface's own: the hub is a magenta arcade hall, the cabinet a cyan machine room. Lobby cards, launch buttons and the hall of fame use the same colors to say where a game lives and where a round was played, and the embedded cabinet carries a slim `React · Pixel Cabinet UI bundle` tag inside the Lightning frame. A switch between bundles is visible instead of feeling like a break (see [ADR 0002](docs/decisions/0002-surfaces-and-machines.md)). In Lightning, the host card links back with `← Polyglot Arcade`.
+Every standalone page starts with the same marquee bar, which stays on top while the page scrolls: `← Lobby`, `Salesforce ↗` (the way out to the Arcade Floor app in Lightning), the player with `Log out`, and a badge naming the surface (`Angular · Polyglot Arcade hub`, `React · Pixel Cabinet UI bundle`). The player and `Log out` replace the platform's session banner, which both bundles switch off with `<meta name="sf-session-banner" content="disabled">`. The bar is laid out the same everywhere but glows in the color of its surface, and the room below it is the surface's own: the hub is a magenta arcade hall, the cabinet a cyan machine room. Lobby cards, launch buttons and the hall of fame use the same colors to say where a game lives and where a round was played, and the embedded cabinet carries a slim `React · Pixel Cabinet UI bundle` tag inside the Lightning frame. A switch between bundles is visible instead of feeling like a break (see [ADR 0002](docs/decisions/0002-surfaces-and-machines.md)). In Lightning, the host card links back with `← Polyglot Arcade`.
 
 The demo covers four integration patterns:
 
