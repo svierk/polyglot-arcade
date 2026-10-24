@@ -1,5 +1,10 @@
 <div class="fr-toy">
-  <p class="fr-status" aria-live="polite">{{ status() }}</p>
+  <p class="fr-status" aria-live="polite">
+    @if (phase() === 'human' && cpuColumn(); as col) {
+      <span class="sr-only">CPU dropped a disc in column {{ col }}. </span>
+    }
+    {{ status() }}
+  </p>
 
   @if (phase() === 'setup') {
     <div class="fr-levels">
@@ -33,7 +38,7 @@
         type="button"
         class="column"
         [class.cursor]="cursor() === col && phase() === 'human'"
-        [attr.aria-label]="'Drop disc in column ' + (col + 1)"
+        [attr.aria-label]="columnLabel(col)"
         [disabled]="phase() !== 'human' || isColumnFull(col)"
         (click)="cursor.set(col); play(col)"
         (mouseenter)="cursor.set(col)"

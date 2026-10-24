@@ -13,3 +13,34 @@
   border-radius: 0.5rem;
   margin: 0 var(--slds-g-spacing-3, 0.75rem);
 }
+
+/* Tech X-ray in the footer: the pattern number as in the README, in the blue
+   of the Arcade Floor. */
+/* The card centers its footer; the X-ray reads as a left-aligned note. */
+.xray {
+  width: 100%;
+  text-align: left;
+}
+
+.xray-link {
+  margin-left: 0.25rem;
+}
+
+.xray-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+
+.xray-no {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-weight: 800;
+}

@@ -7,6 +7,7 @@
  *
  * Every card says where its game lives, in the color of that surface, and its
  * launch button carries that color: the bar of the page it opens glows in it.
+ * With the Tech X-ray switched on, the card shows how its game is built.
  */
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -15,6 +16,8 @@ import { arcadeFloorUrl } from '../../arcade-floor';
 import { TeaserMarqueeComponent } from '../../components/teaser-marquee/teaser-marquee';
 import { teaserMarquee, type PixelArt } from '../../games/marquees';
 import { findHubGame } from '../../games/registry';
+import { TechXray } from '../../tech-xray.service';
+import { xrayOf, type Pattern } from '../../xray';
 
 /** Lightning tab of each game that is played embedded on the Arcade Floor. */
 const ARCADE_FLOOR_TABS: Readonly<Record<string, string>> = { snake: 'Arcade_Snake' };
@@ -52,6 +55,8 @@ const FLOOR: Surface = {
 export class LobbyComponent {
   private readonly api = inject(ArcadeApi);
 
+  protected readonly xray = inject(TechXray);
+  protected readonly xrayOf = xrayOf;
   protected readonly surfaces = [HUB, CABINET, FLOOR];
   protected readonly games = signal<ArcadeGame[] | null>(null);
   protected readonly error = signal<string | null>(null);
@@ -72,6 +77,11 @@ export class LobbyComponent {
   protected whereLives(game: ArcadeGame): Surface {
     if (this.isHubGame(game)) return HUB;
     return game.hostSavesScore ? FLOOR : CABINET;
+  }
+
+  /** A pattern in the color of the surface it is seen on. */
+  protected patternColor(pattern: Pattern): string {
+    return pattern.no === 1 ? HUB.color : pattern.no === 2 ? CABINET.color : FLOOR.color;
   }
 
   protected teaser(game: ArcadeGame): PixelArt | undefined {

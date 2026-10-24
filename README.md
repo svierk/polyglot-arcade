@@ -21,6 +21,8 @@ Polyglot Arcade turns that into a playful reference project:
 - **Microfrontends in Lightning.** One host LWC drops any game onto a Lightning page, talks to it through events, and attributes rounds to the Account it is placed on. Games without a Salesforce session of their own get their score saved by the host.
 - **One arcade, not three apps.** The Angular hub is the only lobby, the React cabinet is a machine it launches, and the Lightning app _Arcade Floor_ is where microfrontends are composed. A shared marquee bar and return links connect them.
 - **You can see the architecture.** Every surface has its own color and room - a magenta arcade hall for the Angular hub, a cyan machine room for the React cabinet, blue for the Arcade Floor - and every game is a machine of its own. A switch between frameworks is something you see, not something you have to know.
+- **The Tech X-ray tells what you see.** One switch in the lobby turns every game card into a blueprint of how the game is built, and every surface explains its own integration pattern - no README needed.
+- **Playable by everyone.** Keyboard, touch and screen readers work on every machine, and automated accessibility checks guard it.
 
 ## 🧩 Salesforce Multi-Framework in a nutshell
 
@@ -116,6 +118,8 @@ Every surface has one role (see [ADR 0001](docs/decisions/0001-surface-roles.md)
 
 Every standalone page starts with the same marquee bar, which stays on top while the page scrolls: `← Lobby` and a badge naming the surface (`Angular · Polyglot Arcade hub`, `React · Pixel Cabinet UI bundle`). The footer below adds `Salesforce ↗` (the way out to the Arcade Floor app in Lightning), the player and `Log out`; these replace the platform's session banner, which both bundles switch off with `<meta name="sf-session-banner" content="disabled">`. The bar is laid out the same everywhere but glows in the color of its surface, and the room below it is the surface's own: the hub is a magenta arcade hall, the cabinet a cyan machine room. Lobby cards, launch buttons and the hall of fame use the same colors to say where a game lives and where a round was played, and the embedded cabinet carries a slim `React · Pixel Cabinet UI bundle` tag inside the Lightning frame. A switch between bundles is visible instead of feeling like a break (see [ADR 0002](docs/decisions/0002-surfaces-and-machines.md)). In Lightning, the host card links back with `← Polyglot Arcade`.
 
+### Integration patterns
+
 The demo covers four integration patterns:
 
 1. **Native Angular UI bundle.** `polyglotArcade` launches from the App Launcher and reads and writes data with the Data SDK. The lobby is data driven: tiles, colors, high scores and launch targets come from `Arcade_Game__c`.
@@ -124,6 +128,18 @@ The demo covers four integration patterns:
 4. **Externally hosted microfrontend - the host saves.** The same LWC frames the Snake on Vercel. The Snake has no Salesforce session, so it only reports the round and the host saves it with `createRecord`. The hub lobby links Snake to its page on the Arcade Floor, where it is played.
 
 Which pattern applies comes from the game record: `App_Url__c` plus `Embed_Path__c` build the frame URL (`/embed` for the cabinet, nothing for the Snake), and `Host_Saves_Score__c` tells the host to save rounds itself.
+
+### Tech X-ray
+
+<img src="./images/tech-xray.png" alt="Hub lobby with the Tech X-ray switched on: the badge explains pattern 1 of the Angular hub, the game cards show blueprints with their patterns, framework, surface, who saves the score and the data path" width="900"/>
+
+The patterns above are visible in the running app, under the same names and numbers:
+
+- **Lobby.** The **Tech X-ray** switch in the hub's marquee bar turns every game card into a blueprint: pattern, framework, surface, who saves the score and the data path. The switch is remembered per browser.
+- **Badge.** On every page of the hub and the cabinet, the badge in the marquee bar opens the X-ray of the surface on screen: pattern 1 in the hub, pattern 2 in the cabinet.
+- **Lightning.** The footer of the **Arcade Game Host** card names the pattern that runs in its frame: pattern 3 for a cabinet game, pattern 4 for the Snake.
+
+Each X-ray links back to this section. Nothing is written down per game: the hub derives the X-ray from the game record - `Host_Saves_Score__c` means pattern 4, an Angular game pattern 1, a React game pattern 2, plus pattern 3 when it has an `Embed_Path__c`. A new game record gets its X-ray without a code change.
 
 What happens when an embedded cabinet round ends:
 
@@ -200,6 +216,22 @@ erDiagram
 The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games and create/read access to scores. Players cannot edit or delete scores. Leaderboards only list scoring rounds; lost rounds still count as plays.
 
 The report folder **Polyglot Arcade** holds three reports on the report type _Arcade Games with Scores_ - **Top scores per game**, **Plays per framework** and **Rounds per source** - and the dashboard **Arcade Floor** charts all three. Both folders are shared with all internal users, and the dashboard shows each viewer the data they can see. Arcade Floor has the Reports and Dashboards tabs.
+
+## ♿ Accessibility and touch
+
+Every surface keeps WCAG 2.1 AA, and every in-org game can be played with a keyboard, by touch and with a screen reader:
+
+| Game          | Keyboard                               | Touch                                    |
+| ------------- | -------------------------------------- | ---------------------------------------- |
+| Block Drop    | ← → move · ↑ rotate · ↓ / space drop   | direction keys, rotate and start buttons |
+| Pellet Chase  | arrows or WASD steer · P pauses        | joystick buttons and pause button        |
+| Four in a Row | ← → and Enter · keys 1-7 drop directly | tap a column                             |
+| Brick Breaker | ← → move · space launches · P pauses   | tap launches, drag moves the paddle      |
+
+- **Keyboard focus** is always visible: links and buttons get an outline in the surface color, the machine that takes the game keys a dashed one. Machines on a light case, like the Block Drop handheld, use a darker outline.
+- **Screen readers** hear the end of every round, with the score and whether it reached Salesforce, from a live region outside the machine. Game boards are labeled with their controls, and every Four in a Row column says which discs it holds and how many places are free; the CPU's move is announced.
+- **Reduced motion:** with `prefers-reduced-motion`, flicker, blinking, bouncing discs and card hover effects stop. The game itself keeps moving.
+- **Small screens:** all pages work from 375 px wide without scrolling sideways, and buttons react to a tap at once.
 
 ## 🚀 Deploy to your org
 
@@ -307,11 +339,13 @@ Chrome's Local Network Access checks can block a Salesforce page from framing `l
 
 Tests and checks - the [Validation workflow](.github/workflows/ci.yml) runs all of them on every push and pull request, no org required:
 
-| Scope         | Command                                                                                    | What it covers                                            |
-| ------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| SFDX project  | `npm run prettier:verify` · `npm run lint` · `npm run test:unit`                           | formatting, LWC linting, LWC Jest + accessibility (sa11y) |
-| React cabinet | `npm run lint` · `npx vitest run` · `npm run build:e2e && npx playwright test`             | game engines, production build, end-to-end play           |
-| Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, end-to-end play       |
+| Scope         | Command                                                                                    | What it covers                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| SFDX project  | `npm run prettier:verify` · `npm run lint` · `npm run test:unit`                           | formatting, LWC linting, LWC Jest + accessibility (sa11y)                                             |
+| React cabinet | `npm run lint` · `npx vitest run` · `npm run build:e2e && npx playwright test`             | game engines, production build, end-to-end play, accessibility (axe), touch at 375 px                 |
+| Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, Tech X-ray, end-to-end play, accessibility (axe), touch at 375 px |
+
+The Playwright tests of both bundles run in two projects: `chromium` on a desktop window, including the [axe](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright) checks against WCAG 2.1 AA, and `mobile` (Chromium's phone emulation, tests tagged `@touch`) for touch play and layouts at 375 px. The hub's tests answer the Data SDK's calls with the seed games, so the lobby and the Tech X-ray are tested without an org.
 
 GraphQL operations are validated against your org's schema with `npm run graphql:codegen` inside each bundle.
 
@@ -351,7 +385,7 @@ The road to v1.0.0 is planned in one milestone issue per release:
 - **v0.8.0** - [Tech X-ray, accessibility and touch](https://github.com/svierk/polyglot-arcade/issues/18)
 - **v1.0.0** - [Documentation site and first stable release](https://github.com/svierk/polyglot-arcade/issues/19)
 
-Localization and installation via package are no longer planned: they add a lot of complexity to a Multi-Framework demo without showing more of it.
+Localization and installation via package are no longer planned: they add a lot of complexity to a Multi-Framework demo without showing more of it. Arcade initials on high scores are dropped for the same reason: players cannot edit their scores, so the initials would have to be asked for before a round is saved, on three surfaces and in the Snake.
 
 - **Later** - a public arcade on Experience Cloud (trade-show lead capture) and an Agentforce question like "who is this week's champion?"
 

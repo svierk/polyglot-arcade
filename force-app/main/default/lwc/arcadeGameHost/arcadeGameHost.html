@@ -33,5 +33,25 @@
         </div>
       </template>
     </div>
+    <template lwc:if={pattern}>
+      <div slot="footer" class="xray">
+        <p class="xray-heading">
+          <span class="xray-no"
+            ><span class="slds-assistive-text">Pattern </span>{pattern.no}</span
+          >
+          {pattern.name}
+        </p>
+        <p class="slds-text-body_small">
+          {pattern.detail}
+          <a
+            class="xray-link"
+            href={patternsUrl}
+            target="_blank"
+            rel="noreferrer"
+            >How it works ↗</a
+          >
+        </p>
+      </div>
+    </template>
   </lightning-card>
 </template>

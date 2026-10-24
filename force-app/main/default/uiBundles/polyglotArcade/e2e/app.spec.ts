@@ -1,10 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
+import { expectAccessible } from './fixtures/a11y';
 
 // Runs against the static build without a Salesforce org: the lobby reports
 // that games could not be loaded, the hub games are still playable.
 test.describe('Polyglot Arcade hub', () => {
   const yourMove = (page: Page) => page.getByText('Your move');
-  const roundOver = (page: Page) => page.getByText(/^(You win!|CPU wins|Draw)$/);
+  const roundOver = (page: Page) =>
+    page.locator('.fr-status').filter({ hasText: /^\s*(You win!|CPU wins|Draw)\s*$/ });
 
   /**
    * The hub renders zoneless, so right after a move the old "Your move" can
@@ -73,7 +75,10 @@ test.describe('Polyglot Arcade hub', () => {
       await waitForTurn(page);
     }
     const box = page.locator('.fr-box');
-    await expect(box.getByRole('status')).toContainText('points');
+    await expect(box.locator('.round-result')).toContainText('points');
+    // Screen readers hear the end of the round from a live region.
+    await expect(page.getByRole('status')).toContainText(/Game over\. \d+ points\./);
+    await expectAccessible(page);
     await box.getByRole('button', { name: 'Play again' }).click();
     await expect(page.getByRole('button', { name: 'easy' })).toBeVisible();
   });

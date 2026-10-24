@@ -54,7 +54,7 @@ test.describe('Pixel Cabinet', () => {
     // The result screen shows on the handheld's LCD.
     const lcd = page.locator('.bd-overlay');
     await expect(lcd.getByText('Game over')).toBeVisible();
-    await expect(lcd.getByRole('status')).toContainText('points');
+    await expect(lcd.locator('.round-result')).toContainText('points');
     await lcd.getByRole('button', { name: 'Play again' }).click();
     await expect(
       page.getByRole('button', { name: 'Press start' })

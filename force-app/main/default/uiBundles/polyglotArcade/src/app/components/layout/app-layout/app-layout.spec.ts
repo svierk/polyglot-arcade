@@ -39,7 +39,7 @@ describe('AppLayoutComponent', () => {
 
   it('names the surface in the marquee bar', async () => {
     const root = await renderAt('/');
-    expect(root.querySelector('.arcade-tech-badge')?.textContent).toBe(
+    expect(root.querySelector('.arcade-tech-badge')?.textContent).toContain(
       'Angular · Polyglot Arcade hub',
     );
   });
@@ -70,5 +70,32 @@ describe('AppLayoutComponent', () => {
   it('has no way out to Salesforce outside an org', async () => {
     const root = await renderAt('/');
     expect(root.querySelector('.arcade-nav-floor')).toBeNull();
+  });
+
+  it('switches the Tech X-ray on the lobby and remembers it', async () => {
+    const root = await renderAt('/');
+    const toggle = [...root.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('Tech X-ray'),
+    )!;
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    toggle.click();
+    TestBed.tick();
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    expect(localStorage.getItem('polyglot-arcade.tech-xray')).toBe('on');
+    localStorage.clear();
+  });
+
+  it('explains the surface behind the badge', async () => {
+    const root = await renderAt('/leaderboard');
+    const badge = root.querySelector<HTMLButtonElement>('.arcade-tech-badge')!;
+    expect(root.querySelector('#surface-xray')).toBeNull();
+    badge.click();
+    TestBed.tick();
+    expect(badge.getAttribute('aria-expanded')).toBe('true');
+    expect(root.querySelector('#surface-xray')?.textContent).toContain('Native Angular UI bundle');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    TestBed.tick();
+    expect(root.querySelector('#surface-xray')).toBeNull();
+    expect(document.activeElement).toBe(badge);
   });
 });

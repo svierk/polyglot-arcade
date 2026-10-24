@@ -13,7 +13,15 @@ export default defineConfig({
     baseURL: `http://localhost:${E2E_PORT}`,
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      grepInvert: /@touch/,
+    },
+    // Touch and small screens, in Chromium's phone emulation.
+    { name: 'mobile', use: { ...devices['Pixel 7'] }, grep: /@touch/ },
+  ],
   webServer: {
     // Serve built dist/ with static server so e2e works in CI without SF org (vite preview runs plugin and can fail)
     command: `npx serve dist -l ${E2E_PORT}`,

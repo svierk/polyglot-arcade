@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
 import { arcadeFloorUrl } from '../../arcade-floor';
+import { TechXray } from '../../tech-xray.service';
 import { LobbyComponent } from './lobby';
 
 const game = (overrides: Partial<ArcadeGame>): ArcadeGame => ({
@@ -11,6 +12,7 @@ const game = (overrides: Partial<ArcadeGame>): ArcadeGame => ({
   tagline: '',
   framework: null,
   appUrl: null,
+  embedPath: null,
   hostSavesScore: false,
   accent: '#22d3ee',
   highScore: null,
@@ -22,7 +24,13 @@ const CABINET_URL = 'https://org--c.scratch.my.salesforce.app/app/c__pixelCabine
 
 const GAMES: ArcadeGame[] = [
   game({ key: 'four-in-a-row', name: 'Four in a Row', framework: 'Angular' }),
-  game({ key: 'block-drop', name: 'Block Drop', framework: 'React', appUrl: CABINET_URL }),
+  game({
+    key: 'block-drop',
+    name: 'Block Drop',
+    framework: 'React',
+    appUrl: CABINET_URL,
+    embedPath: '/embed',
+  }),
   game({ key: 'pellet-chase', name: 'Pellet Chase', framework: 'React' }),
   game({
     key: 'snake',
@@ -50,6 +58,7 @@ const card = (root: HTMLElement, name: string) =>
 describe('LobbyComponent', () => {
   afterEach(() => {
     delete (globalThis as { SFDC_ENV?: unknown }).SFDC_ENV;
+    localStorage.clear();
   });
 
   it('builds the Arcade Floor URL from the org URL', () => {
@@ -103,5 +112,21 @@ describe('LobbyComponent', () => {
     const root = await renderLobby();
     expect(card(root, 'Pellet Chase').querySelector('app-teaser-marquee svg rect')).not.toBeNull();
     expect(card(root, 'New Game').querySelector('app-teaser-marquee')).toBeNull();
+  });
+
+  it('shows how each game is built once the Tech X-ray is on', async () => {
+    const root = await renderLobby();
+    expect(root.querySelector('.lobby-xray')).toBeNull();
+
+    TestBed.inject(TechXray).toggle();
+    TestBed.tick();
+    const xray = (name: string) => card(root, name).querySelector('.lobby-xray')!;
+    expect(xray('Four in a Row').textContent).toContain('Pattern 1 Native Angular UI bundle');
+    expect(xray('Block Drop').textContent).toContain('Pattern 2 Native React UI bundle');
+    expect(xray('Block Drop').textContent).toContain('Pattern 3 Internally hosted microfrontend');
+    expect(xray('Snake').textContent).toContain('Pattern 4 Externally hosted microfrontend');
+    expect(xray('Snake').textContent).toContain('Host LWC');
+    // The blueprint takes the place of the marquee.
+    expect(card(root, 'Pellet Chase').querySelector('app-teaser-marquee')).toBeNull();
   });
 });

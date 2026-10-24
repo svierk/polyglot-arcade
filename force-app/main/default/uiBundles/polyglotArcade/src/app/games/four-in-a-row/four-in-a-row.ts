@@ -44,7 +44,13 @@ const CPU_DELAY_MS = 450;
   // The machine styles the projected result screen too; every rule is scoped
   // to app-four-in-a-row or .machine-four-in-a-row.
   encapsulation: ViewEncapsulation.None,
-  host: { '(keydown)': 'onKeydown($event)', tabindex: '0', class: 'arcade-focus' },
+  host: {
+    '(keydown)': 'onKeydown($event)',
+    tabindex: '0',
+    class: 'arcade-focus',
+    role: 'group',
+    'aria-label': 'Four in a Row. ← → pick a column, Enter drops, keys 1 to 7 drop directly.',
+  },
 })
 export class FourInARowComponent implements OnDestroy {
   readonly gameOver = output<GameResult>();
@@ -59,6 +65,8 @@ export class FourInARowComponent implements OnDestroy {
   protected readonly cursor = signal(3);
   protected readonly lastDrop = signal<string | null>(null);
   protected readonly outcome = signal<Outcome | null>(null);
+  /** The CPU's last column, counted from 1, for screen readers. */
+  protected readonly cpuColumn = signal<number | null>(null);
   private readonly winningCells = signal<Set<string>>(new Set());
 
   protected readonly status = computed(() => {
@@ -92,6 +100,7 @@ export class FourInARowComponent implements OnDestroy {
     this.outcome.set(null);
     this.winningCells.set(new Set());
     this.lastDrop.set(null);
+    this.cpuColumn.set(null);
     this.humanMoves = 0;
     this.startedAt = Date.now();
     this.phase.set('human');
@@ -104,7 +113,9 @@ export class FourInARowComponent implements OnDestroy {
     if (this.settle()) return;
     this.phase.set('cpu');
     this.cpuTimer = setTimeout(() => {
-      this.place(cpuMove(this.board(), this.difficulty()), CPU);
+      const col = cpuMove(this.board(), this.difficulty());
+      this.place(col, CPU);
+      this.cpuColumn.set(col + 1);
       if (!this.settle()) this.phase.set('human');
     }, CPU_DELAY_MS);
   }
@@ -130,6 +141,18 @@ export class FourInARowComponent implements OnDestroy {
   protected disc(row: number, col: number): string {
     const value = this.board()[row][col];
     return value === HUMAN ? 'disc-human' : value === CPU ? 'disc-cpu' : '';
+  }
+
+  /** A column as screen readers hear it: its discs from the bottom up. */
+  protected columnLabel(col: number): string {
+    const discs = this.rows
+      .map((row) => this.board()[row][col])
+      .filter((value) => value !== 0)
+      .reverse()
+      .map((value) => (value === HUMAN ? 'yours' : 'CPU'));
+    const free = ROWS - discs.length;
+    const contents = discs.length ? `${discs.join(', ')} from the bottom` : 'empty';
+    return `Drop disc in column ${col + 1}: ${contents}, ${free} free`;
   }
 
   protected isColumnFull(col: number): boolean {

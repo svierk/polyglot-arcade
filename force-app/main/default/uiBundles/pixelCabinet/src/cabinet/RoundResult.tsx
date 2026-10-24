@@ -11,6 +11,26 @@ interface RoundResultProps {
   onPlayAgain: () => void;
 }
 
+const STATUS: Record<Outcome['state'], (outcome: Outcome) => string> = {
+  saving: () => 'Saving to Salesforce…',
+  saved: outcome =>
+    outcome.state === 'saved' && outcome.isHighScore
+      ? '★ New high score! ★'
+      : 'Score saved to the leaderboard.',
+  failed: outcome =>
+    outcome.state === 'failed'
+      ? `Could not save score: ${outcome.message}`
+      : '',
+};
+
+/**
+ * What screen readers hear when a round ends: the result screen itself is
+ * rendered inside the machine, which they do not browse while playing.
+ */
+export function announceRound(result: GameResult, outcome: Outcome): string {
+  return `Game over. ${result.score.toLocaleString()} points. ${STATUS[outcome.state](outcome)}`;
+}
+
 /**
  * The end of a round: score, whether it reached Salesforce and the way to the
  * next round. The machine shows it on its own screen, in its own look.
@@ -21,18 +41,12 @@ export default function RoundResult({
   onPlayAgain,
 }: RoundResultProps) {
   return (
-    <div className="round-result" role="status">
+    <div className="round-result">
       <p className="round-result-score">
         {result.score.toLocaleString()} points
       </p>
       <p className="round-result-status" data-state={outcome.state}>
-        {outcome.state === 'saving' && 'Saving to Salesforce…'}
-        {outcome.state === 'saved' &&
-          (outcome.isHighScore
-            ? '★ New high score! ★'
-            : 'Score saved to the leaderboard.')}
-        {outcome.state === 'failed' &&
-          `Could not save score: ${outcome.message}`}
+        {STATUS[outcome.state](outcome)}
       </p>
       <button
         type="button"

@@ -195,6 +195,129 @@ html.embedded #root {
   box-shadow: 0 0 14px color-mix(in srgb, var(--surface) 55%, transparent);
 }
 
+/* The badge is a button: it opens the Tech X-ray of the surface. */
+button.arcade-tech-badge {
+  border: none;
+  font-family: var(--arcade-font);
+  cursor: pointer;
+}
+
+/* Tech X-ray: how a surface or a game is built. The switch in the hub's bar
+   turns it on for the lobby cards; the panel below the bar explains the
+   surface on screen. */
+.xray-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.xray-toggle::before {
+  content: '';
+  width: 1.9rem;
+  height: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 0.5rem 50%,
+    currentColor 0.28rem,
+    transparent 0.32rem
+  );
+}
+
+.xray-toggle[aria-pressed='true'] {
+  color: var(--surface);
+}
+
+.xray-toggle[aria-pressed='true']::before {
+  background:
+    radial-gradient(
+      circle at calc(100% - 0.5rem) 50%,
+      var(--surface-ink) 0.28rem,
+      transparent 0.32rem
+    ),
+    var(--surface);
+}
+
+.xray-panel {
+  width: min(calc(100% - 2rem), 62rem);
+  max-height: 70vh;
+  margin: 0 auto 1rem;
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+  border: 1px solid color-mix(in srgb, var(--surface) 55%, transparent);
+  border-radius: 12px;
+  background: #0b0b24;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.xray-kicker {
+  margin-bottom: 0.35rem;
+  color: var(--surface);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.xray-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.xray-text {
+  max-width: 48rem;
+  margin-bottom: 0.9rem;
+  color: var(--arcade-text);
+}
+
+.xray-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.6rem 1.25rem;
+}
+
+.xray-rows dt {
+  color: var(--arcade-muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.xray-rows dd {
+  color: var(--arcade-text);
+}
+
+.xray-wide {
+  grid-column: 1 / -1;
+}
+
+/* Pattern number as in the README, in the color of the surface it is seen on. */
+.xray-no {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.35em;
+  border-radius: 4px;
+  background: var(--where, var(--surface));
+  color: #0b0618;
+  font-weight: 800;
+}
+
+.xray-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.25rem;
+  margin-top: 1rem;
+}
+
 /* Footer row below the credits: the way out to Salesforce, the player and
    the way to log out. The player takes the place of the platform's session
    banner. */
@@ -220,13 +343,20 @@ html.embedded #root {
   white-space: nowrap;
 }
 
+/* Keyboard focus: every link and button shows where the keyboard is. A
+   machine on a light case sets --focus to a color that stands out on it. */
+:where(a, button, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus, var(--surface));
+  outline-offset: 2px;
+}
+
 /* Keyboard focus on a machine: the element that takes the game keys. */
 .arcade-focus {
   outline: none;
 }
 
 .arcade-focus:focus-visible {
-  outline: 2px dashed var(--surface);
+  outline: 2px dashed var(--focus, var(--surface));
   outline-offset: 6px;
 }
 
@@ -334,10 +464,23 @@ html.embedded #root {
   }
 }
 
+/* Touch: taps on buttons act at once instead of waiting for a double-tap
+   zoom. Machines keep their own touch-action on the play field. */
+.arcade-shell button,
+.arcade-shell a {
+  touch-action: manipulation;
+}
+
 /* Machines stop their own flicker, blink and bounce in their styles. */
 @media (prefers-reduced-motion: reduce) {
   .arcade-card,
   .arcade-button {
     transition: none;
+  }
+
+  .arcade-card:hover,
+  .arcade-card:focus-within,
+  .arcade-button:active {
+    transform: none;
   }
 }

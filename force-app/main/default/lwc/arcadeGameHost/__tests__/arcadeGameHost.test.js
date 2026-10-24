@@ -203,6 +203,33 @@ describe("c-arcade-game-host", () => {
     });
   });
 
+  describe("tech x-ray", () => {
+    const footer = (element) => element.shadowRoot.querySelector(".xray");
+
+    it("names pattern 3 for a cabinet game that saves its own rounds", async () => {
+      const { element } = await mountWithGame(BLOCK_DROP);
+      expect(footer(element).textContent).toContain(
+        "Internally hosted microfrontend - the guest saves"
+      );
+      expect(footer(element).querySelector("a").href).toContain(
+        "#integration-patterns"
+      );
+    });
+
+    it("names pattern 4 for a guest whose rounds the host saves", async () => {
+      const { element } = await mountWithGame(SNAKE, { game: "snake" });
+      expect(footer(element).textContent).toContain(
+        "Externally hosted microfrontend - the host saves"
+      );
+    });
+
+    it("stays hidden while the game record loads", async () => {
+      const element = mount();
+      await flushPromises();
+      expect(footer(element)).toBeNull();
+    });
+  });
+
   describe("way back to the hub", () => {
     const hubLink = (element) =>
       element.shadowRoot.querySelector('a[slot="actions"]');

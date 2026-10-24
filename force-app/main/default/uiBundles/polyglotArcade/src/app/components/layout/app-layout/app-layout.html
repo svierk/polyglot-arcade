@@ -11,8 +11,69 @@
       <a routerLink="/leaderboard" class="arcade-nav-link" routerLinkActive="arcade-nav-link-active"
         >Hall of fame</a
       >
-      <span class="arcade-tech-badge">Angular · Polyglot Arcade hub</span>
+      @if (onLobby()) {
+        <button
+          type="button"
+          class="arcade-nav-link xray-toggle"
+          [attr.aria-pressed]="xray.on()"
+          (click)="xray.toggle()"
+        >
+          Tech X-ray
+        </button>
+      }
+      <button
+        #badge
+        type="button"
+        class="arcade-tech-badge"
+        aria-controls="surface-xray"
+        [attr.aria-expanded]="explainOpen()"
+        title="How this surface is built"
+        (click)="explainOpen.set(!explainOpen())"
+      >
+        Angular · Polyglot Arcade hub
+        <span aria-hidden="true">{{ explainOpen() ? '▴' : '▾' }}</span>
+      </button>
     </nav>
+    @if (explainOpen()) {
+      <section id="surface-xray" class="xray-panel" aria-labelledby="surface-xray-title">
+        <p class="xray-kicker">Tech X-ray · this surface</p>
+        <h2 id="surface-xray-title" class="xray-heading">
+          <span class="xray-no"><span class="sr-only">Pattern </span>1</span>
+          {{ surface.patterns[0].name }}
+        </h2>
+        <p class="xray-text">
+          The Polyglot Arcade hub is an Angular app, deployed as UIBundle metadata and served from
+          the org's own *.salesforce.app domain. It reads the games and saves every round played
+          here with the Data SDK: UI API GraphQL with your session, so sharing and field-level
+          security apply as in any Salesforce UI. From the lobby it launches the React games in the
+          Pixel Cabinet and the Snake on its Lightning page.
+        </p>
+        <dl class="xray-rows">
+          <div>
+            <dt>Framework</dt>
+            <dd>{{ surface.framework }}</dd>
+          </div>
+          <div>
+            <dt>Surface</dt>
+            <dd>{{ surface.surface }}</dd>
+          </div>
+          <div>
+            <dt>Saves the score</dt>
+            <dd>{{ surface.savedBy }}</dd>
+          </div>
+          <div>
+            <dt>Data path</dt>
+            <dd>{{ surface.dataPath }}</dd>
+          </div>
+        </dl>
+        <p class="xray-links">
+          <a [href]="patternsUrl" target="_blank" rel="noreferrer" class="arcade-nav-link"
+            >All four patterns in the README ↗</a
+          >
+          <button type="button" class="arcade-nav-link" (click)="closeExplanation()">Close</button>
+        </p>
+      </section>
+    }
   </header>
   <main class="mx-auto max-w-5xl px-4 py-8">
     <router-outlet />

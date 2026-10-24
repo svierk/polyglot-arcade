@@ -26,7 +26,8 @@ export default function EmbedLayout() {
   const accountId = props.objectApiName === 'Account' ? props.recordId : null;
 
   return (
-    <div className="arcade-shell rounded-lg p-4">
+    <main className="arcade-shell rounded-lg p-4">
+      <h1 className="sr-only">{game ? game.name : 'Pixel Cabinet'}</h1>
       {game ? (
         <>
           {!findGame(props.game) && (
@@ -63,6 +64,6 @@ export default function EmbedLayout() {
       )}
       {/* Names the bundle that runs inside the Lightning frame. */}
       <p className="surface-tag">React · Pixel Cabinet UI bundle</p>
-    </div>
+    </main>
   );
 }

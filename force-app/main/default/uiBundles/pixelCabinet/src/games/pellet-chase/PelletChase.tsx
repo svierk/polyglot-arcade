@@ -412,6 +412,7 @@ export default function PelletChase({
       tabIndex={0}
       onKeyDown={onKeyDown}
       className="pc-cabinet arcade-focus"
+      role="application"
       aria-label="Pellet Chase game board. Arrow keys or WASD steer, P pauses."
     >
       <div className="pc-marquee" aria-hidden="true">
@@ -469,7 +470,11 @@ export default function PelletChase({
             )}
           </div>
           <div className="pc-hud">
-            <p className="pc-lives" aria-label={`${hud.lives} lives left`}>
+            <p
+              className="pc-lives"
+              role="img"
+              aria-label={`${hud.lives} lives left`}
+            >
               {Array.from({ length: hud.lives }, (_, i) => (
                 <span key={i} className="pc-life" />
               ))}
