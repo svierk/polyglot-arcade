@@ -19,5 +19,22 @@
   </main>
   <footer class="arcade-hint px-4 pb-6 text-center">
     Angular UI bundle · Salesforce Multi-Framework · Pixel Cabinet runs on React, Snake on LWC OSS
+    @if (floorUrl || player()) {
+      <div class="arcade-footer-row">
+        @if (floorUrl) {
+          <a
+            [href]="floorUrl"
+            target="_top"
+            class="arcade-nav-link arcade-nav-floor"
+            title="Open the Arcade Floor app in Salesforce"
+            >Salesforce ↗</a
+          >
+        }
+        @if (player(); as name) {
+          <span class="arcade-player">{{ name }}</span>
+          <a [href]="logoutUrl" class="arcade-nav-link">Log out</a>
+        }
+      </div>
+    }
   </footer>
 </div>

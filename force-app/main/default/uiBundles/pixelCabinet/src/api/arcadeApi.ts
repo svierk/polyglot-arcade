@@ -42,6 +42,10 @@ interface LeaderboardResult {
   };
 }
 
+interface CurrentPlayerResult {
+  uiapi: { currentUser: { Name: FieldValue<string> } | null };
+}
+
 // Scores change with every round, on any surface and for every player, so
 // reads that show them skip the SDK's query cache.
 const LIVE = { cacheControl: 'no-cache' } as const;
@@ -195,4 +199,25 @@ export async function fetchLeaderboard(
     score: node.Score__c.value ?? 0,
     playedAt: node.CreatedDate.value,
   }));
+}
+
+const CURRENT_PLAYER = /* GraphQL */ `
+  query CabinetCurrentPlayer {
+    uiapi {
+      currentUser {
+        Name {
+          value
+        }
+      }
+    }
+  }
+`;
+
+/** Name of the logged-in user, shown in the marquee bar; null outside an org. */
+export async function fetchCurrentPlayer(): Promise<string | null> {
+  const data = await executeGraphQL<CurrentPlayerResult, Record<string, never>>(
+    CURRENT_PLAYER,
+    {}
+  );
+  return data.uiapi.currentUser?.Name.value ?? null;
 }

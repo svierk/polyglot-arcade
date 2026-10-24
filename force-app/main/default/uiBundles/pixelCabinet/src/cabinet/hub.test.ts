@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hubLobbyUrl } from './hub';
+import { arcadeFloorUrl, hubLobbyUrl } from './hub';
 
 describe('hubLobbyUrl', () => {
   it('swaps the cabinet for the hub in the base path', () => {
@@ -19,5 +19,18 @@ describe('hubLobbyUrl', () => {
     // The dev server serves the cabinet from the root.
     expect(hubLobbyUrl({ basePath: '/', appName: 'pixelCabinet' })).toBeNull();
     expect(hubLobbyUrl({ basePath: '/app/c__pixelCabinet' })).toBeNull();
+  });
+});
+
+describe('arcadeFloorUrl', () => {
+  it('leads to the Arcade Floor app of the org', () => {
+    expect(arcadeFloorUrl({ orgUrl: 'https://org.lightning.force.com/' })).toBe(
+      'https://org.lightning.force.com/lightning/app/c__arcadeFloor'
+    );
+  });
+
+  it('knows no way out outside an org', () => {
+    expect(arcadeFloorUrl(undefined)).toBeNull();
+    expect(arcadeFloorUrl({ basePath: '/' })).toBeNull();
   });
 });

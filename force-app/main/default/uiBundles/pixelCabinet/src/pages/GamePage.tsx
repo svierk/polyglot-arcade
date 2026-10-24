@@ -9,9 +9,8 @@ export default function GamePage() {
   if (!game) return <NotFound />;
   return (
     <section>
-      <h1 className="arcade-title mb-6 text-xl" style={{ color: game.accent }}>
-        {game.name}
-      </h1>
+      {/* The machine's marquee shows the name in its own look. */}
+      <h1 className="sr-only">{game.name}</h1>
       <GameStage game={game} source="Pixel Cabinet" />
     </section>
   );

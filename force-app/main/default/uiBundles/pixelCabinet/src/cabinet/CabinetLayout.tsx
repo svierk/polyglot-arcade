@@ -1,14 +1,19 @@
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router';
-import { hubLobbyUrl } from './hub';
+import { fetchCurrentPlayer } from '@/api/arcadeApi';
+import { LOGOUT_URL, arcadeFloorUrl, hubLobbyUrl } from './hub';
 
 /**
  * Chrome for the standalone cabinet launched from the hub. The cabinet is a
  * machine, not a second hub: its header is the marquee bar every standalone
  * surface shares, with the way back to the hub lobby and a badge naming the
- * surface.
+ * surface. The footer leads out to Salesforce and names the player.
  */
 export default function CabinetLayout() {
   const hubUrl = hubLobbyUrl();
+  const floorUrl = arcadeFloorUrl();
+  const player = useCurrentPlayer(floorUrl !== null);
+
   return (
     <div className="arcade-shell min-h-screen">
       <header className="arcade-marquee">
@@ -32,7 +37,46 @@ export default function CabinetLayout() {
       </main>
       <footer className="arcade-hint px-4 pb-6 text-center">
         React UI bundle · Salesforce Multi-Framework · part of Polyglot Arcade
+        {(floorUrl || player) && (
+          <div className="arcade-footer-row">
+            {floorUrl && (
+              <a
+                href={floorUrl}
+                target="_top"
+                className="arcade-nav-link arcade-nav-floor"
+                title="Open the Arcade Floor app in Salesforce"
+              >
+                Salesforce ↗
+              </a>
+            )}
+            {player && <span className="arcade-player">{player}</span>}
+            {player && (
+              <a href={LOGOUT_URL} className="arcade-nav-link">
+                Log out
+              </a>
+            )}
+          </div>
+        )}
       </footer>
     </div>
   );
+}
+
+/** The logged-in user's name; null until loaded and outside an org. */
+function useCurrentPlayer(inOrg: boolean): string | null {
+  const [player, setPlayer] = useState<string | null>(null);
+  useEffect(() => {
+    if (!inOrg) return;
+    let cancelled = false;
+    fetchCurrentPlayer()
+      .then(name => {
+        if (!cancelled) setPlayer(name);
+      })
+      // Without a name the bar simply shows no player.
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [inOrg]);
+  return player;
 }

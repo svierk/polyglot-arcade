@@ -1,0 +1,71 @@
+/*
+ * Polyglot Arcade surface: the arcade hall of the Angular UI bundle.
+ * Magenta neon and an arcade carpet, so it is told apart from the cabinet's
+ * machine room at a glance. The lobby and the hub's machines stand in it.
+ */
+@import '@fontsource/vt323/latin-400.css';
+@import '@fontsource/fredoka/latin-600.css';
+@import '@fontsource/fredoka/latin-700.css';
+
+:root {
+  --surface: var(--surface-hub);
+  --surface-ink: #1a0520;
+}
+
+/* Arcade carpet: neon rings and dots on dark plum, two tiles of different
+   size so the pattern does not line up in rows. */
+.arcade-shell {
+  background:
+    radial-gradient(900px 420px at 50% -8%, rgba(217, 70, 239, 0.24), transparent 70%),
+    radial-gradient(
+        circle at 22% 28%,
+        transparent 6px,
+        rgba(232, 121, 249, 0.14) 7px 9px,
+        transparent 10px
+      )
+      0 0 / 132px 132px,
+    radial-gradient(circle at 72% 22%, rgba(250, 204, 21, 0.14) 3px, transparent 4px) 0 0 / 132px
+      132px,
+    radial-gradient(
+        circle at 60% 78%,
+        transparent 4px,
+        rgba(34, 211, 238, 0.11) 5px 6px,
+        transparent 7px
+      )
+      0 0 / 132px 132px,
+    radial-gradient(circle at 30% 70%, rgba(244, 114, 182, 0.11) 5px, transparent 6px) 40px 60px /
+      188px 188px,
+    radial-gradient(
+        circle at 80% 40%,
+        transparent 9px,
+        rgba(167, 139, 250, 0.1) 10px 12px,
+        transparent 13px
+      )
+      40px 60px / 188px 188px,
+    #0d0618;
+}
+
+/* High scores in the hub's own pages, e.g. the hall of fame. */
+.hiscores-title {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--surface) 35%, transparent);
+}
+
+.hiscores-score {
+  color: var(--surface);
+}
+
+.hiscores-pages {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--arcade-line);
+  color: var(--arcade-muted);
+  font-size: 0.75rem;
+}
+
+.hiscores-pages button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

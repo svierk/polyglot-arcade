@@ -1,48 +1,65 @@
-<div class="flex flex-col items-center gap-3">
-  <div class="hud" aria-live="polite">
-    <span class="arcade-stat"
-      ><span>Score</span><strong>{{ score() }}</strong></span
-    >
-    <span class="arcade-stat"
-      ><span>Level</span><strong>{{ level() }}</strong></span
-    >
-    <span class="arcade-stat">
-      <span>Lives</span>
-      <strong class="hearts" [attr.aria-label]="lives() + ' lives left'">{{
-        '♥'.repeat(lives()) || '–'
-      }}</strong>
-    </span>
+<div class="bb-antenna" aria-hidden="true"></div>
+<div class="bb-tv">
+  <div class="bb-bezel">
+    <div class="bb-crt">
+      <div class="bb-hud" aria-live="polite">
+        <span
+          >Score <strong data-hud="score">{{ score() }}</strong></span
+        >
+        @if (highScore() !== undefined) {
+          <span>Hi {{ best() }}</span>
+        }
+        <span>Lv {{ level() }}</span>
+        <strong class="bb-hearts" [attr.aria-label]="lives() + ' lives left'">{{
+          '♥'.repeat(lives()) || '–'
+        }}</strong>
+      </div>
+
+      <div class="bb-picture">
+        <canvas
+          #canvas
+          class="bb-canvas"
+          [style.aspect-ratio]="field.width + ' / ' + field.height"
+          (pointermove)="onPointerMove($event)"
+          (pointerdown)="onPointerDown($event)"
+        ></canvas>
+
+        @switch (phase()) {
+          @case ('ready') {
+            <div class="bb-overlay">
+              <p class="bb-title">Brick Breaker</p>
+              <button type="button" class="bb-button" (click)="start()">Press start</button>
+            </div>
+          }
+          @case ('paused') {
+            <div class="bb-overlay">
+              <p class="bb-title">Paused</p>
+              <button type="button" class="bb-button" (click)="resume()">Resume</button>
+            </div>
+          }
+          @case ('over') {
+            <div class="bb-overlay">
+              <p class="bb-title">Game over</p>
+              <ng-content />
+            </div>
+          }
+        }
+      </div>
+      <div class="bb-glass" aria-hidden="true"></div>
+    </div>
   </div>
-
-  <div class="relative w-full">
-    <canvas
-      #canvas
-      class="arcade-screen board"
-      [style.aspect-ratio]="field.width + ' / ' + field.height"
-      (pointermove)="onPointerMove($event)"
-      (pointerdown)="onPointerDown($event)"
-    ></canvas>
-
-    @switch (phase()) {
-      @case ('ready') {
-        <div class="arcade-overlay">
-          <p class="arcade-title text-lg">Brick Breaker</p>
-          <button type="button" class="arcade-button" (click)="start()">Press start</button>
-        </div>
-      }
-      @case ('paused') {
-        <div class="arcade-overlay">
-          <p class="arcade-title text-lg">Paused</p>
-          <button type="button" class="arcade-button" (click)="resume()">Resume</button>
-        </div>
-      }
-      @case ('over') {
-        <div class="arcade-overlay">
-          <p class="arcade-title text-lg">Game over</p>
-        </div>
-      }
-    }
+  <div class="bb-side" aria-hidden="true">
+    <span class="bb-channel">CH 3</span>
+    <span class="bb-knob"></span>
+    <span class="bb-knob bb-knob-small"></span>
+    <span class="bb-grille"></span>
   </div>
-
-  <p class="arcade-hint">← → or the pointer move the paddle · space or click launches · P pauses</p>
 </div>
+<div class="bb-console" aria-hidden="true">
+  <span class="bb-cartridge">Brick Breaker</span>
+  <span class="bb-switch">Power</span>
+  <span class="bb-led"></span>
+  <span class="bb-switch">Reset</span>
+</div>
+
+<p class="bb-help">← → or the pointer move the paddle · space or click launches · P pauses</p>

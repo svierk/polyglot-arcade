@@ -1,23 +1,401 @@
-:host {
-  display: block;
-  outline: none;
-}
-
-.hud {
+/*
+ * Brick Breaker machine: an 80s home console on a CRT TV with a wood-grain
+ * case. Chunky colors, a bulging screen, knobs and a cartridge in the console.
+ * Its high-score card is the back of the cartridge box.
+ */
+app-brick-breaker {
+  --bb-wood: #7c4a22;
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 560px);
+  padding-top: 46px;
+  font-family: 'VT323', var(--arcade-font);
 }
 
-.hearts {
+app-brick-breaker button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Rabbit ears on top of the set. */
+.bb-antenna {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 120px;
+  height: 52px;
+  transform: translateX(-50%);
+}
+
+.bb-antenna::before,
+.bb-antenna::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  height: 64px;
+  border-radius: 2px;
+  background: linear-gradient(#e4e4e7, #71717a);
+  transform-origin: bottom;
+}
+
+.bb-antenna::before {
+  transform: rotate(-32deg);
+}
+
+.bb-antenna::after {
+  transform: rotate(28deg);
+}
+
+/* The TV: wood-grain case, picture tube on the left, controls on the right. */
+.bb-tv {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  padding: 18px;
+  border-radius: 26px;
+  background:
+    repeating-linear-gradient(
+      93deg,
+      rgba(0, 0, 0, 0.1) 0 2px,
+      transparent 2px 7px,
+      rgba(0, 0, 0, 0.05) 7px 8px,
+      transparent 8px 15px
+    ),
+    repeating-linear-gradient(87deg, rgba(255, 220, 170, 0.06) 0 1px, transparent 1px 11px),
+    linear-gradient(180deg, #9a5f2e, var(--bb-wood) 55%, #4f2c10);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.35),
+    0 34px 50px -22px #000;
+}
+
+.bb-bezel {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 20px;
+  background: linear-gradient(160deg, #3f3f46, #18181b);
+  box-shadow:
+    inset 0 0 0 2px #52525b,
+    0 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+.bb-crt {
+  position: relative;
+  padding: 8px 10px 10px;
+  border-radius: 34px / 26px;
+  background: #05050a;
+  overflow: hidden;
+}
+
+.bb-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 28% 18%, rgba(255, 255, 255, 0.14), transparent 38%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.6) 100%);
+  box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.8);
+}
+
+.bb-hud {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 6px 4px;
+  color: #fde047;
+  font-size: 22px;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(253, 224, 71, 0.55);
+}
+
+.bb-hud strong {
+  font-weight: 400;
+}
+
+.bb-hud span:nth-child(2) {
+  color: #67e8f9;
+  text-shadow: 0 0 6px rgba(103, 232, 249, 0.55);
+}
+
+.bb-hearts {
   color: #fb7185;
   letter-spacing: 0.1em;
+  text-shadow: 0 0 6px rgba(251, 113, 133, 0.6);
 }
 
-.board {
+.bb-picture {
+  position: relative;
+}
+
+.bb-canvas {
   display: block;
   width: 100%;
   /* The pointer steers the paddle; don't let touch scroll the page instead. */
   touch-action: none;
   cursor: ew-resize;
+  filter: saturate(1.25) contrast(1.05);
+}
+
+.bb-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(5, 5, 10, 0.72);
+  color: #f8fafc;
+  font-size: 20px;
+  line-height: 1.1;
+  text-align: center;
+  z-index: 1;
+}
+
+.bb-title {
+  color: #f97316;
+  font-size: 40px;
+  text-transform: uppercase;
+  text-shadow:
+    3px 3px 0 #7c2d12,
+    0 0 14px rgba(249, 115, 22, 0.6);
+}
+
+.bb-button,
+app-brick-breaker .round-result-again {
+  padding: 4px 18px 6px;
+  border: none;
+  border-radius: 4px;
+  background: #a3e635;
+  color: #1a2e05;
+  font-size: 24px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 #3f6212;
+}
+
+.bb-button:active,
+app-brick-breaker .round-result-again:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #3f6212;
+}
+
+app-brick-breaker .round-result {
+  gap: 4px;
+}
+
+app-brick-breaker .round-result-score {
+  color: #fde047;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+app-brick-breaker .round-result-summary,
+app-brick-breaker .round-result-status {
+  font-size: 20px;
+}
+
+app-brick-breaker .round-result-again {
+  margin-top: 8px;
+}
+
+/* Controls column of the TV. */
+.bb-side {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 68px;
+  padding: 12px 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2b1a0d, #1a0e05);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.4);
+}
+
+.bb-channel {
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #0c0a09;
+  color: #f87171;
+  font-size: 20px;
+  text-shadow: 0 0 6px #ef4444;
+}
+
+.bb-knob {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #d4d4d8 0 34%, transparent 36%),
+    repeating-conic-gradient(#a1a1aa 0 12deg, #52525b 12deg 24deg);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
+}
+
+.bb-knob-small {
+  width: 30px;
+  height: 30px;
+}
+
+.bb-grille {
+  flex: 1;
+  width: 40px;
+  min-height: 40px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(0deg, #0c0704 0 3px, #3b2412 3px 6px);
+}
+
+/* The console in front of the TV, with the cartridge plugged in. */
+.bb-console {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 74%;
+  margin-top: 40px;
+  padding: 16px 20px 14px;
+  border-radius: 10px 10px 16px 16px;
+  border-bottom: 6px solid #b91c1c;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 8px),
+    linear-gradient(180deg, #27272a, #0f0f12);
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.12),
+    0 22px 30px -14px #000;
+}
+
+.bb-cartridge {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 150px;
+  padding: 4px 6px 6px;
+  border-radius: 5px 5px 0 0;
+  background:
+    linear-gradient(
+        90deg,
+        #f43f5e 0 16%,
+        #fb923c 16% 32%,
+        #facc15 32% 48%,
+        #a3e635 48% 64%,
+        #22d3ee 64% 80%,
+        #a78bfa 80%
+      )
+      top / 100% 5px no-repeat,
+    #3f3f46;
+  color: #fafafa;
+  font-size: 17px;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+.bb-switch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #d4d4d8;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.bb-switch::before {
+  content: '';
+  width: 10px;
+  height: 22px;
+  border-radius: 3px;
+  background: linear-gradient(#e4e4e7, #71717a);
+}
+
+.bb-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+.bb-help {
+  margin-top: 16px;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* High-score card: the back of the cartridge box. */
+.machine-brick-breaker .hiscores {
+  padding: 40px 20px 20px;
+  border: none;
+  border-radius: 6px;
+  background:
+    linear-gradient(
+      180deg,
+      #f43f5e 0 5px,
+      #fb923c 5px 10px,
+      #facc15 10px 15px,
+      #a3e635 15px 20px,
+      #22d3ee 20px 25px,
+      transparent 25px
+    ),
+    #f5ecd7;
+  color: #1c1917;
+  font-family: 'VT323', var(--arcade-font);
+  box-shadow: 0 24px 40px -18px #000;
+}
+
+.machine-brick-breaker .hiscores-title {
+  color: #c2410c;
+  font-size: 30px;
+  font-weight: 400;
+  text-shadow: 2px 2px 0 #fed7aa;
+}
+
+.machine-brick-breaker .hiscores-row,
+.machine-brick-breaker .hiscores .hiscores-note {
+  font-size: 22px;
+}
+
+.machine-brick-breaker .hiscores .hiscores-note {
+  color: #57534e;
+}
+
+.machine-brick-breaker .hiscores-row {
+  border-bottom: 1px dashed #d6c7a4;
+}
+
+.machine-brick-breaker .hiscores-score {
+  color: #1d4ed8;
+  font-weight: 400;
+}
+
+@media (max-width: 520px) {
+  app-brick-breaker {
+    padding-top: 30px;
+  }
+
+  .bb-tv {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .bb-side {
+    display: none;
+  }
+
+  .bb-hud {
+    font-size: 18px;
+  }
 }

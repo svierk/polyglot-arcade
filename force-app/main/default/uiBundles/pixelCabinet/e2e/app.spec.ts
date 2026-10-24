@@ -51,19 +51,36 @@ test.describe('Pixel Cabinet', () => {
     await page.keyboard.press('ArrowUp');
     await expect(page.getByText('Score').first()).toBeVisible();
     for (let i = 0; i < 60; i++) await page.keyboard.press(' ');
-    await expect(page.getByText('Game over')).toBeVisible();
+    // The result screen shows on the handheld's LCD.
+    const lcd = page.locator('.bd-overlay');
+    await expect(lcd.getByText('Game over')).toBeVisible();
+    await expect(lcd.getByRole('status')).toContainText('points');
+    await lcd.getByRole('button', { name: 'Play again' }).click();
     await expect(
-      page.getByRole('button', { name: 'Play again' })
+      page.getByRole('button', { name: 'Press start' })
     ).toBeVisible();
+  });
+
+  test('the handheld buttons play Block Drop without a keyboard', async ({
+    page,
+  }) => {
+    await page.goto('/play/block-drop');
+    await page.getByRole('button', { name: 'Start or pause' }).click();
+    const score = page.locator('[data-hud="score"] .bd-seg-on');
+    await page.getByRole('button', { name: 'Rotate' }).click();
+    await page.getByRole('button', { name: 'Move left' }).click();
+    await page.getByRole('button', { name: 'Hard drop' }).click();
+    // A hard drop scores two points per row the piece falls.
+    await expect(score).not.toHaveText('0');
+    await page.getByRole('button', { name: 'Start or pause' }).click();
+    await expect(page.getByText('Paused')).toBeVisible();
   });
 
   test('a Pellet Chase round starts, pauses and resumes', async ({ page }) => {
     await page.goto('/play/pellet-chase');
     await page.getByRole('button', { name: 'Press start' }).click();
     await page.keyboard.press('ArrowUp');
-    const score = page
-      .locator('.arcade-stat', { hasText: 'Score' })
-      .locator('strong');
+    const score = page.locator('[data-hud="score"]');
     // After the ready freeze the player runs into the first pellets.
     await expect(score).not.toHaveText('0');
 
@@ -89,6 +106,10 @@ test.describe('Pixel Cabinet', () => {
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: '← All games' })
+    ).toBeVisible();
+    // The slim tag names the bundle that runs inside the Lightning frame.
+    await expect(
+      page.getByText('React · Pixel Cabinet UI bundle')
     ).toBeVisible();
   });
 

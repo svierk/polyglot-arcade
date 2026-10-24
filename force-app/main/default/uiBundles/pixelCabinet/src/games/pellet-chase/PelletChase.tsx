@@ -25,6 +25,7 @@ import {
   togglePause,
 } from './engine';
 import type { GameProps } from '@/games/types';
+import './machine.css';
 
 const CELL = 20;
 const WIDTH = COLS * CELL;
@@ -61,26 +62,32 @@ const KEY_ACTIONS: Record<string, Action> = {
   Escape: togglePause,
 };
 
-const TOUCH_PAD: Array<{
+/** The joystick of the control panel, one button per direction. */
+const STICK: Array<{
   label: string;
   name: string;
   action: Action;
   className: string;
 }> = [
+  { label: '▲', name: 'Up', action: s => steer(s, 'up'), className: 'pc-up' },
   {
-    label: '↑',
-    name: 'Up',
-    action: s => steer(s, 'up'),
-    className: 'col-start-2',
-  },
-  {
-    label: '←',
+    label: '◀',
     name: 'Left',
     action: s => steer(s, 'left'),
-    className: 'col-start-1',
+    className: 'pc-left',
   },
-  { label: '↓', name: 'Down', action: s => steer(s, 'down'), className: '' },
-  { label: '→', name: 'Right', action: s => steer(s, 'right'), className: '' },
+  {
+    label: '▶',
+    name: 'Right',
+    action: s => steer(s, 'right'),
+    className: 'pc-right',
+  },
+  {
+    label: '▼',
+    name: 'Down',
+    action: s => steer(s, 'down'),
+    className: 'pc-down',
+  },
 ];
 
 interface Hud {
@@ -105,7 +112,7 @@ function atMover(mover: Mover, draw: (cx: number, cy: number) => void) {
 }
 
 function drawMaze(ctx: CanvasRenderingContext2D) {
-  ctx.fillStyle = '#0b0b1a';
+  ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   ctx.strokeStyle = '#6366f1';
@@ -277,7 +284,7 @@ function drawGame(ctx: CanvasRenderingContext2D, state: PelletChaseState) {
   for (const ghost of state.ghosts) drawGhost(ctx, ghost, state);
   if (state.readyMs > 0 && state.status === 'playing') {
     ctx.fillStyle = PLAYER_COLOR;
-    ctx.font = `bold 14px ui-monospace, Menlo, Consolas, monospace`;
+    ctx.font = `10px 'Press Start 2P', ui-monospace, monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('READY!', WIDTH / 2, 11.5 * CELL);
@@ -294,7 +301,11 @@ function setupCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
   return ctx;
 }
 
-export default function PelletChase({ onGameOver }: GameProps) {
+export default function PelletChase({
+  onGameOver,
+  result,
+  highScore,
+}: GameProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<PelletChaseState | null>(null);
@@ -400,84 +411,102 @@ export default function PelletChase({ onGameOver }: GameProps) {
       ref={rootRef}
       tabIndex={0}
       onKeyDown={onKeyDown}
-      className="arcade-focus flex flex-col items-center gap-4 outline-none sm:flex-row sm:items-start sm:justify-center"
+      className="pc-cabinet arcade-focus"
       aria-label="Pellet Chase game board. Arrow keys or WASD steer, P pauses."
     >
-      <div className="relative">
-        <canvas
-          ref={boardRef}
-          className="arcade-screen block"
-          style={{
-            width: WIDTH,
-            maxWidth: '100%',
-            aspectRatio: `${COLS} / ${ROWS}`,
-          }}
-        />
-        {hud.status === 'ready' && (
-          <div className="arcade-overlay">
-            <p className="arcade-title text-lg">Pellet Chase</p>
-            <button type="button" className="arcade-button" onClick={start}>
-              Press start
-            </button>
-          </div>
-        )}
-        {hud.status === 'paused' && (
-          <div className="arcade-overlay">
-            <p className="arcade-title text-lg">Paused</p>
-            <button
-              type="button"
-              className="arcade-button"
-              onClick={() => press(togglePause)}
-            >
-              Resume
-            </button>
-          </div>
-        )}
-        {hud.status === 'over' && (
-          <div className="arcade-overlay">
-            <p className="arcade-title text-lg">Game over</p>
-          </div>
-        )}
+      <div className="pc-marquee" aria-hidden="true">
+        <span className="pc-ghost" style={{ color: GHOST_COLORS.red }} />
+        <span className="pc-marquee-title">Pellet Chase</span>
+        <span className="pc-ghost" style={{ color: GHOST_COLORS.cyan }} />
       </div>
 
-      <aside className="flex w-full max-w-60 flex-row flex-wrap justify-between gap-3 sm:w-36 sm:flex-col">
-        <div className="arcade-stat">
-          <span>Score</span>
-          <strong>{hud.score.toLocaleString()}</strong>
+      <div className="pc-bezel">
+        <div className="pc-crt">
+          <div className="pc-hud">
+            <p>
+              <span>1UP</span>
+              <strong data-hud="score">{hud.score}</strong>
+            </p>
+            {highScore !== undefined && (
+              <p>
+                <span>High score</span>
+                <strong>{Math.max(highScore, hud.score)}</strong>
+              </p>
+            )}
+          </div>
+          <div className="pc-screen">
+            <canvas
+              ref={boardRef}
+              className="pc-canvas"
+              style={{ aspectRatio: `${COLS} / ${ROWS}` }}
+            />
+            {hud.status === 'ready' && (
+              <div className="pc-overlay">
+                <p className="pc-blink">Insert coin</p>
+                <button type="button" className="pc-start" onClick={start}>
+                  Press start
+                </button>
+                <p className="pc-credit">1 coin 1 play</p>
+              </div>
+            )}
+            {hud.status === 'paused' && (
+              <div className="pc-overlay">
+                <p className="pc-overlay-title">Paused</p>
+                <button
+                  type="button"
+                  className="pc-start"
+                  onClick={() => press(togglePause)}
+                >
+                  Resume
+                </button>
+              </div>
+            )}
+            {hud.status === 'over' && (
+              <div className="pc-overlay">
+                <p className="pc-overlay-title pc-game-over">Game over</p>
+                {result}
+              </div>
+            )}
+          </div>
+          <div className="pc-hud">
+            <p className="pc-lives" aria-label={`${hud.lives} lives left`}>
+              {Array.from({ length: hud.lives }, (_, i) => (
+                <span key={i} className="pc-life" />
+              ))}
+            </p>
+            <p>
+              <span>Level</span>
+              <strong>{hud.level}</strong>
+            </p>
+          </div>
+          <div className="pc-glass" aria-hidden="true" />
         </div>
-        <div className="arcade-stat">
-          <span>Level</span>
-          <strong>{hud.level}</strong>
-        </div>
-        <div className="arcade-stat">
-          <span>Lives</span>
-          <strong style={{ color: PLAYER_COLOR }} aria-label={`${hud.lives}`}>
-            {'●'.repeat(hud.lives) || '-'}
-          </strong>
-        </div>
-        <p className="arcade-hint hidden sm:block">
-          ← ↑ → ↓ / WASD steer · P pause
-        </p>
-      </aside>
+      </div>
 
-      <div
-        className="grid w-full max-w-48 grid-cols-3 gap-2 sm:hidden"
-        aria-label="Touch controls"
-      >
-        {TOUCH_PAD.map(pad => (
-          <button
-            key={pad.name}
-            type="button"
-            className={`arcade-pad ${pad.className}`}
-            onClick={() => press(pad.action)}
-            aria-label={pad.name}
-          >
-            {pad.label}
-          </button>
-        ))}
+      <div className="pc-panel" role="group" aria-label="Controls">
+        <div className="pc-stick">
+          {STICK.map(key => (
+            <button
+              key={key.name}
+              type="button"
+              className={`pc-key ${key.className}`}
+              onClick={() => press(key.action)}
+              aria-label={key.name}
+            >
+              {key.label}
+            </button>
+          ))}
+          <span className="pc-ball" aria-hidden="true" />
+        </div>
+        <p className="pc-help">
+          Arrows / WASD
+          <br />
+          steer
+          <br />P pause
+        </p>
         <button
           type="button"
-          className="arcade-pad col-span-3"
+          className="pc-push"
           onClick={() => press(togglePause)}
           aria-label="Pause"
         >

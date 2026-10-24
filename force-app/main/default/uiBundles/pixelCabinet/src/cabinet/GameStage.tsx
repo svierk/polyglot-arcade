@@ -1,18 +1,14 @@
 /**
- * Runs one game: renders it, persists each finished round as an Arcade_Score__c
- * and, when embedded, tells the host Lightning page about it.
+ * Runs one game: renders its machine, persists each finished round as an
+ * Arcade_Score__c and, when embedded, tells the host Lightning page about it.
  */
 import { useCallback, useState } from 'react';
 import { saveScore, type ScoreSource } from '@/api/arcadeApi';
 import { notifyHostGameOver } from '@/embedding/hostBridge';
 import type { CabinetGame } from '@/games/registry';
 import type { GameResult } from '@/games/types';
-import Leaderboard from './Leaderboard';
-
-type Outcome =
-  | { state: 'saving' }
-  | { state: 'saved'; isHighScore: boolean }
-  | { state: 'failed'; message: string };
+import Leaderboard, { useLeaderboard } from './Leaderboard';
+import RoundResult, { type Outcome } from './RoundResult';
 
 interface GameStageProps {
   game: CabinetGame;
@@ -32,6 +28,8 @@ export default function GameStage({
   const [result, setResult] = useState<GameResult | null>(null);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [savedCount, setSavedCount] = useState(0);
+  // Embedded, the Lightning page shows its own leaderboard next to the frame.
+  const leaderboard = useLeaderboard(game.key, savedCount, !embedded);
 
   const handleGameOver = useCallback(
     async (finished: GameResult) => {
@@ -90,43 +88,23 @@ export default function GameStage({
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Game key={round} onGameOver={handleGameOver} />
-        {result && outcome && (
-          <div
-            className="arcade-panel w-full max-w-sm text-center"
-            role="status"
-          >
-            <p className="arcade-title text-base">
-              {result.score.toLocaleString()} points
-            </p>
-            {outcome.state === 'saving' && (
-              <p className="arcade-hint">Saving to Salesforce…</p>
-            )}
-            {outcome.state === 'saved' && (
-              <p className="text-sm text-emerald-300">
-                {outcome.isHighScore
-                  ? '★ New high score! ★'
-                  : 'Score saved to the leaderboard.'}
-              </p>
-            )}
-            {outcome.state === 'failed' && (
-              <p className="text-sm text-rose-300">
-                Could not save score: {outcome.message}
-              </p>
-            )}
-            <button
-              type="button"
-              className="arcade-button mt-3"
-              onClick={playAgain}
-            >
-              Play again
-            </button>
-          </div>
-        )}
-      </div>
-      {!embedded && <Leaderboard gameKey={game.key} refreshKey={savedCount} />}
+    <div className={`machine-stage machine-${game.key}`}>
+      <Game
+        key={round}
+        onGameOver={handleGameOver}
+        result={
+          result &&
+          outcome && (
+            <RoundResult
+              result={result}
+              outcome={outcome}
+              onPlayAgain={playAgain}
+            />
+          )
+        }
+        highScore={leaderboard.entries?.[0]?.score}
+      />
+      {!embedded && <Leaderboard {...leaderboard} />}
     </div>
   );
 }

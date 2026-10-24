@@ -1,0 +1,57 @@
+.lobby-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lobby-legend li,
+.lobby-where {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--where);
+}
+
+.lobby-legend li::before,
+.lobby-where::before {
+  content: '';
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--where);
+  box-shadow: 0 0 8px var(--where);
+}
+
+.lobby-legend span {
+  color: var(--arcade-muted);
+}
+
+.lobby-where {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lobby-card {
+  overflow: hidden;
+}
+
+/* Backlit marquee on top of the card. */
+.lobby-marquee {
+  margin: -1.25rem -1.25rem 0.5rem;
+  padding: 14px;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: #07040f;
+}
+
+.lobby-marquee svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 35%, transparent);
+}

@@ -61,6 +61,8 @@ export default function EmbedLayout() {
           ))}
         </div>
       )}
+      {/* Names the bundle that runs inside the Lightning frame. */}
+      <p className="surface-tag">React · Pixel Cabinet UI bundle</p>
     </div>
   );
 }

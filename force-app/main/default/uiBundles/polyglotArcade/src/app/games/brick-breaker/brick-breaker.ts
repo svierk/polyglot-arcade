@@ -1,6 +1,8 @@
 /**
- * Brick Breaker view: canvas rendering, game loop and input. Rules and physics
- * live in ./engine; this component only feeds it time, keys and the pointer.
+ * Brick Breaker machine: an 80s home console on a CRT TV. Canvas rendering,
+ * game loop and input; rules and physics live in ./engine, this component only
+ * feeds it time, keys and the pointer. The result screen is projected onto the
+ * TV when a round ends.
  *
  * The hub is zoneless, so the requestAnimationFrame loop triggers no change
  * detection by itself; only the HUD signals below re-render the template.
@@ -10,8 +12,11 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  ViewEncapsulation,
   afterNextRender,
+  computed,
   inject,
+  input,
   output,
   signal,
   viewChild,
@@ -45,6 +50,9 @@ const RIGHT_KEYS = new Set(['ArrowRight', 'd', 'D']);
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './brick-breaker.html',
   styleUrl: './brick-breaker.css',
+  // The machine styles the projected result screen too; every rule is scoped
+  // to app-brick-breaker or .machine-brick-breaker.
+  encapsulation: ViewEncapsulation.None,
   host: {
     '(keydown)': 'onKeydown($event)',
     '(keyup)': 'onKeyup($event)',
@@ -56,6 +64,8 @@ const RIGHT_KEYS = new Set(['ArrowRight', 'd', 'D']);
   },
 })
 export class BrickBreakerComponent implements OnDestroy {
+  /** Best score on the leaderboard for the HUD; undefined when unknown. */
+  readonly highScore = input<number>();
   readonly gameOver = output<GameResult>();
 
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
@@ -66,6 +76,7 @@ export class BrickBreakerComponent implements OnDestroy {
   protected readonly score = signal(0);
   protected readonly lives = signal(this.startLives());
   protected readonly level = signal(1);
+  protected readonly best = computed(() => Math.max(this.highScore() ?? 0, this.score()));
 
   private state: BrickBreakerState = createGame();
   private readonly input: PaddleInput = { direction: 0, targetX: null };
@@ -217,32 +228,28 @@ export class BrickBreakerComponent implements OnDestroy {
     if (!ctx) return;
     const { bricks, paddleX, ball } = this.state;
 
-    ctx.fillStyle = '#0b0b1a';
+    ctx.fillStyle = '#05050a';
     ctx.fillRect(0, 0, FIELD.width, FIELD.height);
 
+    // Chunky 80s console look: flat bricks with dark gaps and a bright top row
+    // of pixels, a block paddle and a square ball.
     for (const brick of bricks) {
       ctx.fillStyle = ROW_COLORS[brick.row];
-      ctx.fillRect(brick.x, brick.y, BRICK_WIDTH, BRICK_HEIGHT);
-      // Bevel for the 8-bit look; tough bricks get a bright inner frame.
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      ctx.fillRect(brick.x, brick.y, BRICK_WIDTH, 3);
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.fillRect(brick.x, brick.y + BRICK_HEIGHT - 3, BRICK_WIDTH, 3);
+      ctx.fillRect(brick.x + 1, brick.y + 1, BRICK_WIDTH - 2, BRICK_HEIGHT - 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillRect(brick.x + 1, brick.y + 1, BRICK_WIDTH - 2, 3);
       if (brick.hits > 1) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(brick.x + 2, brick.y + 2, BRICK_WIDTH - 4, BRICK_HEIGHT - 4);
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(brick.x + 5, brick.y + 6, BRICK_WIDTH - 10, BRICK_HEIGHT - 10);
       }
     }
 
-    ctx.fillStyle = '#e2e8f0';
+    ctx.fillStyle = '#f97316';
     ctx.fillRect(paddleX, PADDLE.y, PADDLE.width, PADDLE.height);
-    ctx.fillStyle = '#a3e635';
+    ctx.fillStyle = '#fde68a';
     ctx.fillRect(paddleX, PADDLE.y, PADDLE.width, 3);
 
-    ctx.fillStyle = '#fef08a';
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(ball.x - BALL_RADIUS, ball.y - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2);
   }
 }

@@ -1,7 +1,13 @@
 /*
- * Polyglot Arcade arcade theme.
- * Shared look of the React (Pixel Cabinet) and Angular (Polyglot Arcade) bundles;
+ * Polyglot Arcade - shared arcade chrome.
+ * Identical in the React (Pixel Cabinet) and Angular (Polyglot Arcade) bundles;
  * keep both copies in sync. Plain CSS so it works with either build pipeline.
+ *
+ * Same hall, different machines: this file holds the base tokens, the marquee
+ * bar every standalone surface shares and the neutral round result and
+ * high-score markup the machines restyle. Each bundle's surface.css picks its
+ * surface color (--surface) and its room; each machine's look lives in its
+ * game folder.
  */
 :root {
   --arcade-bg: #07071a;
@@ -9,21 +15,20 @@
   --arcade-line: rgba(148, 163, 184, 0.18);
   --arcade-text: #e2e8f0;
   --arcade-muted: #94a3b8;
-  --arcade-neon: #22d3ee;
-  --arcade-neon-shadow: #0e7490;
-  --arcade-pink: #f472b6;
   --arcade-font:
     ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  /* Surface colors say where a game lives, in every bundle the same. */
+  --surface-hub: #e879f9;
+  --surface-cabinet: #22d3ee;
+  --surface-floor: #60a5fa;
+  /* Set by surface.css: the color of the surface this bundle is. */
+  --surface: var(--arcade-text);
+  --surface-ink: #0b0618;
 }
 
 .arcade-shell {
-  background:
-    radial-gradient(
-      1200px 500px at 50% -10%,
-      rgba(124, 58, 237, 0.25),
-      transparent
-    ),
-    var(--arcade-bg);
+  background: var(--arcade-bg);
   color: var(--arcade-text);
   font-family: var(--arcade-font);
 }
@@ -43,7 +48,11 @@ html.embedded #root {
   font-size: 1.1rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  background: linear-gradient(90deg, var(--arcade-neon), var(--arcade-pink));
+  background-image: linear-gradient(
+    90deg,
+    var(--surface),
+    color-mix(in srgb, var(--surface) 45%, #ffffff)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -53,7 +62,7 @@ html.embedded #root {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--surface) 35%, transparent);
 }
 
 .arcade-hint {
@@ -75,7 +84,7 @@ html.embedded #root {
   gap: 0.5rem;
   padding: 1.25rem;
   border: 2px solid
-    color-mix(in srgb, var(--accent, var(--arcade-neon)) 55%, transparent);
+    color-mix(in srgb, var(--accent, var(--surface)) 55%, transparent);
   border-radius: 12px;
   background: var(--arcade-panel);
   color: var(--arcade-text);
@@ -86,15 +95,16 @@ html.embedded #root {
 }
 
 .arcade-card:hover,
-.arcade-card:focus-visible {
+.arcade-card:focus-visible,
+.arcade-card:focus-within {
   transform: translateY(-2px);
   box-shadow: 0 0 28px
-    color-mix(in srgb, var(--accent, var(--arcade-neon)) 40%, transparent);
+    color-mix(in srgb, var(--accent, var(--surface)) 40%, transparent);
   outline: none;
 }
 
 .arcade-card .arcade-title {
-  color: var(--accent, var(--arcade-neon));
+  color: var(--accent, var(--surface));
 }
 
 .arcade-badge {
@@ -106,27 +116,29 @@ html.embedded #root {
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent, var(--arcade-neon));
+  color: var(--accent, var(--surface));
 }
 
+/* --button lets a launch button take the color of the surface it leads to. */
 .arcade-button {
+  --button: var(--surface);
   display: inline-block;
   padding: 0.6rem 1.25rem;
   border: none;
   border-radius: 6px;
-  background: var(--arcade-neon);
-  color: #04121a;
+  background: var(--button);
+  color: var(--surface-ink);
   font-family: var(--arcade-font);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  box-shadow: 0 4px 0 var(--arcade-neon-shadow);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--button) 45%, #000000);
   cursor: pointer;
 }
 
 .arcade-button:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--arcade-neon-shadow);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--button) 45%, #000000);
 }
 
 .arcade-button:disabled {
@@ -147,79 +159,182 @@ html.embedded #root {
 
 .arcade-nav-link:hover,
 .arcade-nav-link-active {
-  color: var(--arcade-neon);
+  color: var(--surface);
 }
 
 /* Marquee bar: the one piece of chrome every standalone surface shares. The
-   way back to the lobby comes first, the badge naming the surface last, so a
-   switch between bundles reads as a feature, not as a break. */
+   way back to the lobby comes first, the badge naming the surface last. Its
+   neon line and badge glow in the surface color, so a switch between bundles
+   is seen at once and reads as a feature, not as a break. It stays on top
+   while the page scrolls. */
 .arcade-marquee {
-  border-bottom: 1px solid var(--arcade-line);
-  background: rgba(7, 7, 26, 0.6);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 2px solid var(--surface);
+  background: rgba(7, 7, 26, 0.86);
+  box-shadow: 0 2px 22px color-mix(in srgb, var(--surface) 40%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.arcade-tech-badge {
+  margin-left: 0;
 }
 
 .arcade-tech-badge {
   margin-left: auto;
-  padding: 0.15rem 0.6rem;
-  border: 1px solid var(--arcade-line);
+  padding: 0.2rem 0.7rem;
   border-radius: 999px;
-  color: var(--arcade-muted);
+  background: var(--surface);
+  color: var(--surface-ink);
   font-size: 0.7rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
+  white-space: nowrap;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+/* Footer row below the credits: the way out to Salesforce, the player and
+   the way to log out. The player takes the place of the platform's session
+   banner. */
+.arcade-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.arcade-nav-link.arcade-nav-floor {
+  color: var(--surface-floor);
+}
+
+.arcade-player {
+  max-width: 14rem;
+  overflow: hidden;
+  color: var(--arcade-text);
+  font-weight: 600;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.arcade-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 4.5rem;
+/* Keyboard focus on a machine: the element that takes the game keys. */
+.arcade-focus {
+  outline: none;
 }
 
-.arcade-stat span {
-  color: var(--arcade-muted);
-  font-size: 0.7rem;
+.arcade-focus:focus-visible {
+  outline: 2px dashed var(--surface);
+  outline-offset: 6px;
+}
+
+/* Round result: what every machine shows when a round ends. The markup is the
+   same everywhere; each machine dresses it in its own style. */
+.round-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+.round-result-score {
+  font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.arcade-stat strong {
-  font-size: 1.25rem;
+.round-result-summary,
+.round-result-status {
+  font-size: 0.8rem;
 }
 
-.arcade-screen {
-  border: 3px solid #312e81;
-  border-radius: 6px;
-  box-shadow: 0 0 32px rgba(34, 211, 238, 0.15);
-  image-rendering: pixelated;
+.round-result-status[data-state='saving'] {
+  color: var(--arcade-muted);
 }
 
-.arcade-overlay {
-  position: absolute;
-  inset: 0;
+.round-result-status[data-state='saved'] {
+  color: #6ee7b7;
+}
+
+.round-result-status[data-state='failed'] {
+  color: #fda4af;
+}
+
+/* High scores: one list per game. Neutral here; each machine restyles it. */
+.hiscores-title {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hiscores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hiscores-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.hiscores-rank {
+  width: 1.5rem;
+  text-align: center;
+}
+
+.hiscores-player {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hiscores-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hiscores-score {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.hiscores-note {
+  color: var(--arcade-muted);
+  font-size: 0.8rem;
+}
+
+.hiscores-note[role='alert'] {
+  color: #fda4af;
+}
+
+/* The stage every machine stands on: the machine, its high-score card next to
+   it on wide screens and below it on narrow ones. */
+.machine-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  background: rgba(7, 7, 26, 0.72);
-  border-radius: 6px;
+  gap: 2rem;
 }
 
-.arcade-pad {
-  padding: 0.6rem 0;
-  border: 1px solid var(--arcade-line);
-  border-radius: 8px;
-  background: var(--arcade-panel);
-  color: var(--arcade-text);
-  font-size: 1.25rem;
+@media (min-width: 1024px) {
+  .machine-stage {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
 }
 
-.arcade-focus:focus-visible {
-  outline: 2px dashed var(--arcade-neon);
-  outline-offset: 6px;
-}
-
+/* Machines stop their own flicker, blink and bounce in their styles. */
 @media (prefers-reduced-motion: reduce) {
   .arcade-card,
   .arcade-button {

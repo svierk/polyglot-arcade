@@ -20,7 +20,7 @@ See the [README](README.md) for the architecture and the setup of a scratch org.
 3. Keep changes focused and follow the conventions of the existing code:
    - Game rules live in a framework-free `engine.ts` with unit tests; the React or Angular component only renders and handles input.
    - Data access goes through `arcadeApi.ts` (React) or `ArcadeApi` (Angular) - GraphQL operations are validated against the org schema by `npm run graphql:codegen`.
-   - The arcade theme (`arcade.css`) exists in both bundles - change both copies together.
+   - Same hall, different machines: `arcade.css` (tokens, marquee bar, round result and high-score markup) exists in both bundles - change both copies together. Each bundle's `surface.css` holds its own surface color and room, each game's look lives in its folder (`machine.css` in React, the component styles in Angular). Fonts come from npm packages under an open license and are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
    - All UI texts, code and docs are in English.
 4. Make sure formatting, linting and tests pass - the [Validation workflow](.github/workflows/ci.yml) runs the same checks on every pull request.
 5. Use [Conventional Commits](https://www.conventionalcommits.org/) with a scope, e.g. `feat(cabinet): add pellet chase ghosts` or `fix(hub): disable full columns`.

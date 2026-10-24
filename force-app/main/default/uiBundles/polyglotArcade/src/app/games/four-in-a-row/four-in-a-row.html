@@ -1,13 +1,26 @@
-<div class="flex flex-col items-center gap-4">
-  <p class="arcade-title text-sm" aria-live="polite">{{ status() }}</p>
+<div class="fr-toy">
+  <p class="fr-status" aria-live="polite">{{ status() }}</p>
 
   @if (phase() === 'setup') {
-    <div class="flex flex-wrap justify-center gap-3">
+    <div class="fr-levels">
       @for (level of difficulties; track level) {
-        <button type="button" class="arcade-button" (click)="start(level)">{{ level }}</button>
+        <button type="button" [class]="'fr-level fr-level-' + level" (click)="start(level)">
+          {{ level }}
+        </button>
       }
     </div>
   }
+
+  <!-- The disc in the player's hand, above the column it would drop into. -->
+  <div class="fr-hand" aria-hidden="true">
+    @for (col of columns; track col) {
+      <span class="fr-hand-slot">
+        @if (cursor() === col && phase() === 'human') {
+          <span class="disc disc-human"></span>
+        }
+      </span>
+    }
+  </div>
 
   <div
     class="board"
@@ -39,6 +52,14 @@
       </button>
     }
   </div>
-
-  <p class="arcade-hint">Click a column or use ← → and Enter · keys 1–7 drop directly</p>
+  <div class="fr-feet" aria-hidden="true"></div>
 </div>
+
+@if (phase() === 'over') {
+  <div class="fr-box">
+    <p class="fr-box-title" aria-hidden="true">Four in a Row</p>
+    <ng-content />
+  </div>
+}
+
+<p class="fr-help">Click a column or use ← → and Enter · keys 1–7 drop directly</p>

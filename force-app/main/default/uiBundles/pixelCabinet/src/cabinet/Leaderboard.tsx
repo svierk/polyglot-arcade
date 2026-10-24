@@ -1,55 +1,77 @@
 import { useEffect, useState } from 'react';
 import { fetchLeaderboard, type LeaderboardEntry } from '@/api/arcadeApi';
 
-const MEDALS = ['🥇', '🥈', '🥉'];
-
-interface LeaderboardProps {
-  gameKey: string;
-  /** Bump to refetch, e.g. after a score was saved. */
-  refreshKey?: number;
+interface LeaderboardState {
+  entries: LeaderboardEntry[] | null;
+  error: string | null;
 }
 
-export default function Leaderboard({
-  gameKey,
+/**
+ * Top scores of one game. Bump `refreshKey` to refetch, e.g. after a score
+ * was saved; `enabled = false` skips the query (embedded, the Lightning page
+ * shows its own leaderboard).
+ */
+export function useLeaderboard(
+  gameKey: string,
   refreshKey = 0,
-}: LeaderboardProps) {
-  const [entries, setEntries] = useState<LeaderboardEntry[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  enabled = true
+): LeaderboardState {
+  const [state, setState] = useState<LeaderboardState>({
+    entries: null,
+    error: null,
+  });
 
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     fetchLeaderboard(gameKey)
-      .then(rows => {
-        if (!cancelled) {
-          setEntries(rows);
-          setError(null);
-        }
+      .then(entries => {
+        if (!cancelled) setState({ entries, error: null });
       })
       .catch((err: Error) => {
-        if (!cancelled) setError(err.message);
+        if (!cancelled) setState(prev => ({ ...prev, error: err.message }));
       });
     return () => {
       cancelled = true;
     };
-  }, [gameKey, refreshKey]);
+  }, [gameKey, refreshKey, enabled]);
 
+  return state;
+}
+
+const ORDINAL_SUFFIXES = ['th', 'st', 'nd', 'rd'];
+
+/** 1st, 2nd, 3rd, 4th ... as on an arcade high-score screen. */
+export function ordinal(rank: number): string {
+  const tens = rank % 100;
+  const suffix =
+    tens >= 11 && tens <= 13 ? 'th' : (ORDINAL_SUFFIXES[rank % 10] ?? 'th');
+  return `${rank}${suffix}`;
+}
+
+/** The high-score card; each machine styles it in its own look. */
+export default function Leaderboard({ entries, error }: LeaderboardState) {
   return (
-    <section className="arcade-panel w-full max-w-sm" aria-label="Leaderboard">
-      <h2 className="arcade-title mb-3 text-sm">High scores</h2>
-      {error && <p className="text-sm text-rose-300">{error}</p>}
-      {!error && entries === null && <p className="arcade-hint">Loading…</p>}
+    <section className="hiscores" aria-label="Leaderboard">
+      <h2 className="hiscores-title">High scores</h2>
+      {error && (
+        <p className="hiscores-note" role="alert">
+          {error}
+        </p>
+      )}
+      {!error && entries === null && <p className="hiscores-note">Loading…</p>}
       {entries?.length === 0 && (
-        <p className="arcade-hint">No scores yet. Be the first!</p>
+        <p className="hiscores-note">No scores yet. Be the first!</p>
       )}
       {entries && entries.length > 0 && (
-        <ol className="space-y-2">
+        <ol className="hiscores-list">
           {entries.map((entry, i) => (
-            <li key={entry.id} className="flex items-center gap-3 text-sm">
-              <span className="w-6 text-center">
-                {MEDALS[i] ?? `${i + 1}.`}
+            <li key={entry.id} className="hiscores-row">
+              <span className="hiscores-rank">{ordinal(i + 1)}</span>
+              <span className="hiscores-player">
+                <span className="hiscores-name">{entry.player}</span>
               </span>
-              <span className="flex-1 truncate">{entry.player}</span>
-              <span className="font-mono font-bold text-cyan-300">
+              <span className="hiscores-score">
                 {entry.score.toLocaleString()}
               </span>
             </li>

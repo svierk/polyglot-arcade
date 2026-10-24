@@ -176,6 +176,22 @@ const CREATE_SCORE = /* GraphQL */ `
   }
 `;
 
+const CURRENT_PLAYER = /* GraphQL */ `
+  query HubCurrentPlayer {
+    uiapi {
+      currentUser {
+        Name {
+          value
+        }
+      }
+    }
+  }
+`;
+
+interface CurrentPlayerResult {
+  uiapi: { currentUser: { Name: { value: string | null } } | null };
+}
+
 @Injectable({ providedIn: 'root' })
 export class ArcadeApi {
   private readonly client = inject(DataClient);
@@ -229,5 +245,11 @@ export class ArcadeApi {
       },
     });
     return { isHighScore: input.score > (game.highScore ?? 0) };
+  }
+
+  /** Name of the logged-in user, shown in the marquee bar. */
+  async currentPlayer(): Promise<string | null> {
+    const data = await this.client.execute<CurrentPlayerResult>(CURRENT_PLAYER);
+    return data.uiapi.currentUser?.Name.value ?? null;
   }
 }

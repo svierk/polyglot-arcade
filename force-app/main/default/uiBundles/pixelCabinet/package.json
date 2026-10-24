@@ -1,7 +1,7 @@
 {
   "name": "pixel-cabinet",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Pixel Cabinet: React UI bundle with the real-time games, standalone and embeddable as a microfrontend.",
   "author": {
     "name": "Sebastiano Schwarz",
@@ -24,12 +24,14 @@
     "graphql:schema": "node scripts/get-graphql-schema.mjs"
   },
   "dependencies": {
+    "@fontsource/press-start-2p": "^5.3.0",
     "@salesforce/platform-sdk": "^11.64.0",
     "@salesforce/ui-bundle": "^11.64.0",
     "@tailwindcss/vite": "^4.1.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dseg": "^0.46.0",
     "lucide-react": "^0.562.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",

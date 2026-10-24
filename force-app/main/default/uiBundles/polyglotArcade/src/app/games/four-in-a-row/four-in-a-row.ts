@@ -1,11 +1,13 @@
 /**
- * Four in a Row view: board rendering, turn flow and input. Rules and the CPU
- * opponent live in ./engine.
+ * Four in a Row machine: a tabletop toy. Board rendering, turn flow and input;
+ * rules and the CPU opponent live in ./engine. The result screen is projected
+ * into the game box when a round ends.
  */
 import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  ViewEncapsulation,
   computed,
   output,
   signal,
@@ -39,6 +41,9 @@ const CPU_DELAY_MS = 450;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './four-in-a-row.html',
   styleUrl: './four-in-a-row.css',
+  // The machine styles the projected result screen too; every rule is scoped
+  // to app-four-in-a-row or .machine-four-in-a-row.
+  encapsulation: ViewEncapsulation.None,
   host: { '(keydown)': 'onKeydown($event)', tabindex: '0', class: 'arcade-focus' },
 })
 export class FourInARowComponent implements OnDestroy {

@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
-import { LobbyComponent, arcadeFloorUrl } from './lobby';
+import { arcadeFloorUrl } from '../../arcade-floor';
+import { LobbyComponent } from './lobby';
 
 const game = (overrides: Partial<ArcadeGame>): ArcadeGame => ({
   id: overrides.key ?? 'id',
@@ -30,6 +31,7 @@ const GAMES: ArcadeGame[] = [
     appUrl: 'https://lwc-oss-snake-game.vercel.app',
     hostSavesScore: true,
   }),
+  game({ key: 'new-game', name: 'New Game', framework: 'Angular' }),
 ];
 
 async function renderLobby(): Promise<HTMLElement> {
@@ -83,5 +85,23 @@ describe('LobbyComponent', () => {
     const snake = card(root, 'Snake');
     expect(snake.querySelector('a')).toBeNull();
     expect(snake.textContent).toContain('open its tab in the Arcade Floor app');
+  });
+
+  it('says where each game lives, in the color of that surface', async () => {
+    const root = await renderLobby();
+    const where = (name: string) => card(root, name).querySelector<HTMLElement>('.lobby-where')!;
+    expect(where('Four in a Row').textContent).toContain('Polyglot Arcade hub');
+    expect(where('Block Drop').textContent).toContain('Pixel Cabinet');
+    expect(where('Snake').textContent).toContain('Arcade Floor');
+    expect(where('Block Drop').style.getPropertyValue('--where')).toBe('var(--surface-cabinet)');
+    expect(
+      card(root, 'Block Drop').querySelector<HTMLElement>('a')!.style.getPropertyValue('--button'),
+    ).toBe('var(--surface-cabinet)');
+  });
+
+  it('shows a teaser marquee for known games and the plain card otherwise', async () => {
+    const root = await renderLobby();
+    expect(card(root, 'Pellet Chase').querySelector('app-teaser-marquee svg rect')).not.toBeNull();
+    expect(card(root, 'New Game').querySelector('app-teaser-marquee')).toBeNull();
   });
 });

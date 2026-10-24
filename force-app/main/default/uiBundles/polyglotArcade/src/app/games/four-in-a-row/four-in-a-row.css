@@ -1,89 +1,318 @@
-:host {
-  display: block;
-  outline: none;
+/*
+ * Four in a Row machine: a tabletop toy. Glossy plastic frame on feet, chunky
+ * discs that drop and bounce, the result like the lid of the game box. Its
+ * high-score card is the side of that box.
+ */
+app-four-in-a-row {
+  --fr-frame: #2563eb;
+  --fr-frame-dark: #1e3a8a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: min(100%, 460px);
+  font-family: 'Fredoka', var(--arcade-font);
+  font-weight: 600;
 }
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
-  width: min(100%, 420px);
-  padding: 10px;
-  border-radius: 14px;
-  background: #1e1b4b;
-  box-shadow:
-    inset 0 0 0 3px #312e81,
-    0 0 32px rgba(244, 63, 94, 0.15);
-}
-
-.column {
-  display: grid;
-  grid-template-rows: repeat(6, 1fr);
-  gap: 6px;
-  padding: 4px 2px;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
+app-four-in-a-row button {
+  font-family: inherit;
+  font-weight: inherit;
   cursor: pointer;
 }
 
-.column.cursor {
-  background: rgba(34, 211, 238, 0.12);
+app-four-in-a-row .fr-toy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 }
 
-.locked .column {
+app-four-in-a-row .fr-status {
+  color: #fef9c3;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-shadow: 0 3px 0 #9d174d;
+}
+
+app-four-in-a-row .fr-levels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+app-four-in-a-row .fr-level {
+  --toy: #22c55e;
+  padding: 8px 22px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--toy) 70%, #fff), var(--toy) 55%);
+  color: #fff;
+  font-size: 1.1rem;
+  text-transform: capitalize;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--toy) 55%, #000);
+}
+
+app-four-in-a-row .fr-level-normal {
+  --toy: #f59e0b;
+}
+
+app-four-in-a-row .fr-level-hard {
+  --toy: #e11d48;
+}
+
+app-four-in-a-row .fr-level:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--toy) 55%, #000);
+}
+
+/* Board, hand row and frame share one grid so discs line up with columns. */
+app-four-in-a-row .fr-hand,
+app-four-in-a-row .board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  padding: 0 14px;
+}
+
+app-four-in-a-row .fr-hand-slot {
+  aspect-ratio: 1;
+  padding: 2px 4px;
+}
+
+app-four-in-a-row .fr-hand .disc {
+  animation: fr-hover 900ms ease-in-out infinite alternate;
+}
+
+app-four-in-a-row .board {
+  position: relative;
+  padding: 14px;
+  border-radius: 18px 18px 8px 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 22%),
+    linear-gradient(180deg, var(--fr-frame), var(--fr-frame-dark));
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.25),
+    0 18px 30px -12px rgba(0, 0, 0, 0.7);
+}
+
+app-four-in-a-row .column {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  gap: 6px;
+  padding: 4px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+}
+
+app-four-in-a-row .column.cursor {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+app-four-in-a-row .locked .column {
   cursor: default;
 }
 
-.cell {
+/* A hole in the frame: the table shows through. */
+app-four-in-a-row .cell {
   aspect-ratio: 1;
   border-radius: 50%;
-  background: #07071a;
-  overflow: hidden;
+  background: #120a24;
+  box-shadow:
+    inset 0 4px 6px rgba(0, 0, 0, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-.disc {
+app-four-in-a-row .disc {
   display: block;
   width: 100%;
   height: 100%;
   border-radius: 50%;
 }
 
-.disc-human {
-  background: radial-gradient(circle at 35% 35%, #fda4af, #f43f5e 60%, #9f1239);
+app-four-in-a-row .disc-human {
+  background: radial-gradient(circle at 35% 30%, #fecdd3, #f43f5e 45%, #9f1239);
+  box-shadow:
+    inset 0 0 0 4px rgba(159, 18, 57, 0.6),
+    inset 0 0 0 7px rgba(254, 205, 211, 0.35);
 }
 
-.disc-cpu {
-  background: radial-gradient(circle at 35% 35%, #fef08a, #facc15 60%, #a16207);
+app-four-in-a-row .disc-cpu {
+  background: radial-gradient(circle at 35% 30%, #fef9c3, #facc15 45%, #a16207);
+  box-shadow:
+    inset 0 0 0 4px rgba(161, 98, 7, 0.6),
+    inset 0 0 0 7px rgba(254, 249, 195, 0.35);
 }
 
-.disc.drop {
-  animation: fall 260ms ease-in;
+app-four-in-a-row .disc.drop {
+  animation: fr-fall calc(220ms + var(--fall) * 40ms) ease-in;
 }
 
 /* A static ring keeps the winning line visible when motion is reduced. */
-.disc.win {
-  box-shadow: inset 0 0 0 4px #fff;
-  animation: pulse 700ms ease-in-out infinite alternate;
+app-four-in-a-row .disc.win {
+  outline: 4px solid #fff;
+  outline-offset: -4px;
+  animation: fr-pulse 700ms ease-in-out infinite alternate;
 }
 
-@keyframes fall {
+@keyframes fr-fall {
   from {
-    transform: translateY(calc(var(--fall) * -110%));
+    transform: translateY(calc(var(--fall) * -118%));
+  }
+  72% {
+    transform: translateY(0);
+  }
+  86% {
+    transform: translateY(-12%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 
-@keyframes pulse {
+@keyframes fr-pulse {
   to {
-    box-shadow:
-      inset 0 0 0 4px #fff,
-      0 0 14px 4px #fff;
+    filter: brightness(1.3) drop-shadow(0 0 8px #fff);
   }
+}
+
+@keyframes fr-hover {
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+/* Feet: the stand that keeps the frame upright on the table. */
+app-four-in-a-row .fr-feet {
+  position: relative;
+  width: 100%;
+  height: 22px;
+  margin-top: -10px;
+}
+
+app-four-in-a-row .fr-feet::before,
+app-four-in-a-row .fr-feet::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 26%;
+  height: 22px;
+  border-radius: 6px 6px 10px 10px;
+  background: linear-gradient(180deg, var(--fr-frame), var(--fr-frame-dark));
+  box-shadow: 0 8px 14px -6px #000;
+  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+}
+
+app-four-in-a-row .fr-feet::before {
+  left: -4%;
+}
+
+app-four-in-a-row .fr-feet::after {
+  right: -4%;
+}
+
+/* The game box lid: the result of the round. */
+app-four-in-a-row .fr-box {
+  width: 100%;
+  padding: 16px 18px 18px;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0 12px, transparent 12px 24px),
+    linear-gradient(160deg, #f43f5e, #be123c);
+  color: #fff;
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 4px #fde047,
+    0 16px 28px -12px #000;
+}
+
+app-four-in-a-row .fr-box-title {
+  margin-bottom: 6px;
+  color: #fde047;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-shadow: 0 3px 0 #9f1239;
+}
+
+app-four-in-a-row .round-result-score {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+app-four-in-a-row .round-result-summary,
+app-four-in-a-row .round-result-status {
+  font-size: 0.95rem;
+}
+
+app-four-in-a-row .round-result-status[data-state] {
+  color: #fef9c3;
+}
+
+app-four-in-a-row .round-result-again {
+  margin-top: 8px;
+  padding: 8px 22px;
+  border: none;
+  border-radius: 999px;
+  background: #fde047;
+  color: #9f1239;
+  font-size: 1.05rem;
+  box-shadow: 0 5px 0 #a16207;
+}
+
+app-four-in-a-row .round-result-again:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #a16207;
+}
+
+app-four-in-a-row .fr-help {
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font);
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* High-score card: the side of the game box. */
+.machine-four-in-a-row .hiscores {
+  padding: 18px 20px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2563eb 0 10px, transparent 10px), #fffbeb;
+  color: #1e1b4b;
+  font-family: 'Fredoka', var(--arcade-font);
+  font-weight: 600;
+  box-shadow:
+    inset 0 0 0 3px #fde047,
+    0 18px 30px -14px #000;
+}
+
+.machine-four-in-a-row .hiscores-title {
+  color: #e11d48;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: none;
+}
+
+.machine-four-in-a-row .hiscores-score {
+  color: #1d4ed8;
+}
+
+.machine-four-in-a-row .hiscores .hiscores-note {
+  color: #6b7280;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .disc.drop,
-  .disc.win {
+  app-four-in-a-row .disc.drop,
+  app-four-in-a-row .disc.win,
+  app-four-in-a-row .fr-hand .disc {
     animation: none;
   }
 }
