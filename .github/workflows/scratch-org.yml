@@ -16,7 +16,6 @@ on:
   workflow_dispatch:
   push:
     tags: ["v*"]
-    branches: [feat/one-command-setup] # TEMP: verify before merge
 
 # Least-privilege token: this workflow only reads the repository.
 permissions:
