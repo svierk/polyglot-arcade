@@ -34,7 +34,7 @@ Navigation between the surfaces:
 
 - **Shared marquee bar.** Every standalone UI bundle page starts with the same bar: `← Lobby` and a badge naming the surface (`Angular · Polyglot Arcade hub`, `React · Pixel Cabinet UI bundle`). It is the one piece of chrome the bundles deliberately share (`arcade.css` in both bundles). The switch between bundles stays visible as a feature, not as a break.
 - **Hub → cabinet:** the App URL on the React game records (unchanged).
-- **Hub → Lightning:** `SFDC_ENV.orgUrl` plus `/lightning/app/c__arcadeFloor/n/<tab>`. Since v0.7.0 the marquee bar of both bundles also has a `Salesforce ↗` link to the Arcade Floor app itself.
+- **Hub → Lightning:** `SFDC_ENV.orgUrl` plus `/lightning/app/c__arcadeFloor/n/<tab>`. Since v0.7.0 the footer of both bundles also has a `Salesforce ↗` link to the Arcade Floor app itself.
 - **Cabinet → hub:** derived from the cabinet's own base path, no stored URL.
 - **Lightning → hub:** a `← Polyglot Arcade` action on the `arcadeGameHost` card. The hub URL is the App URL of the Angular game records, stored by `npm run connect`. Every game record now says where its game lives.
 
