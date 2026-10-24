@@ -4,7 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/svierk/polyglot-arcade?sort=semver)](https://github.com/svierk/polyglot-arcade/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-<img src="./images/lobby.png" alt="Polyglot Arcade lobby with Block Drop, Pellet Chase, Four in a Row, Brick Breaker and Snake" width="900"/>
+<img src="./images/lobby.png" alt="Polyglot Arcade lobby in the magenta arcade hall: game cards with pixel-art teaser marquees, each saying where its game lives" width="900"/>
 
 A retro arcade that runs on the Salesforce Platform and shows **Salesforce Multi-Framework** end to end: an **Angular** app and a **React** app live side by side in one org, share the same CRM data and embed into Lightning pages as **microfrontends** - next to an **LWC OSS** game that is hosted outside Salesforce altogether.
 
@@ -20,6 +20,7 @@ Polyglot Arcade turns that into a playful reference project:
 - **CRM data as the score sheet.** Every round becomes a record - visible in the shipped reports and dashboard, in a native LWC leaderboard and in both apps.
 - **Microfrontends in Lightning.** One host LWC drops any game onto a Lightning page, talks to it through events, and attributes rounds to the Account it is placed on. Games without a Salesforce session of their own get their score saved by the host.
 - **One arcade, not three apps.** The Angular hub is the only lobby, the React cabinet is a machine it launches, and the Lightning app _Arcade Floor_ is where microfrontends are composed. A shared marquee bar and return links connect them.
+- **You can see the architecture.** Every surface has its own color and room - a magenta arcade hall for the Angular hub, a cyan machine room for the React cabinet, blue for the Arcade Floor - and every game is a machine of its own. A switch between frameworks is something you see, not something you have to know.
 
 ## 🧩 Salesforce Multi-Framework in a nutshell
 
@@ -45,13 +46,25 @@ React and Angular are generally available for UI bundles as of Winter '27. Embed
 
 > The games are original implementations of classic mechanics. Names and artwork are deliberately generic - no trademarks of the original arcade titles are used.
 
-| Four in a Row (Angular hub)                                                                                                                                | Brick Breaker (Angular hub)                                                                                                                      |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <img src="./images/four-in-a-row.png" alt="Four in a Row won against the CPU, with the hub leaderboard" width="440"/>                                      | <img src="./images/brick-breaker.png" alt="Brick Breaker in progress next to its leaderboard" width="440"/>                                      |
-| **Block Drop (React cabinet)**                                                                                                                             | **Pellet Chase (React cabinet)**                                                                                                                 |
-| <img src="./images/pixel-cabinet.png" alt="Block Drop in progress next to its leaderboard" width="440"/>                                                   | <img src="./images/pellet-chase.png" alt="Pellet Chase right after a power pellet, two frightened ghosts, next to its leaderboard" width="440"/> |
-| **Microfrontend on a Lightning page**                                                                                                                      | **Hall of fame across all surfaces**                                                                                                             |
-| <img src="./images/snake.png" alt="Snake embedded on its page in the Arcade Floor app, with the way back to the hub and the LWC leaderboard" width="440"/> | <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores from the cabinet and from embedded play" width="440"/>                     |
+**Same hall, different machines.** Every game has a cabinet of its own, with its HUD, result screen and high-score card in its style:
+
+| Game          | Machine                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Pellet Chase  | Upright arcade cabinet: backlit marquee, CRT with scanlines, joystick panel, coin door, attract-screen high scores |
+| Block Drop    | Handheld brick-game console: grey-olive LCD with segment digits, direction and rotate keys as touch controls       |
+| Brick Breaker | 80s home console on a wood-grain CRT TV, with the cartridge box as high-score card                                 |
+| Four in a Row | Tabletop toy: glossy frame on feet, discs that drop and bounce, the result on the lid of the game box              |
+| Snake         | Retro phone with its own LCD; embedded, the Lightning page shows the part with the screen and the navigation keys  |
+
+In the hub lobby every game card carries a teaser marquee in the look of its machine and says where the game lives.
+
+| Four in a Row (Angular hub)                                                                                                                                            | Brick Breaker (Angular hub)                                                                                                                                          |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="./images/four-in-a-row.png" alt="Four in a Row as a tabletop toy, won against the CPU, the result on the game box lid next to its high scores" width="440"/> | <img src="./images/brick-breaker.png" alt="Brick Breaker on a wood-grain CRT TV with the console and cartridge, next to the cartridge box high scores" width="440"/> |
+| **Block Drop (React cabinet)**                                                                                                                                         | **Pellet Chase (React cabinet)**                                                                                                                                     |
+| <img src="./images/pixel-cabinet.png" alt="Block Drop on a red handheld brick game with an LCD, in the cyan machine room of the Pixel Cabinet" width="440"/>           | <img src="./images/pellet-chase.png" alt="Pellet Chase in an upright arcade cabinet with CRT, joystick panel and the attract-screen high scores" width="440"/>       |
+| **Microfrontend on a Lightning page**                                                                                                                                  | **Hall of fame across all surfaces**                                                                                                                                 |
+| <img src="./images/snake.png" alt="Snake embedded on its page in the Arcade Floor app, with the way back to the hub and the LWC leaderboard" width="440"/>             | <img src="./images/hall-of-fame.png" alt="Hall of fame listing scores, the source of each round in the color of its surface" width="440"/>                           |
 
 ## 🏗️ Architecture
 
@@ -93,15 +106,15 @@ flowchart LR
     LB -- "GraphQL wire" --> Data
 ```
 
-Every surface has one role (see [ADR 0001](docs/decisions/0001-surface-roles.md)):
+Every surface has one role (see [ADR 0001](docs/decisions/0001-surface-roles.md)) and a color of its own:
 
-| Surface                                 | Role                                                                                                                                                                                                                                            |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Polyglot Arcade** (Angular UI bundle) | The only lobby and hall of fame, and the entry point. It launches every game, wherever it lives.                                                                                                                                                |
-| **Pixel Cabinet** (React UI bundle)     | A machine, not a second hub. It has no lobby: opening it sends the player to the hub lobby. The hub launches its games at `/play/<game>`, Lightning frames them at `/embed`.                                                                    |
-| **Arcade Floor** (Lightning app)        | Where microfrontends are composed: the **Snake** page with the Snake and its leaderboard, and the **Arcade Account** record page (app default for Accounts) with the cabinet and the Account's leaderboard. Rounds there count for the Account. |
+| Surface                                 | Color               | Role                                                                                                                                                                                                                                            |
+| --------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Polyglot Arcade** (Angular UI bundle) | magenta arcade hall | The only lobby and hall of fame, and the entry point. It launches every game, wherever it lives.                                                                                                                                                |
+| **Pixel Cabinet** (React UI bundle)     | cyan machine room   | A machine, not a second hub. It has no lobby: opening it sends the player to the hub lobby. The hub launches its games at `/play/<game>`, Lightning frames them at `/embed`.                                                                    |
+| **Arcade Floor** (Lightning app)        | blue                | Where microfrontends are composed: the **Snake** page with the Snake and its leaderboard, and the **Arcade Account** record page (app default for Accounts) with the cabinet and the Account's leaderboard. Rounds there count for the Account. |
 
-Every standalone page starts with the same marquee bar: `← Lobby` and a badge naming the surface (`Angular · Polyglot Arcade hub`, `React · Pixel Cabinet UI bundle`), so a switch between bundles is visible instead of feeling like a break. In Lightning, the host card links back with `← Polyglot Arcade`.
+Every standalone page starts with the same marquee bar: `← Lobby` and a badge naming the surface (`Angular · Polyglot Arcade hub`, `React · Pixel Cabinet UI bundle`). The bar is laid out the same everywhere but glows in the color of its surface, and the room below it is the surface's own: the hub is a magenta arcade hall, the cabinet a cyan machine room. Lobby cards, launch buttons and the hall of fame use the same colors to say where a game lives and where a round was played, and the embedded cabinet carries a slim `React · Pixel Cabinet UI bundle` tag inside the Lightning frame. A switch between bundles is visible instead of feeling like a break (see [ADR 0002](docs/decisions/0002-surfaces-and-machines.md)). In Lightning, the host card links back with `← Polyglot Arcade`.
 
 The demo covers four integration patterns:
 
@@ -348,6 +361,6 @@ Contributions are welcome - new games, fixes and ideas for further integration p
 
 ## 📄 License
 
-[MIT](LICENSE) © Sebastiano Schwarz. Parts of the project tooling and the UI kits are derived from Salesforce's project templates under the BSD 3-Clause License, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+[MIT](LICENSE) © Sebastiano Schwarz. Parts of the project tooling and the UI kits are derived from Salesforce's project templates under the BSD 3-Clause License, and the machines use fonts under the SIL Open Font License, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 This is a community project and is not affiliated with or endorsed by Salesforce.
