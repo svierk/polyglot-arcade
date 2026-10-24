@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/global.css';
 import './styles/arcade.css';
+import './styles/surface.css';
 
 // Normalize basename: strip trailing slash so it matches URLs like /lwr/application/ai/c-app
 const rawBasePath = (globalThis as any).SFDC_ENV?.basePath;

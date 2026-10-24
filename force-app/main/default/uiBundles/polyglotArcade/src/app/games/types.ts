@@ -1,3 +1,9 @@
+/** Whether the finished round reached Salesforce. */
+export type SaveState =
+  | { state: 'saving' }
+  | { state: 'saved'; isHighScore: boolean }
+  | { state: 'failed'; message: string };
+
 /** What a hub game reports when a round ends. */
 export interface GameResult {
   score: number;

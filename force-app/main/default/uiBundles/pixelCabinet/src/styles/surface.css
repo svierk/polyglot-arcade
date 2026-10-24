@@ -1,0 +1,55 @@
+/*
+ * Pixel Cabinet surface: the machine room of the React UI bundle.
+ * Cyan neon and a blueprint grid, so it is told apart from the hub's arcade
+ * hall at a glance. The machines stand in it under a spotlight.
+ */
+:root {
+  --surface: var(--surface-cabinet);
+  --surface-ink: #03141a;
+}
+
+.arcade-shell {
+  background:
+    radial-gradient(
+      760px 420px at 50% 140px,
+      rgba(34, 211, 238, 0.13),
+      transparent 70%
+    ),
+    linear-gradient(rgba(34, 211, 238, 0.06) 1px, transparent 1px) 0 0 / 32px
+      32px,
+    linear-gradient(90deg, rgba(34, 211, 238, 0.06) 1px, transparent 1px) 0 0 /
+      32px 32px,
+    linear-gradient(rgba(34, 211, 238, 0.1) 1px, transparent 1px) 0 0 / 160px
+      160px,
+    linear-gradient(90deg, rgba(34, 211, 238, 0.1) 1px, transparent 1px) 0 0 /
+      160px 160px,
+    #04111b;
+}
+
+/* Embedded, the page frames a compact machine. A slim tag below it names the
+   bundle that runs inside the frame. */
+html.embedded .arcade-shell {
+  background: #04111b;
+  border-bottom: 2px solid var(--surface);
+}
+
+.surface-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  color: var(--surface);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.surface-tag::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0 8px var(--surface);
+}

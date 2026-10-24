@@ -1,25 +1,28 @@
 /**
- * Hosts a hub game: renders it, saves each finished round as an Arcade_Score__c
- * and shows the result next to the game's leaderboard.
+ * Hosts a hub game: renders its machine, saves each finished round as an
+ * Arcade_Score__c and hands the result screen to the machine, next to the
+ * game's leaderboard.
  */
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ArcadeApi } from '../../api/arcade-api.service';
 import { LeaderboardTableComponent } from '../../components/leaderboard-table/leaderboard-table';
+import { RoundResultComponent } from '../../components/round-result/round-result';
 import { BrickBreakerComponent } from '../../games/brick-breaker/brick-breaker';
 import { FourInARowComponent } from '../../games/four-in-a-row/four-in-a-row';
 import { findHubGame } from '../../games/registry';
-import type { GameResult } from '../../games/types';
-
-type SaveState =
-  | { state: 'saving' }
-  | { state: 'saved'; isHighScore: boolean }
-  | { state: 'failed'; message: string };
+import type { GameResult, SaveState } from '../../games/types';
 
 @Component({
   selector: 'app-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, BrickBreakerComponent, FourInARowComponent, LeaderboardTableComponent],
+  imports: [
+    RouterLink,
+    BrickBreakerComponent,
+    FourInARowComponent,
+    LeaderboardTableComponent,
+    RoundResultComponent,
+  ],
   templateUrl: './play.html',
 })
 export class PlayComponent {
@@ -34,14 +37,8 @@ export class PlayComponent {
   protected readonly result = signal<GameResult | null>(null);
   protected readonly save = signal<SaveState | null>(null);
   protected readonly savedCount = signal(0);
-  protected readonly isHighScore = computed(() => {
-    const save = this.save();
-    return save?.state === 'saved' && save.isHighScore;
-  });
-  protected readonly saveError = computed(() => {
-    const save = this.save();
-    return save?.state === 'failed' ? save.message : null;
-  });
+  /** Best score on the leaderboard, for the machine's HUD. */
+  protected readonly highScore = signal<number | undefined>(undefined);
 
   protected async onGameOver(result: GameResult): Promise<void> {
     this.result.set(result);

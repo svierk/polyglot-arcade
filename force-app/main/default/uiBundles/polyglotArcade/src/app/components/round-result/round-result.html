@@ -1,0 +1,20 @@
+<div class="round-result" role="status">
+  <p class="round-result-score">{{ result().score }} points</p>
+  <p class="round-result-summary">{{ result().summary }}</p>
+  @if (save(); as save) {
+    <p class="round-result-status" [attr.data-state]="save.state">
+      @switch (save.state) {
+        @case ('saving') {
+          Saving to Salesforce…
+        }
+        @case ('saved') {
+          {{ save.isHighScore ? '★ New high score! ★' : 'Score saved to the leaderboard.' }}
+        }
+        @case ('failed') {
+          Could not save score: {{ save.message }}
+        }
+      }
+    </p>
+  }
+  <button type="button" class="round-result-again" (click)="playAgain.emit()">Play again</button>
+</div>

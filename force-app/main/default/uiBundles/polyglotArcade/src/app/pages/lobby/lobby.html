@@ -1,10 +1,19 @@
 <section>
   <h1 class="arcade-title mb-2 text-2xl">Insert coin</h1>
-  <p class="arcade-hint mb-8 max-w-2xl">
+  <p class="arcade-hint mb-4 max-w-2xl">
     One arcade, three frameworks. Angular games run right here in the hub, the React games live in
     the Pixel Cabinet and the LWC OSS Snake joins from outside, embedded on its own Lightning page
     on the Arcade Floor. Every round lands in Salesforce as an Arcade Score.
   </p>
+
+  <!-- Every surface has its color: the marquee bar of each bundle glows in it. -->
+  <ul class="lobby-legend mb-8" aria-label="Where games live">
+    @for (surface of surfaces; track surface.label) {
+      <li [style.--where]="surface.color">
+        {{ surface.label }} <span>{{ surface.tech }}</span>
+      </li>
+    }
+  </ul>
 
   @if (error()) {
     <div class="arcade-panel mb-6 text-sm text-rose-300" role="alert">
@@ -18,7 +27,13 @@
 
   <div class="grid gap-4 sm:grid-cols-2">
     @for (game of games(); track game.id) {
-      <article class="arcade-card" [style.--accent]="game.accent">
+      @let where = whereLives(game);
+      <article class="arcade-card lobby-card" [style.--accent]="game.accent">
+        @if (teaser(game); as art) {
+          <div class="lobby-marquee">
+            <app-teaser-marquee [art]="art" />
+          </div>
+        }
         <div class="flex items-start justify-between gap-2">
           <h2 class="arcade-title text-lg">{{ game.name }}</h2>
           <span class="arcade-badge">{{ game.framework }}</span>
@@ -28,24 +43,38 @@
           High score <strong>{{ game.highScore ?? '—' }}</strong>
           <span class="arcade-hint"> · {{ game.totalPlays }} plays</span>
         </p>
+        <p class="lobby-where" [style.--where]="where.color">Lives in {{ where.label }}</p>
         @if (isHubGame(game)) {
-          <a class="arcade-button mt-2 self-start" [routerLink]="['/play', game.key]">Play</a>
+          <a
+            class="arcade-button mt-1 self-start"
+            [style.--button]="where.color"
+            [routerLink]="['/play', game.key]"
+            >Play</a
+          >
         } @else if (game.hostSavesScore) {
           @if (arcadeFloorUrl(game); as url) {
-            <a class="arcade-button mt-2 self-start" [href]="url" target="_top"
+            <a
+              class="arcade-button mt-1 self-start"
+              [style.--button]="where.color"
+              [href]="url"
+              target="_top"
               >Play on the Arcade Floor</a
             >
           } @else {
-            <p class="arcade-hint mt-2">
+            <p class="arcade-hint mt-1">
               Played embedded in Lightning: open its tab in the Arcade Floor app.
             </p>
           }
         } @else if (externalUrl(game); as url) {
-          <a class="arcade-button mt-2 self-start" [href]="url" target="_top"
+          <a
+            class="arcade-button mt-1 self-start"
+            [style.--button]="where.color"
+            [href]="url"
+            target="_top"
             >Play in Pixel Cabinet</a
           >
         } @else {
-          <p class="arcade-hint mt-2">
+          <p class="arcade-hint mt-1">
             Lives in the Pixel Cabinet. Store its App URL on the game record to launch it from here.
           </p>
         }

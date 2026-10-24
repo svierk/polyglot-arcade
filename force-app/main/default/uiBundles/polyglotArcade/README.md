@@ -6,17 +6,20 @@ The Angular UI bundle of [Polyglot Arcade](../../../../../README.md): lobby, hal
 | ---------------- | ---------------------------------------------------------------------------------------------- |
 | `/`              | Lobby built from `Arcade_Game__c`; launches hub games here and cabinet games via their App URL |
 | `/leaderboard`   | Hall of fame across all games and surfaces                                                     |
-| `/play/:gameKey` | A hub game with its leaderboard, e.g. `/play/four-in-a-row`                                    |
+| `/play/:gameKey` | A hub game's machine with its high-score card, e.g. `/play/four-in-a-row`                      |
 
 ## Structure
 
 ```
 src/app/
 ├── api/                   Data SDK client + ArcadeApi (games, scores, leaderboards)
-├── components/            app layout, leaderboard table, template UI kit (spartan)
-├── games/                 registry, shared types, four-in-a-row/ (engine.ts + component)
+├── components/            app layout, leaderboard table, round result, teaser marquee,
+│                          template UI kit (spartan)
+├── games/                 registry, shared types, teaser marquee art (marquees.ts),
+│                          one folder per game: engine.ts + machine component and styles
 └── pages/                 lobby, play, leaderboard, not-found
-src/arcade.css             shared arcade theme (kept in sync with the cabinet)
+src/arcade.css             shared arcade chrome (kept in sync with the cabinet)
+src/surface.css            the hub's surface: arcade hall, magenta neon, fonts
 ```
 
 ## Commands

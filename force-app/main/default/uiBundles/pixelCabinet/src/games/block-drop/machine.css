@@ -1,0 +1,386 @@
+/*
+ * Block Drop machine: a handheld brick-game console. Red plastic, a grey-olive
+ * reflective LCD with segment digits (unlike the Snake phone's mint screen),
+ * four direction keys and a big rotate key that are the touch controls. Its
+ * high-score card is a second little LCD.
+ */
+@import '@fontsource/press-start-2p/latin-400.css';
+
+@font-face {
+  font-family: 'DSEG7 Classic';
+  src: url('dseg/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+.bd-handheld {
+  --bd-lcd: #c2c7a1;
+  --bd-ink: #1f2417;
+  --bd-body: #dc2626;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: min(100%, 400px);
+  padding: 22px 22px 26px;
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      ellipse at 20% 0%,
+      rgba(255, 255, 255, 0.35),
+      transparent 45%
+    ),
+    linear-gradient(165deg, #f87171, var(--bd-body) 50%, #991b1b);
+  box-shadow:
+    0 30px 50px -18px rgba(0, 0, 0, 0.7),
+    inset 0 -6px 0 rgba(69, 10, 10, 0.4),
+    inset 0 3px 0 rgba(255, 255, 255, 0.35);
+  color: #fee2e2;
+  font-family: 'Press Start 2P', var(--arcade-font);
+  text-transform: uppercase;
+}
+
+.bd-handheld button {
+  font-family: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+/* Bezel and LCD. */
+.bd-bezel {
+  padding: 10px 16px 18px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #3f3f46, #27272a);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.bd-bezel-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+  color: #d1d5db;
+  font-size: 6px;
+  letter-spacing: 0.08em;
+}
+
+.bd-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+.bd-lcd {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  background: var(--bd-lcd);
+  box-shadow:
+    inset 3px 3px 6px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.4);
+  color: var(--bd-ink);
+}
+
+.bd-well {
+  position: relative;
+  flex: 0 1 200px;
+  min-width: 0;
+  padding: 2px;
+  border: 2px solid var(--bd-ink);
+}
+
+.bd-canvas {
+  display: block;
+  width: 100%;
+}
+
+.bd-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 10px;
+  background: rgba(194, 199, 161, 0.9);
+  color: var(--bd-ink);
+  font-size: 8px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.bd-overlay-title {
+  font-size: 12px;
+}
+
+.bd-lcd-button,
+.bd-handheld .round-result-again {
+  padding: 8px 10px;
+  border: 2px solid var(--bd-ink);
+  background: transparent;
+  color: var(--bd-ink);
+  font-size: 8px;
+}
+
+.bd-lcd-button:hover,
+.bd-handheld .round-result-again:hover {
+  background: var(--bd-ink);
+  color: var(--bd-lcd);
+}
+
+.bd-handheld .round-result {
+  gap: 10px;
+}
+
+.bd-handheld .round-result-score {
+  font-family: 'DSEG7 Classic', var(--arcade-font);
+  font-size: 18px;
+}
+
+.bd-handheld .round-result-status {
+  color: var(--bd-ink);
+  font-size: 7px;
+  line-height: 1.8;
+}
+
+/* Side panel: segment digits, next piece, state flags. */
+.bd-panel {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.bd-seg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bd-seg-label {
+  font-size: 6px;
+}
+
+.bd-seg strong {
+  position: relative;
+  align-self: flex-end;
+  font-family: 'DSEG7 Classic', var(--arcade-font);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bd-seg-off {
+  opacity: 0.08;
+}
+
+.bd-seg-on {
+  position: absolute;
+  right: 0;
+}
+
+.bd-next canvas {
+  display: block;
+  margin: 4px 0 0 auto;
+}
+
+.bd-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 6px;
+}
+
+.bd-flags span {
+  opacity: 0.1;
+}
+
+.bd-flags .bd-on {
+  opacity: 1;
+}
+
+.bd-brand {
+  margin-top: 14px;
+  color: #fef3c7;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-shadow: 0 2px 0 #7f1d1d;
+}
+
+/* Controls: four direction keys left, the rotate key right, start below. */
+.bd-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 0 6px;
+}
+
+.bd-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(3, 40px);
+}
+
+.bd-dpad-key,
+.bd-key button {
+  border: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fde047, #facc15 50%, #a16207);
+  color: #713f12;
+  box-shadow:
+    0 4px 0 #713f12,
+    0 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.bd-dpad-key {
+  margin: 2px;
+  font-size: 9px;
+}
+
+.bd-dpad-key:active,
+.bd-key button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #713f12;
+}
+
+.bd-up {
+  grid-area: 1 / 2;
+}
+
+.bd-left {
+  grid-area: 2 / 1;
+}
+
+.bd-right {
+  grid-area: 2 / 3;
+}
+
+.bd-down {
+  grid-area: 3 / 2;
+}
+
+.bd-key {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 6px;
+}
+
+.bd-rotate button {
+  width: 74px;
+  height: 74px;
+}
+
+.bd-small-keys {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.bd-small-keys .bd-key button {
+  width: 22px;
+  height: 22px;
+  background: radial-gradient(circle at 38% 32%, #a1a1aa, #52525b 60%);
+  box-shadow: 0 3px 0 #27272a;
+}
+
+.bd-key button:disabled {
+  cursor: default;
+}
+
+.bd-help {
+  margin-top: 16px;
+  color: #fecaca;
+  font-family: var(--arcade-font);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  text-align: center;
+  text-transform: none;
+}
+
+/* High-score card: a second little LCD in the console's plastic. */
+.machine-block-drop .hiscores {
+  width: min(100%, 320px);
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(165deg, #f87171, #dc2626 50%, #991b1b);
+  box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.7);
+  font-family: 'Press Start 2P', var(--arcade-font);
+  text-transform: uppercase;
+}
+
+.machine-block-drop .hiscores-title {
+  margin-bottom: 10px;
+  color: #fef3c7;
+  font-size: 10px;
+  font-weight: 400;
+  text-align: center;
+  text-shadow: 0 2px 0 #7f1d1d;
+}
+
+.machine-block-drop .hiscores-list,
+.machine-block-drop .hiscores .hiscores-note {
+  padding: 12px 10px;
+  border: 10px solid #3f3f46;
+  border-radius: 6px;
+  background: #c2c7a1;
+  color: #1f2417;
+}
+
+.machine-block-drop .hiscores-list {
+  gap: 10px;
+}
+
+.machine-block-drop .hiscores-row {
+  font-size: 7px;
+}
+
+.machine-block-drop .hiscores-rank {
+  width: 3em;
+  text-align: left;
+}
+
+.machine-block-drop .hiscores-score {
+  font-family: 'DSEG7 Classic', var(--arcade-font);
+  font-size: 12px;
+}
+
+.machine-block-drop .hiscores .hiscores-note {
+  font-size: 7px;
+  line-height: 1.8;
+}
+
+/* Embedded on a Lightning page: the compact handheld. */
+html.embedded .bd-handheld {
+  width: min(100%, 360px);
+  padding: 16px 16px 20px;
+}
+
+html.embedded .bd-help {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .bd-handheld {
+    padding: 16px 14px 22px;
+  }
+
+  .bd-bezel {
+    padding: 8px 10px 14px;
+  }
+
+  .bd-help {
+    display: none;
+  }
+}
