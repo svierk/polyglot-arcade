@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Arcade_Game__c$Name</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$Name</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$Score__c</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$Source__c</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$CreatedBy</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$CreatedDate</field>
+    </columns>
+    <description
+  >Finished rounds per framework of the game: React, Angular or LWC OSS.</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Arcade_Game__c$Framework__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Plays per framework</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Arcade_Games_with_Scores__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Arcade_Game__c.Scores__r$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
