@@ -210,7 +210,11 @@ function parseJsonPayload(payload) {
     if (entry.err != null) {
       errors.push({ ref, message: String(entry.err) });
     } else if (entry.id != null) {
-      successes.push({ ref, id: String(entry.id) });
+      successes.push({
+        ref,
+        id: String(entry.id),
+        ...(entry.created != null && { created: Boolean(entry.created) })
+      });
     }
   }
   return { ok: true, error: null, successes, errors };

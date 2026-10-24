@@ -28,8 +28,8 @@
     "precommit": "lint-staged",
     "setup": "node scripts/org-setup.mjs",
     "dev:preview": "node scripts/org-setup-dev.mjs",
-    "connect": "node scripts/connect.mjs",
-    "connect:cabinet": "node scripts/connect.mjs"
+    "preflight": "node scripts/preflight.mjs",
+    "connect": "node scripts/connect.mjs"
   },
   "dependencies": {
     "fast-xml-parser": "^5.9.3",
