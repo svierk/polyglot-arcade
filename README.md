@@ -302,7 +302,7 @@ Tests and checks - the [Validation workflow](.github/workflows/ci.yml) runs all 
 
 GraphQL operations are validated against your org's schema with `npm run graphql:codegen` inside each bundle.
 
-The [Scratch Org Setup workflow](.github/workflows/scratch-org.yml) is the release acceptance in a real org. It creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub in the repository secrets `SFDX_CONSUMER_KEY`, `SFDX_JWT_SECRET_KEY` and `SFDX_USERNAME`.
+The [Scratch Org Setup workflow](.github/workflows/scratch-org.yml) is the release acceptance in a real org. It creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
 
 ## 📁 Project structure
 
