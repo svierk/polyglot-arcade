@@ -21,6 +21,8 @@
   --bd-plastic-dark: #b3ac9b;
   --bd-slate: #565c69;
   --bd-navy: #2f3a56;
+  /* The surface's cyan vanishes on ivory plastic. */
+  --focus: var(--bd-navy);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -130,6 +132,8 @@
   font-size: 7px;
   line-height: 1.7;
   text-align: center;
+  /* Above the segment digits, which are positioned too. */
+  z-index: 1;
 }
 
 .bd-overlay-title {
@@ -160,7 +164,9 @@
   font-size: 16px;
 }
 
-.bd-machine .round-result-status {
+/* One ink on the LCD, whatever the save state: the colors of the shared
+   result screen are unreadable on it. */
+.bd-machine .round-result-status[data-state] {
   color: var(--bd-ink);
   font-size: 6px;
   line-height: 1.8;
@@ -194,7 +200,8 @@
   line-height: 1;
 }
 
-.bd-seg-off {
+.bd-seg-off::before {
+  content: attr(data-digits);
   opacity: 0.08;
 }
 
@@ -216,11 +223,12 @@
   font-size: 5px;
 }
 
-.bd-flags span {
+.bd-flags span::before {
+  content: attr(data-label);
   opacity: 0.1;
 }
 
-.bd-flags .bd-on {
+.bd-flags .bd-on::before {
   opacity: 1;
 }
 

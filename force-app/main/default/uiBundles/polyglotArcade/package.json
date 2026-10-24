@@ -1,7 +1,7 @@
 {
   "name": "polyglot-arcade-hub",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Polyglot Arcade hub: Angular UI bundle with the lobby, hall of fame and Angular games.",
   "author": {
     "name": "Sebastiano Schwarz",
@@ -51,6 +51,7 @@
     "@angular/build": "^21.2.11",
     "@angular/cli": "^21.2.11",
     "@angular/compiler-cli": "^21.2.0",
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^9.0.0",
     "@graphql-codegen/cli": "^6.1.0",
     "@graphql-codegen/typescript-operations": "^5.0.6",

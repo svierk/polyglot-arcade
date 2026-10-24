@@ -148,6 +148,7 @@ export type HubGamesQuery = {
             Tagline__c?: { value?: string | null } | null;
             Framework__c?: { value?: string | null } | null;
             App_Url__c?: { value?: string | null } | null;
+            Embed_Path__c?: { value?: string | null } | null;
             Host_Saves_Score__c?: { value?: boolean | null } | null;
             Accent_Color__c?: { value?: string | null } | null;
             High_Score__c?: { value?: number | null } | null;
@@ -188,4 +189,10 @@ export type HubCreateScoreMutationVariables = Exact<{
 
 export type HubCreateScoreMutation = {
   uiapi: { Arcade_Score__cCreate?: { Record?: { Id: string } | null } | null };
+};
+
+export type HubCurrentPlayerQueryVariables = Exact<{ [key: string]: never }>;
+
+export type HubCurrentPlayerQuery = {
+  uiapi: { currentUser?: { Name?: { value?: string | null } | null } | null };
 };

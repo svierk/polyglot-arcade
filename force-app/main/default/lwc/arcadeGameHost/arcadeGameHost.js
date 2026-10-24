@@ -23,6 +23,9 @@
  *
  * The `appUrl` property set in Lightning App Builder overrides the App URL on
  * the record, e.g. to point the host at a local dev server.
+ *
+ * The card footer is the Tech X-ray of the frame: which of the README's
+ * integration patterns runs in it, read from Host_Saves_Score__c.
  */
 import { LightningElement, api, wire } from "lwc";
 import { gql, graphql } from "lightning/graphql";
@@ -100,6 +103,22 @@ export function buildEmbedSrc(baseUrl, embedPath) {
   }
 }
 
+/** Where the README lists the four integration patterns. */
+const PATTERNS_URL =
+  "https://github.com/svierk/polyglot-arcade#integration-patterns";
+const GUEST_SAVES = {
+  no: 3,
+  name: "Internally hosted microfrontend - the guest saves",
+  detail:
+    "A React UI bundle of this org. It saves the round with your session and tells this page with a View SDK event."
+};
+const HOST_SAVES = {
+  no: 4,
+  name: "Externally hosted microfrontend - the host saves",
+  detail:
+    "Hosted outside Salesforce, without a session. It reports the round over the package-free bridge and this component saves it."
+};
+
 const isCount = (value) => Number.isInteger(value) && value >= 0;
 
 export default class ArcadeGameHost extends LightningElement {
@@ -162,6 +181,16 @@ export default class ArcadeGameHost extends LightningElement {
       this.appUrl || this.gameRecord.appUrl,
       this.gameRecord.embedPath
     );
+  }
+
+  /** Tech X-ray of the frame; null until the game record is known. */
+  get pattern() {
+    if (!this.gameRecord) return null;
+    return this.gameRecord.hostSavesScore ? HOST_SAVES : GUEST_SAVES;
+  }
+
+  get patternsUrl() {
+    return PATTERNS_URL;
   }
 
   get errorMessage() {

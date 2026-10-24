@@ -162,9 +162,8 @@ function Segments({
     <p className="bd-seg">
       <span className="bd-seg-label">{label}</span>
       <strong data-hud={hud}>
-        <span className="bd-seg-off" aria-hidden="true">
-          {'8'.repeat(digits)}
-        </span>
+        {/* Unlit segments are drawn by CSS: decoration, not text. */}
+        <span className="bd-seg-off" data-digits={'8'.repeat(digits)} />
         <span className="bd-seg-on">{value}</span>
       </strong>
     </p>
@@ -307,6 +306,7 @@ export default function BlockDrop({
       tabIndex={0}
       onKeyDown={onKeyDown}
       className="bd-machine arcade-focus"
+      role="application"
       aria-label="Block Drop game board. Arrow keys move and rotate, space drops."
     >
       <div className="bd-handheld">
@@ -372,13 +372,16 @@ export default function BlockDrop({
               </div>
               <Segments label="Level" value={hud.level} digits={2} />
               <Segments label="Lines" value={hud.lines} digits={3} />
+              {/* LCD flags: unlit ones are faint decoration drawn by CSS. */}
               <p className="bd-flags" aria-hidden="true">
-                <span className={hud.status === 'paused' ? 'bd-on' : ''}>
-                  Pause
-                </span>
-                <span className={hud.status === 'over' ? 'bd-on' : ''}>
-                  Game over
-                </span>
+                <span
+                  className={hud.status === 'paused' ? 'bd-on' : ''}
+                  data-label="Pause"
+                />
+                <span
+                  className={hud.status === 'over' ? 'bd-on' : ''}
+                  data-label="Game over"
+                />
               </p>
             </div>
           </div>

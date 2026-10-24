@@ -3,7 +3,8 @@
   <p class="arcade-hint mb-4 max-w-2xl">
     One arcade, three frameworks. Angular games run right here in the hub, the React games live in
     the Pixel Cabinet and the LWC OSS Snake joins from outside, embedded on its own Lightning page
-    on the Arcade Floor. Every round lands in Salesforce as an Arcade Score.
+    on the Arcade Floor. Every round lands in Salesforce as an Arcade Score. Switch on the Tech
+    X-ray to see how each game is built.
   </p>
 
   <!-- Every surface has its color: the marquee bar of each bundle glows in it. -->
@@ -29,7 +30,42 @@
     @for (game of games(); track game.id) {
       @let where = whereLives(game);
       <article class="arcade-card lobby-card" [style.--accent]="game.accent">
-        @if (teaser(game); as art) {
+        @if (xray.on()) {
+          @let x = xrayOf(game);
+          <!-- Tech X-ray: the blueprint of the game in place of its marquee. -->
+          <div class="lobby-marquee lobby-xray">
+            <p class="xray-kicker">Tech X-ray</p>
+            <dl class="xray-rows">
+              <div class="xray-wide">
+                <dt>{{ x.patterns.length > 1 ? 'Patterns' : 'Pattern' }}</dt>
+                @for (pattern of x.patterns; track pattern.no) {
+                  <dd>
+                    <span class="xray-no" [style.--where]="patternColor(pattern)"
+                      ><span class="sr-only">Pattern </span>{{ pattern.no }}</span
+                    >
+                    {{ pattern.name }}
+                  </dd>
+                }
+              </div>
+              <div>
+                <dt>Framework</dt>
+                <dd>{{ x.framework }}</dd>
+              </div>
+              <div>
+                <dt>Surface</dt>
+                <dd>{{ x.surface }}</dd>
+              </div>
+              <div>
+                <dt>Saves the score</dt>
+                <dd>{{ x.savedBy }}</dd>
+              </div>
+              <div>
+                <dt>Data path</dt>
+                <dd>{{ x.dataPath }}</dd>
+              </div>
+            </dl>
+          </div>
+        } @else if (teaser(game); as art) {
           <div class="lobby-marquee">
             <app-teaser-marquee [art]="art" />
           </div>

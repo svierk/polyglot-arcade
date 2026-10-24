@@ -2,6 +2,8 @@
   <section>
     <!-- The machine's own marquee shows the name in its look. -->
     <h1 class="sr-only">{{ game.name }}</h1>
+    <!-- Always in the page, so the end of a round is announced. -->
+    <p class="sr-only" role="status">{{ announcement() }}</p>
 
     <div [class]="'machine-stage machine-' + game.key">
       <!-- Tracking the round re-creates the game for a fresh start. -->

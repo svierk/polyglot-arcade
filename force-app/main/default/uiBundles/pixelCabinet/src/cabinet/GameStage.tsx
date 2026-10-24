@@ -1,6 +1,7 @@
 /**
  * Runs one game: renders its machine, persists each finished round as an
  * Arcade_Score__c and, when embedded, tells the host Lightning page about it.
+ * A live region announces how the round ended and whether it was saved.
  */
 import { useCallback, useState } from 'react';
 import { saveScore, type ScoreSource } from '@/api/arcadeApi';
@@ -8,7 +9,7 @@ import { notifyHostGameOver } from '@/embedding/hostBridge';
 import type { CabinetGame } from '@/games/registry';
 import type { GameResult } from '@/games/types';
 import Leaderboard, { useLeaderboard } from './Leaderboard';
-import RoundResult, { type Outcome } from './RoundResult';
+import RoundResult, { announceRound, type Outcome } from './RoundResult';
 
 interface GameStageProps {
   game: CabinetGame;
@@ -89,6 +90,10 @@ export default function GameStage({
 
   return (
     <div className={`machine-stage machine-${game.key}`}>
+      {/* Always in the page, so the end of a round is announced. */}
+      <p className="sr-only" role="status">
+        {result && outcome ? announceRound(result, outcome) : ''}
+      </p>
       <Game
         key={round}
         onGameOver={handleGameOver}

@@ -30,7 +30,7 @@ Run from this folder:
 npm run dev                  # Angular dev server, data calls proxied to the default org
 npm run build                # lint + production build into dist/
 npx ng test --watch=false    # unit tests (game engine + components)
-npm run build:e2e && npx playwright test   # end-to-end tests against the built app, no org needed
+npm run build:e2e && npx playwright test   # end-to-end, axe and touch tests against the built app, no org needed
 ```
 
 Deploy from the project root with `sf project deploy start --source-dir force-app/main/default/uiBundles/polyglotArcade`. The bundle is deployed with its built `dist/` folder, so build before deploying.

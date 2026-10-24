@@ -30,7 +30,7 @@ npm run dev          # Vite dev server, data calls proxied to the default org
 npm run build        # type check + production build into dist/
 npm run lint         # ESLint (incl. GraphQL operations once schema.graphql exists)
 npx vitest run       # unit tests (game engines)
-npm run build:e2e && npx playwright test   # end-to-end tests against the built app, no org needed
+npm run build:e2e && npx playwright test   # end-to-end, axe and touch tests against the built app, no org needed
 ```
 
 Deploy from the project root with `sf project deploy start --source-dir force-app/main/default/uiBundles/pixelCabinet`. The bundle is deployed with its built `dist/` folder, so build before deploying.

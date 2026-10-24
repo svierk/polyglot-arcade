@@ -25,4 +25,24 @@ export class LeaderboardComponent {
       })
       .catch((err: Error) => this.error.set(err.message));
   }
+
+  /** Arrow keys, Home and End move between the game tabs, as in any tab list. */
+  protected onTabKeydown(event: KeyboardEvent): void {
+    const games = this.games();
+    const current = games.findIndex((game) => game.id === this.selected()?.id);
+    const next =
+      event.key === 'ArrowRight'
+        ? (current + 1) % games.length
+        : event.key === 'ArrowLeft'
+          ? (current - 1 + games.length) % games.length
+          : event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? games.length - 1
+              : null;
+    if (next === null || !games.length) return;
+    event.preventDefault();
+    this.selected.set(games[next]);
+    document.getElementById(`tab-${games[next].key}`)?.focus();
+  }
 }

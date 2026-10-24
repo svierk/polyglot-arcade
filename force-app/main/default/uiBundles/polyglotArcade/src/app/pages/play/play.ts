@@ -1,13 +1,13 @@
 /**
  * Hosts a hub game: renders its machine, saves each finished round as an
  * Arcade_Score__c and hands the result screen to the machine, next to the
- * game's leaderboard.
+ * game's leaderboard. A live region announces how the round ended.
  */
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ArcadeApi } from '../../api/arcade-api.service';
 import { LeaderboardTableComponent } from '../../components/leaderboard-table/leaderboard-table';
-import { RoundResultComponent } from '../../components/round-result/round-result';
+import { RoundResultComponent, announceRound } from '../../components/round-result/round-result';
 import { BrickBreakerComponent } from '../../games/brick-breaker/brick-breaker';
 import { FourInARowComponent } from '../../games/four-in-a-row/four-in-a-row';
 import { findHubGame } from '../../games/registry';
@@ -37,6 +37,11 @@ export class PlayComponent {
   protected readonly result = signal<GameResult | null>(null);
   protected readonly save = signal<SaveState | null>(null);
   protected readonly savedCount = signal(0);
+  /** For the live region: how the round ended and whether it was saved. */
+  protected readonly announcement = computed(() => {
+    const result = this.result();
+    return result ? announceRound(result, this.save()) : '';
+  });
   /** Best score on the leaderboard, for the machine's HUD. */
   protected readonly highScore = signal<number | undefined>(undefined);
 

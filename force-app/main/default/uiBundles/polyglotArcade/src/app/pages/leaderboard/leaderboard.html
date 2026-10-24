@@ -15,9 +15,13 @@
         type="button"
         role="tab"
         class="arcade-nav-link rounded-md border border-white/10 px-3 py-2"
+        [id]="'tab-' + game.key"
+        aria-controls="hall-of-fame-panel"
         [class.arcade-nav-link-active]="selected()?.id === game.id"
         [attr.aria-selected]="selected()?.id === game.id"
+        [attr.tabindex]="selected()?.id === game.id ? 0 : -1"
         (click)="selected.set(game)"
+        (keydown)="onTabKeydown($event)"
       >
         {{ game.name }}
       </button>
@@ -25,12 +29,14 @@
   </div>
 
   @if (selected(); as game) {
-    <app-leaderboard-table
-      class="block max-w-xl"
-      [gameKey]="game.key"
-      [limit]="50"
-      [pageSize]="10"
-      [showDetails]="true"
-    />
+    <div id="hall-of-fame-panel" role="tabpanel" [attr.aria-labelledby]="'tab-' + game.key">
+      <app-leaderboard-table
+        class="block max-w-xl"
+        [gameKey]="game.key"
+        [limit]="50"
+        [pageSize]="10"
+        [showDetails]="true"
+      />
+    </div>
   }
 </section>

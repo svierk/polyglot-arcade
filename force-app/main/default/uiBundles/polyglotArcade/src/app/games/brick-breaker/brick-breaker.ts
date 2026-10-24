@@ -59,6 +59,7 @@ const RIGHT_KEYS = new Set(['ArrowRight', 'd', 'D']);
     '(document:visibilitychange)': 'onVisibilityChange()',
     tabindex: '0',
     class: 'arcade-focus',
+    role: 'application',
     'aria-label':
       'Brick Breaker. Arrow keys or the pointer move the paddle, space launches the ball.',
   },
