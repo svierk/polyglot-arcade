@@ -1,0 +1,107 @@
+name: Scratch Org Setup
+
+# Release acceptance in a real org: creates a fresh scratch org, deploys the
+# whole demo with the one setup command, records a round, runs the setup a
+# second time and checks that the round survived. Runs manually and on release
+# tags only, so it does not use up the Dev Hub's daily scratch org limit.
+#
+# Built from the Salesforce DevOps Starter Kit's building blocks rather than its
+# scratch-org-ci reusable workflow: the UI bundles must be built before the
+# deploy, which `npm run setup` does and a plain source deploy does not.
+#
+# Needs the repository secrets SFDX_CONSUMER_KEY, SFDX_JWT_SECRET_KEY and
+# SFDX_USERNAME for a JWT login to the Dev Hub.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+# Least-privilege token: this workflow only reads the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: scratch-org-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    name: One-Command Setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false # the GITHUB_TOKEN is not needed after the checkout - don't leave it in .git/config
+
+      - name: Select Node Version
+        uses: svierk/get-node-version@v1.6.0
+        with:
+          node-version: ${{ vars.NODE_VERSION_OVERRIDE }}
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install SF CLI
+        uses: svierk/sfdx-cli-setup@v1.2.0
+        with:
+          version: ${{ vars.SF_CLI_VERSION_OVERRIDE }}
+
+      - name: Authorize Dev Hub
+        uses: svierk/sfdx-login@v1.4.3
+        with:
+          client-id: ${{ secrets.SFDX_CONSUMER_KEY }}
+          jwt-secret-key: ${{ secrets.SFDX_JWT_SECRET_KEY }}
+          username: ${{ secrets.SFDX_USERNAME }}
+          set-default-dev-hub: true
+          alias: devhub
+
+      - name: Create Scratch Org
+        id: scratch
+        uses: svierk/sfdx-create-scratch-org@v1.3.2
+        with:
+          target-dev-hub: devhub
+          definition-file: config/project-scratch-def.json
+          duration-days: "1"
+          alias: polyglot-arcade
+
+      - name: Run Setup
+        run: npm run setup -- --target-org polyglot-arcade --yes
+
+      - name: Record a Round
+        run: |
+          game_id=$(sf data query -o polyglot-arcade --json \
+            -q "SELECT Id FROM Arcade_Game__c WHERE Game_Key__c = 'block-drop'" \
+            | jq -r '.result.records[0].Id')
+          sf data create record -o polyglot-arcade -s Arcade_Score__c \
+            -v "Game__c=$game_id Score__c=4200 Level__c=3 Source__c='Pixel Cabinet'"
+
+      - name: Run Setup Again
+        run: npm run setup -- --target-org polyglot-arcade --yes
+
+      - name: Check Games and Scores
+        run: |
+          count() {
+            sf data query -o polyglot-arcade --json -q "SELECT COUNT() FROM $1" | jq -r '.result.totalSize'
+          }
+          games=$(count Arcade_Game__c)
+          scores=$(count Arcade_Score__c)
+          unplugged=$(count "Arcade_Game__c WHERE App_Url__c = null")
+          echo "Games: $games, scores: $scores, games without App URL: $unplugged"
+          {
+            echo "### Scratch org setup"
+            echo "| Check | Expected | Actual |"
+            echo "| --- | --- | --- |"
+            echo "| Games | 5 | $games |"
+            echo "| Scores after the second setup | 1 | $scores |"
+            echo "| Games without App URL | 0 | $unplugged |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ "$games" = 5 ] && [ "$scores" = 1 ] && [ "$unplugged" = 0 ]
+
+      - name: Delete Scratch Org
+        if: always() && steps.scratch.outputs.username != ''
+        uses: svierk/sfdx-delete-scratch-org@v1.1.3
+        with:
+          target-org: polyglot-arcade
