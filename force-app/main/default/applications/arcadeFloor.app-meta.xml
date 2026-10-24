@@ -25,5 +25,7 @@
     <tabs>Arcade_Game__c</tabs>
     <tabs>Arcade_Score__c</tabs>
     <tabs>standard-Account</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Dashboard</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

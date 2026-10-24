@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Arcade_Game__c.Scores__r$Name</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Maximum</aggregateTypes>
+        <field>Arcade_Game__c.Scores__r$Score__c</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$Level__c</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$CreatedBy</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$Account__c</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$Source__c</field>
+    </columns>
+    <columns>
+        <field>Arcade_Game__c.Scores__r$CreatedDate</field>
+    </columns>
+    <description
+  >Scoring rounds per game, best first. Lost rounds (score 0) are left out, like on the leaderboards.</description>
+    <filter>
+        <criteriaItems>
+            <column>Arcade_Game__c.Scores__r$Score__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>greaterThan</operator>
+            <value>0</value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Arcade_Game__c$Name</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Top scores per game</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Arcade_Games_with_Scores__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Arcade_Game__c.Scores__r$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

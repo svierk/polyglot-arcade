@@ -1,6 +1,7 @@
 [
   {
     "sobject": "Arcade_Game__c",
+    "externalId": "Game_Key__c",
     "saveRefs": true,
     "resolveRefs": false,
     "files": ["Arcade_Game__c.json"]

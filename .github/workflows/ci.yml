@@ -20,6 +20,7 @@ jobs:
   project:
     name: SFDX Project & LWC
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -54,6 +55,7 @@ jobs:
   cabinet:
     name: Pixel Cabinet (React)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: force-app/main/default/uiBundles/pixelCabinet
@@ -81,8 +83,23 @@ jobs:
       - name: Build
         run: npm run build
 
+      # The runner image already ships the system libraries Chromium needs, so
+      # --with-deps (an apt install that can take minutes on a slow mirror) is
+      # left out. The browser itself is cached per Playwright version.
+      - name: Get Playwright Version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright Browser
+        id: playwright-cache
+        uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
       - name: Install Playwright Browser
-        run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
 
       - name: Run End-to-End Tests
         run: npm run build:e2e && npx playwright test --reporter=line
@@ -90,6 +107,7 @@ jobs:
   hub:
     name: Polyglot Arcade Hub (Angular)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: force-app/main/default/uiBundles/polyglotArcade
@@ -114,8 +132,23 @@ jobs:
       - name: Run Unit Tests
         run: npx ng test --watch=false
 
+      # The runner image already ships the system libraries Chromium needs, so
+      # --with-deps (an apt install that can take minutes on a slow mirror) is
+      # left out. The browser itself is cached per Playwright version.
+      - name: Get Playwright Version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright Browser
+        id: playwright-cache
+        uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
       - name: Install Playwright Browser
-        run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
 
       - name: Run End-to-End Tests
         run: npm run build:e2e && npx playwright test --reporter=line

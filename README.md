@@ -17,7 +17,7 @@ Salesforce Multi-Framework lets teams build Salesforce apps with the frameworks 
 Polyglot Arcade turns that into a playful reference project:
 
 - **Three frameworks, one platform.** The arcade hub is Angular, the real-time games run in a React "cabinet", and the [LWC OSS Snake](https://github.com/svierk/lwc-oss-snake-game) joins from Vercel. Each framework is used where it fits.
-- **CRM data as the score sheet.** Every round becomes a record - visible in reports, in a native LWC leaderboard and in both apps.
+- **CRM data as the score sheet.** Every round becomes a record - visible in the shipped reports and dashboard, in a native LWC leaderboard and in both apps.
 - **Microfrontends in Lightning.** One host LWC drops any game onto a Lightning page, talks to it through events, and attributes rounds to the Account it is placed on. Games without a Salesforce session of their own get their score saved by the host.
 - **One arcade, not three apps.** The Angular hub is the only lobby, the React cabinet is a machine it launches, and the Lightning app _Arcade Floor_ is where microfrontends are composed. A shared marquee bar and return links connect them.
 
@@ -186,13 +186,18 @@ erDiagram
 
 The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games and create/read access to scores. Players cannot edit or delete scores. Leaderboards only list scoring rounds; lost rounds still count as plays.
 
+The report folder **Polyglot Arcade** holds three reports on the report type _Arcade Games with Scores_ - **Top scores per game**, **Plays per framework** and **Rounds per source** - and the dashboard **Arcade Floor** charts all three. Both folders are shared with all internal users, and the dashboard shows each viewer the data they can see. Arcade Floor has the Reports and Dashboards tabs.
+
 ## 🚀 Deploy to your org
 
 ### Prerequisites
 
 - An org on **Winter '27** or later with Salesforce Multi-Framework - a scratch org, a Developer Edition or a sandbox
 - For the microfrontend: a **Hyperforce** org with **English** as the default language (requirements of `lightning-ui-embedding`)
+- **Salesforce Edge Network** enabled in My Domain, so the UI bundles open from the App Launcher (scratch orgs get it from the scratch org definition)
 - [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) and **Node.js 24**
+
+`npm run setup` checks the org against this list before it deploys and prints a hint for every gap. The check only warns: an org without English as the default language still runs the hub and the cabinet, only embedding fails. Run it on its own with `npm run preflight -- --target-org my-org`.
 
 ### Option A: Scratch org
 
@@ -203,7 +208,6 @@ npm install
 
 sf org create scratch -f config/project-scratch-def.json -a polyglot-arcade -v <your-dev-hub> -y 7
 npm run setup -- --target-org polyglot-arcade
-npm run connect -- --target-org polyglot-arcade
 ```
 
 ### Option B: Any existing org
@@ -215,49 +219,42 @@ npm install
 
 sf org login web -a my-org        # Developer Edition, sandbox, ...
 npm run setup -- --target-org my-org
-npm run connect -- --target-org my-org
 ```
 
-`npm run setup` installs and builds both UI bundles, deploys the metadata, assigns the permission set to you, imports the five games and fetches the GraphQL schema. `npm run connect` stores the org-specific UI bundle URLs (read from their App Launcher entries) on the game records: the Pixel Cabinet URL and its `/embed` route on the React games, so the hub can launch them and the host LWC can embed them, and the hub URL on the Angular games, so the host LWC can link back to the lobby. (`npm run connect:cabinet` still works as an alias.) The Snake needs no extra step: its Vercel URL ships with the seed data and the CSP Trusted Site `Snake_Vercel` lets Lightning frame it.
+`npm run setup` shows the steps it is about to run (confirm with Enter, or pass `--yes` to skip the picker) and then:
 
-> ⚠️ The data step of `npm run setup` re-imports the games. In an org that already has scores, this deletes them (they are master-detail children of the games). Run `npm run setup -- --target-org my-org --skip-data` for later deployments.
+1. **Preflight** - checks the API version, Multi-Framework, default language, Hyperforce and Edge Network
+2. **Build** - installs and builds both UI bundles
+3. **Deploy** - deploys the metadata, including the reports and the dashboard
+4. **Permission set** - assigns Polyglot Arcade Player to you
+5. **Data** - upserts the five games by their **Game Key**. Existing games are updated in place, so their scores survive
+6. **Connect** - stores the org-specific UI bundle URLs (read from their App Launcher entries) on the game records: the Pixel Cabinet URL and its `/embed` route on the React games, so the hub can launch them and the host LWC can embed them, and the hub URL on the Angular games, so the host LWC can link back to the lobby
+7. **GraphQL** - fetches the org's GraphQL schema and generates the types of both UI bundles
 
-Then open **Polyglot Arcade** from the App Launcher - the lobby launches every game. The Lightning side lives in the **Arcade Floor** app: the **Snake** tab, and any Account opened from its **Accounts** tab shows the **Arcade Account** page with the embedded cabinet.
+The Snake needs no connect step: its Vercel URL ships with the seed data and the CSP Trusted Site `Snake_Vercel` lets Lightning frame it. `npm run connect -- --target-org my-org` runs the connect step on its own, and `--skip-<step>` leaves a step out (see `node scripts/org-setup.mjs --help`).
 
-### Upgrade from v0.4.0
+Then open **Polyglot Arcade** from the App Launcher - the lobby launches every game. The Lightning side lives in the **Arcade Floor** app: the **Snake** tab, the **Dashboards** tab with the Arcade Floor dashboard, and any Account opened from its **Accounts** tab shows the **Arcade Account** page with the embedded cabinet.
 
-The Arcade Break Room is replaced by the Arcade Floor app. Keep your scores: deploy without the data step, store the hub URL, then delete the Break Room tab and page (the new permission set no longer references the tab, so it has to be deployed first):
+### Upgrade an existing org
+
+Setup is safe to run again and keeps all scores, whatever version you come from:
 
 ```bash
 git pull && npm install
-npm run setup -- --target-org my-org --skip-data
-npm run connect -- --target-org my-org
-sf project delete source -o my-org -m CustomTab:Arcade_Break_Room -m FlexiPage:Arcade_Break_Room --no-prompt
+npm run setup -- --target-org my-org
 ```
 
-If you added the Break Room tab to another app's navigation or to a profile, remove it there first, otherwise the delete fails. `npm run connect:cabinet` is now `npm run connect`; the old name stays as an alias until v0.6.0.
+It deploys what is new, adds missing games, updates the existing ones and stores the UI bundle URLs again. Two leftovers of older versions it cannot remove for you:
 
-### Upgrade from v0.3.0
+- **v0.4.0 or earlier:** the Arcade Break Room is replaced by the Arcade Floor app. Delete its tab and page after the setup (the current permission set no longer references the tab). If you added the Break Room tab to another app's navigation or to a profile, remove it there first, otherwise the delete fails.
 
-Pellet Chase brings no new metadata or data - its game record, App URL and embed route are already in place. Deploy the new cabinet build without the data step:
+  ```bash
+  sf project delete source -o my-org -m CustomTab:Arcade_Break_Room -m FlexiPage:Arcade_Break_Room --no-prompt
+  ```
 
-```bash
-git pull && npm install
-npm run setup -- --target-org my-org --skip-data
-```
+- **v0.2.0:** the host LWC is now called **Arcade Game Host** (`arcadeGameHost`). If you placed the old **Pixel Cabinet Host** on other pages, it keeps working there until you replace it with the new host (its **Cabinet URL** property is now called **App URL**) and delete it.
 
-### Upgrade from v0.2.0
-
-Keep your scores: deploy without the data step, store the cabinet's embed route on the React games and add the Snake record.
-
-```bash
-git pull && npm install
-npm run setup -- --target-org my-org --skip-data
-npm run connect:cabinet -- --target-org my-org
-sf data create record -o my-org -s Arcade_Game__c -v "Name=Snake Game_Key__c=snake Framework__c='LWC OSS' Tagline__c='Eat, grow and never bite your own tail.' Sort_Order__c=50 Accent_Color__c=#c084fc App_Url__c=https://lwc-oss-snake-game.vercel.app Host_Saves_Score__c=true"
-```
-
-The host LWC is now called **Arcade Game Host** (`arcadeGameHost`). The Arcade Break Room switches over automatically. If you placed the old **Pixel Cabinet Host** on other pages, it keeps working there until you replace it with the new host (its **Cabinet URL** property is now called **App URL**) and delete it.
+`npm run connect:cabinet` is gone; use `npm run connect`, or let `npm run setup` do it.
 
 ### Optional steps
 
@@ -273,8 +270,10 @@ The host LWC is now called **Arcade Game Host** (`arcadeGameHost`). The Arcade B
 | The embedded cabinet shows the full cabinet instead of the game | The React games miss their **Embed Path** `/embed`: run `npm run connect`                                                                                                              |
 | The host card has no **← Polyglot Arcade** action               | The Angular games miss the hub URL: run `npm run connect`                                                                                                                              |
 | An Account opens without the embedded cabinet                   | **Arcade Account** is the app default in Arcade Floor only: open the Account from the Arcade Floor app                                                                                 |
-| A UI bundle does not open from the App Launcher                 | Enable **Salesforce Edge Network** in My Domain                                                                                                                                        |
+| A UI bundle does not open from the App Launcher                 | Enable **Salesforce Edge Network** in My Domain - `npm run preflight` checks it                                                                                                        |
 | The lobby says it could not load games                          | Assign the **Polyglot Arcade Player** permission set                                                                                                                                   |
+| The setup prints `⚠` lines before the deploy                    | The preflight found a gap in the org; each line comes with a hint. The setup continues anyway                                                                                          |
+| The dashboard or a report shows no data for a player            | Players need the **Run Reports** user permission, which standard profiles include                                                                                                      |
 
 ## 🛠️ Development
 
@@ -303,6 +302,8 @@ Tests and checks - the [Validation workflow](.github/workflows/ci.yml) runs all 
 
 GraphQL operations are validated against your org's schema with `npm run graphql:codegen` inside each bundle.
 
+The [Scratch Org Setup workflow](.github/workflows/scratch-org.yml) is the release acceptance in a real org. It creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
+
 ## 📁 Project structure
 
 ```
@@ -319,10 +320,12 @@ force-app/main/default/
 ├── cspTrustedSites/          frame-src for *.salesforce.app and the Snake on Vercel
 ├── permissionsets/           Polyglot Arcade Player
 ├── applications/             Polyglot Arcade and Pixel Cabinet (UI bundles), Arcade Floor (Lightning)
-└── data/                     seed data for the games (imported by npm run setup)
+├── reportTypes/, reports/    Arcade Games with Scores, three reports in the Polyglot Arcade folder
+├── dashboards/               Arcade Floor dashboard
+└── data/                     seed data for the games (upserted by npm run setup)
 dev/                          development-only metadata (localhost trusted sites)
 docs/decisions/               architecture decision records
-scripts/                      org setup, project setup, connect
+scripts/                      org setup, preflight, connect, project setup
 ```
 
 ## 🗺️ Roadmap

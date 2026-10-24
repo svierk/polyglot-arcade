@@ -15,11 +15,14 @@
  *
  * Steps (in order):
  *   login (precondition) — sf org login web only if org not already connected; always runs before deploy
+ *   0. preflight — scripts/preflight.mjs: warns about org gaps, never blocks (skip with --skip-preflight)
  *   1. uiBundle  — (all UI bundles) npm install && npm run build so dist exists for deploy (skip with --skip-ui-bundle-build)
  *   2. deploy    — sf project deploy start --target-org <alias> (requires dist for entity deployment)
  *   3. permset   — assign permsets per org-setup.config.json (skip with --skip-permset; override via --permset-name)
- *   4. data      — prepare unique fields + sf data import tree (skipped if no data dir/plan)
- *   5. graphql   — (in UI bundle) npm run graphql:schema then npm run graphql:codegen
+ *   4. data      — prepare unique fields, then import via Apex (skipped if no data dir/plan);
+ *                  plan entries with "externalId" are upserted by that field, never deleted
+ *   5. connect   — scripts/connect.mjs: store the UI bundle URLs on the game records (skip with --skip-connect)
+ *   6. graphql   — (in UI bundle) npm run graphql:schema then npm run graphql:codegen
  *
  * Permset assignment config (scripts/org-setup.config.json):
  *   {
@@ -62,7 +65,6 @@ import {
 } from "./org-setup-xml.mjs";
 import {
   discoverAllUIBundleDirs as discoverAllUIBundleDirsIn,
-  discoverUIBundleDir as discoverUIBundleDirIn,
   resolveTargetOrg,
   evaluateLicenseRows,
   validateProfileNameForSoql,
@@ -285,10 +287,12 @@ function parseArgs() {
   const permsetNamesExplicit = [];
   let yes = false;
   const flags = {
+    skipPreflight: false,
     skipDeploy: false,
     skipPermset: false,
     skipRole: false,
     skipData: false,
+    skipConnect: false,
     skipGraphql: false,
     skipUIBundleBuild: false,
     skipSelfReg: false,
@@ -301,10 +305,12 @@ function parseArgs() {
       uiBundleName = args[++i];
     } else if (args[i] === "--permset-name" && args[i + 1]) {
       permsetNamesExplicit.push(args[++i]);
-    } else if (args[i] === "--skip-deploy") flags.skipDeploy = true;
+    } else if (args[i] === "--skip-preflight") flags.skipPreflight = true;
+    else if (args[i] === "--skip-deploy") flags.skipDeploy = true;
     else if (args[i] === "--skip-permset") flags.skipPermset = true;
     else if (args[i] === "--skip-role") flags.skipRole = true;
     else if (args[i] === "--skip-data") flags.skipData = true;
+    else if (args[i] === "--skip-connect") flags.skipConnect = true;
     else if (args[i] === "--skip-self-reg") flags.skipSelfReg = true;
     else if (args[i] === "--skip-social-login") flags.skipSocialLogin = true;
     else if (args[i] === "--skip-graphql") flags.skipGraphql = true;
@@ -329,10 +335,12 @@ Options:
                          default org is used when not running interactively).
   --ui-bundle-name <name> UI bundle folder name under uiBundles/ (default: auto-detect)
   --permset-name <name>  Assign only this permission set (repeatable). Default: all sets under permissionsets/
+  --skip-preflight       Do not check the org before the deploy
   --skip-deploy          Do not deploy metadata
   --skip-permset         Do not assign permission set
   --skip-social-login    Do not enable social login (auth providers + community profile)
   --skip-data            Do not prepare data or run data import
+  --skip-connect         Do not store the UI bundle URLs on the game records
   --skip-graphql         Do not fetch schema or run GraphQL codegen
   --skip-ui-bundle-build Do not npm install / build the UI bundle
   -y, --yes              Skip interactive step picker; run all enabled steps immediately
@@ -366,15 +374,11 @@ Permset config (scripts/org-setup.config.json):
 }
 
 // Bundle discovery lives in org-setup-utils.mjs so org-setup-dev.mjs shares it verbatim.
-// These thin wrappers bind the shared helpers to this script's UIBUNDLES_DIR and
-// keep the existing call-site signatures. discoverUIBundleDir carries the
-// multi-bundle acknowledgment (TTY picker / non-TTY warning).
+// This thin wrapper binds the shared helper to this script's UIBUNDLES_DIR. Every
+// step works on all bundles (or the one named by --ui-bundle-name), so setup
+// never asks which bundle to use.
 function discoverAllUIBundleDirs(uiBundleName) {
   return discoverAllUIBundleDirsIn(UIBUNDLES_DIR, uiBundleName);
-}
-
-function discoverUIBundleDir(uiBundleName) {
-  return discoverUIBundleDirIn(UIBUNDLES_DIR, uiBundleName);
 }
 
 /** API names from permissionsets/*.permissionset-meta.xml in the first package directory. */
@@ -1684,7 +1688,7 @@ function apexLiteral(value) {
   return "'" + s.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + "'";
 }
 
-function buildApexInsert(sobject, records, refIds) {
+function buildApexInsert(sobject, records, refIds, externalId = null) {
   // The sobject type and every field key land as bare identifiers inside the
   // generated Apex (`new ${sobject}()`, `r.put('${key}', …)`), where they can't
   // be quoted-and-escaped like a value — so they get the strict API-name
@@ -1693,6 +1697,7 @@ function buildApexInsert(sobject, records, refIds) {
   // is the right treatment for their single-quoted literal. All three come from
   // app-shipped seed fixtures, so a violation is a fixture bug surfaced loudly.
   validateApiName(sobject, "sobject type");
+  if (externalId) validateApiName(externalId, `external ID on ${sobject}`);
   const lines = [
     "Database.DMLOptions dmlOpts = new Database.DMLOptions();",
     // Intentional: bypass duplicate rules for seed-data import. These are
@@ -1711,7 +1716,19 @@ function buildApexInsert(sobject, records, refIds) {
     }
     lines.push("recs.add(r); }");
   }
-  lines.push("Database.SaveResult[] results = Database.insert(recs, dmlOpts);");
+  if (externalId) {
+    // Upsert by external ID: existing records are updated in place, so their
+    // children (and fields the seed data does not set) survive a repeat run.
+    // Database.upsert takes no DMLOptions, so they go on each record instead.
+    lines.push("for (SObject r : recs) { r.setOptions(dmlOpts); }");
+    lines.push(
+      `Database.UpsertResult[] results = Database.upsert(recs, ${sobject}.${externalId}, false);`
+    );
+  } else {
+    lines.push(
+      "Database.SaveResult[] results = Database.insert(recs, dmlOpts);"
+    );
+  }
   const refArray = refIds.map((r) => `'${escapeSoqlString(r)}'`).join(",");
   lines.push(`String[] refs = new String[]{${refArray}};`);
   // Emit ONE machine-readable line instead of one System.debug per record: a
@@ -1728,6 +1745,11 @@ function buildApexInsert(sobject, records, refIds) {
   lines.push(
     "  if (results[i].isSuccess()) { m.put('id', results[i].getId()); }"
   );
+  if (externalId) {
+    lines.push(
+      "  if (results[i].isSuccess()) { m.put('created', results[i].isCreated()); }"
+    );
+  }
   lines.push(
     "  else { m.put('err', results[i].getErrors()[0].getMessage()); }"
   );
@@ -2029,12 +2051,14 @@ async function main() {
     uiBundleName,
     permsetNamesExplicit,
     yes,
+    skipPreflight: argSkipPreflight,
     skipDeploy: argSkipDeploy,
     skipPermset: argSkipPermset,
     skipRole: argSkipRole,
     skipSelfReg: argSkipSelfReg,
     skipSocialLogin: argSkipSocialLogin,
     skipData: argSkipData,
+    skipConnect: argSkipConnect,
     skipGraphql: argSkipGraphql,
     skipUIBundleBuild: argSkipUIBundleBuild
   } = parsed;
@@ -2126,6 +2150,13 @@ async function main() {
   // graphql.
   const stepDefs = [
     {
+      key: "preflight",
+      label: "Preflight — check the org (warns, never blocks)",
+      enabled: !argSkipPreflight,
+      available: true,
+      failFast: false
+    },
+    {
       key: "uiBundleBuild",
       label: "UI Bundle Build — npm install + build (pre-deploy)",
       enabled: !argSkipUIBundleBuild,
@@ -2169,10 +2200,17 @@ async function main() {
     },
     {
       key: "data",
-      label: "Data — delete + import records via Apex",
+      label: "Data — upsert or import seed records via Apex",
       enabled: !argSkipData && hasDataPlan,
       available: hasDataPlan,
       failFast: true
+    },
+    {
+      key: "connect",
+      label: "Connect — store UI bundle URLs on the game records",
+      enabled: !argSkipConnect,
+      available: true,
+      failFast: false
     },
     {
       key: "graphql",
@@ -2191,6 +2229,7 @@ async function main() {
     on[s.key] = selections[i];
   });
 
+  const skipPreflight = !on.preflight;
   const skipUIBundleBuild = !on.uiBundleBuild;
   const skipDeploy = !on.deploy;
   const skipPermset = !on.permset;
@@ -2198,28 +2237,31 @@ async function main() {
   const skipSelfReg = !on.selfReg;
   const skipSocialLogin = !on.socialLogin;
   const skipData = !on.data;
+  const skipConnect = !on.connect;
   const skipGraphql = !on.graphql;
 
   const needsUIBundle = !skipUIBundleBuild || !skipGraphql;
-  const uiBundleDir = needsUIBundle
-    ? await discoverUIBundleDir(uiBundleName)
-    : null;
+  const uiBundleDirs = needsUIBundle
+    ? discoverAllUIBundleDirs(uiBundleName)
+    : [];
   const doData = !skipData;
 
   console.log(
     "Setup — target org:",
     targetOrg,
-    "| UI bundle:",
-    uiBundleDir ?? "(none)"
+    "| UI bundles:",
+    uiBundleDirs.map((dir) => dir.split(/[/\\]/).pop()).join(", ") || "(none)"
   );
   console.log(
-    "Steps: login=always deploy=%s permset=%s role=%s selfReg=%s socialLogin=%s data=%s graphql=%s uiBundle=%s",
+    "Steps: login=always preflight=%s deploy=%s permset=%s role=%s selfReg=%s socialLogin=%s data=%s connect=%s graphql=%s uiBundle=%s",
+    !skipPreflight,
     !skipDeploy,
     !skipPermset,
     !skipRole,
     !skipSelfReg,
     !skipSocialLogin,
     doData,
+    !skipConnect,
     !skipGraphql,
     !skipUIBundleBuild
   );
@@ -2248,6 +2290,19 @@ async function main() {
       ]);
     }
   });
+
+  const preflightStep = stepDefs.find((s) => s.key === "preflight");
+  if (!skipPreflight) {
+    await runStep(preflightStep, targetOrg, () => {
+      run("Preflight", "node", [
+        "scripts/preflight.mjs",
+        "--target-org",
+        targetOrg
+      ]);
+    });
+  } else {
+    recordSkipped(preflightStep, "not selected");
+  }
 
   // Ensure the self-reg profile is in networkMemberGroups before deploy so that
   // subsequent selfRegProfile / selfRegistration updates don't fail. This is
@@ -2577,9 +2632,17 @@ async function main() {
 
       // Delete existing records so every run inserts the full dataset without duplicate conflicts.
       // Reverse plan order ensures children are removed before parents (FK safety).
+      // Plan entries with an externalId are upserted instead and never deleted:
+      // deleting them would cascade to their master-detail children.
       console.log("\n--- Clean existing data for fresh import ---");
       const planEntries = JSON.parse(readFileSync(DATA_PLAN, "utf8"));
-      const sobjectsReversed = [...planEntries.map((e) => e.sobject)].reverse();
+      const sobjectsReversed = planEntries
+        .filter((e) => !e.externalId)
+        .map((e) => e.sobject)
+        .reverse();
+      if (sobjectsReversed.length === 0) {
+        console.log("  nothing to clean (all plan entries are upserted)");
+      }
       // One private temp dir for both the delete sweep and the import batches;
       // always removed in finally, even if a batch throws.
       withApexTempDir((writeApex) => {
@@ -2669,7 +2732,12 @@ async function main() {
             // potential error ({"ref":"_idxNNN","err":"typical error message"}), taking
             // the higher value to be conservative. This ensures the batching prevents
             // log truncation that would fail parseApexInsertResults.
-            const overhead = buildApexInsert(entry.sobject, [], []).length;
+            const overhead = buildApexInsert(
+              entry.sobject,
+              [],
+              [],
+              entry.externalId
+            ).length;
             const RESULT_JSON_PER_RECORD = 150;
             const recordSizes = records.map((rec, i) => {
               let size =
@@ -2694,12 +2762,18 @@ async function main() {
             });
 
             let imported = 0;
+            let created = 0;
             for (const { start, count } of batches) {
               const batch = records.slice(start, start + count);
               const refIds = batch.map(
                 (r, j) => r.attributes?.referenceId || `_idx${start + j}`
               );
-              const apex = buildApexInsert(entry.sobject, batch, refIds);
+              const apex = buildApexInsert(
+                entry.sobject,
+                batch,
+                refIds,
+                entry.externalId
+              );
               const tmpApex = writeApex("data.apex", apex);
               const apexResult = spawnSync(
                 "sf",
@@ -2738,8 +2812,13 @@ async function main() {
                 for (const s of parsed.successes) refMap.set(s.ref, s.id);
               }
               imported += parsed.successes.length;
+              created += parsed.successes.filter((s) => s.created).length;
             }
-            console.log(`  ${entry.sobject}: imported ${imported} records`);
+            console.log(
+              entry.externalId
+                ? `  ${entry.sobject}: upserted ${imported} records by ${entry.externalId} (${created} created, ${imported - created} updated)`
+                : `  ${entry.sobject}: imported ${imported} records`
+            );
           }
         }
       });
@@ -2751,20 +2830,48 @@ async function main() {
     );
   }
 
+  // After the data step: the upsert never touches App_Url__c of the UI bundle
+  // games, and connect sets it (again) from the org's App Launcher entries.
+  const connectStep = stepDefs.find((s) => s.key === "connect");
+  if (!skipConnect) {
+    await runStep(connectStep, targetOrg, () => {
+      run("Connect", "node", [
+        "scripts/connect.mjs",
+        "--target-org",
+        targetOrg
+      ]);
+    });
+  } else {
+    recordSkipped(connectStep, "not selected");
+  }
+
   const graphqlStep = stepDefs.find((s) => s.key === "graphql");
   if (!skipGraphql) {
     await runStep(graphqlStep, targetOrg, () => {
-      run("UI Bundle npm install", "npm", ["install"], { cwd: uiBundleDir });
-      run("GraphQL schema (introspect)", "npm", ["run", "graphql:schema"], {
-        cwd: uiBundleDir,
-        env: { ...process.env, SF_TARGET_ORG: targetOrg }
-      });
-      run("GraphQL codegen", "npm", ["run", "graphql:codegen"], {
-        cwd: uiBundleDir
-      });
-      run("UI Bundle build (post-codegen)", "npm", ["run", "build"], {
-        cwd: uiBundleDir
-      });
+      for (const dir of uiBundleDirs) {
+        const name = dir.split(/[/\\]/).pop();
+        run(`UI Bundle npm install (${name})`, "npm", ["install"], {
+          cwd: dir
+        });
+        run(
+          `GraphQL schema (introspect, ${name})`,
+          "npm",
+          ["run", "graphql:schema"],
+          {
+            cwd: dir,
+            env: { ...process.env, SF_TARGET_ORG: targetOrg }
+          }
+        );
+        run(`GraphQL codegen (${name})`, "npm", ["run", "graphql:codegen"], {
+          cwd: dir
+        });
+        run(
+          `UI Bundle build (post-codegen, ${name})`,
+          "npm",
+          ["run", "build"],
+          { cwd: dir }
+        );
+      }
     });
   } else {
     recordSkipped(graphqlStep, "not selected");
@@ -2772,8 +2879,13 @@ async function main() {
       // The pre-deploy build never ran (deploy was skipped); build here and
       // record the uiBundleBuild outcome that the pre-deploy branch would have.
       await runStep(uiBundleBuildStep, targetOrg, () => {
-        run("UI Bundle npm install", "npm", ["install"], { cwd: uiBundleDir });
-        run("UI Bundle build", "npm", ["run", "build"], { cwd: uiBundleDir });
+        for (const dir of uiBundleDirs) {
+          const name = dir.split(/[/\\]/).pop();
+          run(`UI Bundle install (${name})`, "npm", ["install"], { cwd: dir });
+          run(`UI Bundle build (${name})`, "npm", ["run", "build"], {
+            cwd: dir
+          });
+        }
       });
       preDeployBundlesBuilt = true;
     }
