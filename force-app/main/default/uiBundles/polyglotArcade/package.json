@@ -1,7 +1,7 @@
 {
   "name": "polyglot-arcade-hub",
   "private": true,
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "Polyglot Arcade hub: Angular UI bundle with the lobby, hall of fame and Angular games.",
   "author": {
     "name": "Sebastiano Schwarz",
