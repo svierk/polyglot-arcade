@@ -8,7 +8,7 @@
  *   API version     67.0 (Winter '27) or later
  *   Multi-Framework the org knows the UIBundle metadata type
  *   Language        English as the default language (lightning-ui-embedding)
- *   Hyperforce      instance name like SWE44S (lightning-ui-embedding)
+ *   Hyperforce      instance name like SWE44S or USA876 (lightning-ui-embedding)
  *   Edge Network    MyDomainSettings.useEdge (UI bundles open from the App Launcher)
  *
  * Runs as the first step of `npm run setup` and standalone:
@@ -22,8 +22,9 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 
 const MIN_API_VERSION = 67;
-// Hyperforce instances are named <country code><number>S, e.g. USA244S or SWE44S.
-const HYPERFORCE_INSTANCE = /^[A-Z]{3}\d+S$/;
+// Hyperforce instances are named <country code><number>, often with a trailing
+// S: USA244S, SWE44S, USA876. First-party instances have two letters (NA, CS, EU).
+const HYPERFORCE_INSTANCE = /^[A-Z]{3}\d+S?$/;
 
 const args = process.argv.slice(2);
 const orgIndex = args.findIndex((a) => a === "--target-org" || a === "-o");

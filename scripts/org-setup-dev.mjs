@@ -21,7 +21,7 @@
  *   3. npm install            (in the UI bundle)
  *   4. npm run graphql:schema (SF_TARGET_ORG=<org>)  — introspect the live schema
  *   5. npm run graphql:codegen                       — regenerate typed operations
- *   6. npm run dev            (blocking, Ctrl+C to stop)
+ *   6. npm run dev            (SF_TARGET_ORG=<org>, blocking, Ctrl+C to stop)
  */
 
 import { resolve, dirname } from "node:path";
@@ -82,10 +82,14 @@ async function main() {
     uiBundleDir
   );
 
+  // The dev server proxies to the org and bakes its API version, both read from
+  // the CLI's default org unless SF_TARGET_ORG names the target org.
+  const uiBundleEnv = { ...process.env, SF_TARGET_ORG: targetOrg };
+
   run("UI Bundle npm install", "npm", ["install"], { cwd: uiBundleDir });
   run("GraphQL schema (introspect)", "npm", ["run", "graphql:schema"], {
     cwd: uiBundleDir,
-    env: { ...process.env, SF_TARGET_ORG: targetOrg }
+    env: uiBundleEnv
   });
   run("GraphQL codegen", "npm", ["run", "graphql:codegen"], {
     cwd: uiBundleDir
@@ -94,6 +98,7 @@ async function main() {
   console.log("\n--- Launching dev server (Ctrl+C to stop) ---\n");
   const devResult = run("Dev server", "npm", ["run", "dev"], {
     cwd: uiBundleDir,
+    env: uiBundleEnv,
     optional: true
   });
   process.exit(devResult.status ?? 0);
