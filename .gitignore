@@ -49,3 +49,7 @@ $RECYCLE.BIN/
 
 # Org-specific GraphQL schema, fetched by npm run setup
 schema.graphql
+
+# VitePress docs - build output and cache
+docs/.vitepress/dist/
+docs/.vitepress/cache/

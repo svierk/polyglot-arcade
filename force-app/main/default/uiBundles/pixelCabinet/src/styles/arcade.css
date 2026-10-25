@@ -296,7 +296,7 @@ button.arcade-tech-badge {
   grid-column: 1 / -1;
 }
 
-/* Pattern number as in the README, in the color of the surface it is seen on. */
+/* Pattern number as in the docs, in the color of the surface it is seen on. */
 .xray-no {
   display: inline-grid;
   flex: none;

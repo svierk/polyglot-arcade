@@ -20,3 +20,5 @@ coverage/
 schema.graphql
 # Bundle-level Prettier configs have no XML plugin
 **/*.uibundle-meta.xml
+# VitePress docs cache
+docs/.vitepress/cache/

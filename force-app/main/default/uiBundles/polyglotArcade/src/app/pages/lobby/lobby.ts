@@ -11,8 +11,8 @@
  */
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
-import { arcadeFloorUrl } from '../../arcade-floor';
+import { ArcadeApi, type ArcadeGame, type ShowcaseAccount } from '../../api/arcade-api.service';
+import { arcadeFloorRecordUrl, arcadeFloorUrl } from '../../arcade-floor';
 import { TeaserMarqueeComponent } from '../../components/teaser-marquee/teaser-marquee';
 import { teaserMarquee, type PixelArt } from '../../games/marquees';
 import { findHubGame } from '../../games/registry';
@@ -60,6 +60,8 @@ export class LobbyComponent {
   protected readonly surfaces = [HUB, CABINET, FLOOR];
   protected readonly games = signal<ArcadeGame[] | null>(null);
   protected readonly error = signal<string | null>(null);
+  /** Where cabinet games are framed on a record page; null until found. */
+  protected readonly showcase = signal<ShowcaseAccount | null>(null);
   private readonly orgUrl = globalThis.SFDC_ENV?.orgUrl;
 
   constructor() {
@@ -67,6 +69,7 @@ export class LobbyComponent {
       .games()
       .then((games) => this.games.set(games))
       .catch((err: Error) => this.error.set(err.message));
+    this.api.showcaseAccount().then((account) => this.showcase.set(account));
   }
 
   protected isHubGame(game: ArcadeGame): boolean {
@@ -91,6 +94,15 @@ export class LobbyComponent {
   /** Null when the hub runs without org context or the game has no page. */
   protected arcadeFloorUrl(game: ArcadeGame): string | null {
     return arcadeFloorUrl(this.orgUrl, ARCADE_FLOOR_TABS[game.key]);
+  }
+
+  /**
+   * The showcase Account's page on the Arcade Floor for a game Lightning can
+   * frame (pattern 3); null without org context, Account or embed path.
+   */
+  protected accountPageUrl(game: ArcadeGame): string | null {
+    if (!game.embedPath || game.hostSavesScore) return null;
+    return arcadeFloorRecordUrl(this.orgUrl, 'Account', this.showcase()?.id);
   }
 
   protected externalUrl(game: ArcadeGame): string | null {

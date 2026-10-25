@@ -5,5 +5,12 @@
     "saveRefs": true,
     "resolveRefs": false,
     "files": ["Arcade_Game__c.json"]
+  },
+  {
+    "sobject": "Account",
+    "externalId": "Arcade_Key__c",
+    "saveRefs": true,
+    "resolveRefs": false,
+    "files": ["Account.json"]
   }
 ]

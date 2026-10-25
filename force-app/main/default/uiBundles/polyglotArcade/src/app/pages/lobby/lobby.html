@@ -109,6 +109,15 @@
             target="_top"
             >Play in Pixel Cabinet</a
           >
+          @if (accountPageUrl(game); as account) {
+            <a
+              class="lobby-account"
+              [style.--where]="surfaces[2].color"
+              [href]="account"
+              target="_top"
+              >or embedded on the {{ showcase()?.name }} Account page ↗</a
+            >
+          }
         } @else {
           <p class="arcade-hint mt-1">
             Lives in the Pixel Cabinet. Store its App URL on the game record to launch it from here.

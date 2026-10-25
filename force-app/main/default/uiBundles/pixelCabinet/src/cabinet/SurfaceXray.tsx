@@ -1,12 +1,12 @@
 /**
  * Tech X-ray of the cabinet itself: what opens behind the badge in the marquee
- * bar. Uses the pattern names and numbers of the README, like the X-ray in the
- * hub lobby, so the UI, the README and the doc site use the same terms.
+ * bar. Uses the pattern names and numbers of the doc site, like the X-ray in
+ * the hub lobby, so the UI and the docs use the same terms.
  */
 
-/** Where the README lists the four integration patterns. */
+/** Where the doc site explains the four integration patterns. */
 export const PATTERNS_URL =
-  'https://github.com/svierk/polyglot-arcade#integration-patterns';
+  'https://svierk.github.io/polyglot-arcade/architecture/patterns';
 
 const ROWS: Array<[string, string]> = [
   ['Framework', 'React'],
@@ -57,7 +57,7 @@ export default function SurfaceXray({ onClose }: SurfaceXrayProps) {
           rel="noreferrer"
           className="arcade-nav-link"
         >
-          All four patterns in the README ↗
+          All four patterns in the docs ↗
         </a>
         <button type="button" className="arcade-nav-link" onClick={onClose}>
           Close

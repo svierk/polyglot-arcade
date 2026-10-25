@@ -32,9 +32,9 @@ test.describe('Tech X-ray', () => {
     await expect(badge).toHaveAttribute('aria-expanded', 'true');
     const panel = page.getByRole('region', { name: 'Native Angular UI bundle' });
     await expect(panel).toContainText('Data SDK GraphQL');
-    await expect(panel.getByRole('link', { name: /README/ })).toHaveAttribute(
+    await expect(panel.getByRole('link', { name: /in the docs/ })).toHaveAttribute(
       'href',
-      /#integration-patterns$/,
+      /\/architecture\/patterns$/,
     );
     await page.keyboard.press('Escape');
     await expect(panel).toBeHidden();

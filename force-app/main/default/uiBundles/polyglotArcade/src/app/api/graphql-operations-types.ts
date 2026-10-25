@@ -183,6 +183,22 @@ export type HubLeaderboardQuery = {
   };
 };
 
+export type HubShowcaseAccountQueryVariables = Exact<{
+  key?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type HubShowcaseAccountQuery = {
+  uiapi: {
+    query: {
+      Account?: {
+        edges?: Array<{
+          node?: { Id: string; Name?: { value?: string | null } | null } | null;
+        } | null> | null;
+      } | null;
+    };
+  };
+};
+
 export type HubCreateScoreMutationVariables = Exact<{
   input: Arcade_Score__CCreateInput;
 }>;

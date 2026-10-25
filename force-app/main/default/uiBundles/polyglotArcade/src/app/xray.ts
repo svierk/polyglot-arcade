@@ -1,13 +1,13 @@
 /**
  * Tech X-ray: how a game is built, derived from its Arcade_Game__c record
  * instead of being written down per game. The pattern names and numbers are
- * the four integration patterns of the README, so the UI, the README and the
- * doc site use the same terms.
+ * the four integration patterns of the doc site, so the UI and the docs use
+ * the same terms.
  */
 import type { Framework } from './api/arcade-api.service';
 
-/** Where the README lists the four integration patterns. */
-export const PATTERNS_URL = 'https://github.com/svierk/polyglot-arcade#integration-patterns';
+/** Where the doc site explains the four integration patterns. */
+export const PATTERNS_URL = 'https://svierk.github.io/polyglot-arcade/architecture/patterns';
 
 export interface Pattern {
   no: 1 | 2 | 3 | 4;

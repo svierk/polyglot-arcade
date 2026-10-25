@@ -19,5 +19,18 @@ export function arcadeFloorUrl(
   return home && tab ? `${home}/n/${tab}` : null;
 }
 
+/**
+ * A record inside the app, e.g. the showcase Account: the record page that is
+ * the app's default for the object (Arcade Account) frames the cabinet.
+ */
+export function arcadeFloorRecordUrl(
+  orgUrl: string | null | undefined,
+  objectApiName: string,
+  recordId: string | null | undefined,
+): string | null {
+  const home = arcadeFloorHomeUrl(orgUrl);
+  return home && recordId ? `${home}/r/${objectApiName}/${recordId}/view` : null;
+}
+
 /** Ends the Salesforce session, like the platform's session banner does. */
 export const LOGOUT_URL = '/secur/logout.jsp';
