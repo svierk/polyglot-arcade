@@ -20,32 +20,50 @@ hero:
       text: View on GitHub
       link: https://github.com/svierk/polyglot-arcade
 features:
-  - icon: 🧩
+  - icon:
+      src: /images/icons/frameworks.svg
+      width: 48
+      height: 48
     title: Three frameworks, one platform
     details: The lobby is Angular, the real-time games run in a React cabinet, and an LWC OSS Snake joins from Vercel.
     link: /concepts
     linkText: Multi-Framework in a nutshell
-  - icon: 🏆
+  - icon:
+      src: /images/icons/trophy.svg
+      width: 48
+      height: 48
     title: CRM data as the score sheet
     details: Every round is an Arcade_Score__c record. Sharing, field-level security and roll-up summaries do the work.
     link: /architecture/data-model
     linkText: Data model
-  - icon: 🖼️
+  - icon:
+      src: /images/icons/microfrontend.svg
+      width: 48
+      height: 48
     title: Microfrontends in Lightning
     details: One host LWC drops any game onto a Lightning page, talks to it through events and saves rounds for guests without a session.
     link: /architecture/patterns
     linkText: Four integration patterns
-  - icon: 🔀
+  - icon:
+      src: /images/icons/communication.svg
+      width: 48
+      height: 48
     title: Communication you can follow
     details: Data SDK GraphQL, View SDK props and events, the package-free bridge and Lightning Message Service - each with a diagram.
     link: /architecture/communication
     linkText: Communication
-  - icon: 🔬
+  - icon:
+      src: /images/icons/xray.svg
+      width: 48
+      height: 48
     title: The Tech X-ray tells what you see
     details: One switch in the lobby turns every game card into a blueprint of how the game is built.
     link: /architecture/patterns#tech-x-ray
     linkText: Tech X-ray
-  - icon: 🕹️
+  - icon:
+      src: /images/icons/joystick.svg
+      width: 48
+      height: 48
     title: Build your own game
     details: Add a game to the hub, to the cabinet, or bring one hosted anywhere as a guest on a Lightning page.
     link: /build-your-own-game

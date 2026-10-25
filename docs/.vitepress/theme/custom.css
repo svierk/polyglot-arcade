@@ -145,10 +145,6 @@
   }
 }
 
-.VPFeature .icon {
-  font-size: 24px;
-}
-
 /* Tables read better full-width and compact. Wider tables scroll inside
  * .table-scroll (added by the markdown hook in config.mts) instead of widening
  * the page. */
