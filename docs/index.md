@@ -4,7 +4,7 @@ title: Polyglot Arcade
 titleTemplate: Salesforce Multi-Framework as a retro arcade
 hero:
   name: Polyglot Arcade
-  text: Salesforce Multi-Framework, end to end
+  text: Salesforce Multi‑Framework
   tagline: An Angular hub, a React cabinet and an LWC OSS game share one org's CRM data and meet on Lightning pages as microfrontends - as a retro arcade you can play.
   image:
     src: /images/polyglot-arcade-hero.svg
