@@ -24,7 +24,7 @@
  * The `appUrl` property set in Lightning App Builder overrides the App URL on
  * the record, e.g. to point the host at a local dev server.
  *
- * The card footer is the Tech X-ray of the frame: which of the README's
+ * The card footer is the Tech X-ray of the frame: which of the docs'
  * integration patterns runs in it, read from Host_Saves_Score__c.
  */
 import { LightningElement, api, wire } from "lwc";
@@ -103,9 +103,9 @@ export function buildEmbedSrc(baseUrl, embedPath) {
   }
 }
 
-/** Where the README lists the four integration patterns. */
+/** Where the doc site explains the four integration patterns. */
 const PATTERNS_URL =
-  "https://github.com/svierk/polyglot-arcade#integration-patterns";
+  "https://svierk.github.io/polyglot-arcade/architecture/patterns";
 const GUEST_SAVES = {
   no: 3,
   name: "Internally hosted microfrontend - the guest saves",

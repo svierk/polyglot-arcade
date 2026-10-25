@@ -25,7 +25,7 @@ describe('xrayOf', () => {
     expect(xray.dataPath).toContain('Package-free bridge');
   });
 
-  it('uses the README names of the patterns', () => {
+  it('uses the names of the patterns in the docs', () => {
     expect(
       xrayOf({ framework: 'React', embedPath: '/embed', hostSavesScore: false }).patterns[1].name,
     ).toBe('Internally hosted microfrontend - the guest saves');

@@ -212,7 +212,7 @@ describe("c-arcade-game-host", () => {
         "Internally hosted microfrontend - the guest saves"
       );
       expect(footer(element).querySelector("a").href).toContain(
-        "#integration-patterns"
+        "/architecture/patterns"
       );
     });
 
