@@ -1,7 +1,7 @@
 name: Validation
 
 # Validates every change without a Salesforce org: formatting, linting and the
-# LWC unit tests of the SFDX project, plus lint, unit tests, production build and
+# LWC unit tests of the SFDX project, the docs site build, plus lint, unit tests, production build and
 # Playwright end-to-end tests of both UI bundles. The end-to-end tests run against
 # the static builds, so games are fully playable while data calls fail gracefully.
 
@@ -51,6 +51,11 @@ jobs:
 
       - name: Run LWC Unit Tests
         run: npm run test:unit
+
+      # The Docs workflow deploys the site from main only; building it here
+      # catches dead links and broken pages before the merge.
+      - name: Build Docs
+        run: npm run test:docs && npm run docs:build
 
   cabinet:
     name: Pixel Cabinet (React)

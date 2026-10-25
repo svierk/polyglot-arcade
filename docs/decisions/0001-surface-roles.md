@@ -50,7 +50,7 @@ Checked in a scratch org (Winter '27) before the implementation:
 ## Consequences
 
 - The cabinet's e2e lobby test is gone. The `/embed` game picker for `game = lobby` stays: it is how the cabinet is chosen on the Account page.
-- The Arcade Break Room flexipage and tab are removed. Existing orgs delete them on upgrade (see the README).
+- The Arcade Break Room flexipage and tab are removed. Existing orgs delete them on upgrade (see [Upgrade](/deploy/upgrade)).
 - The Lightning app needs a label different from the UI bundle app _Polyglot Arcade_, hence _Arcade Floor_.
 - The Lightning → hub link depends on `npm run connect`. Until it ran, the host shows no back action. v0.6.0 folds `connect` into `npm run setup`.
 - v0.7.0 gives each machine its own look below the shared marquee bar.

@@ -1,0 +1,221 @@
+/**
+ * Light-touch theming for the Polyglot Arcade docs, in the colors of the
+ * arcade itself (arcade.css in the UI bundles). Overrides VitePress design
+ * tokens, plus a few rules for the hero, the tables and the surface chips.
+ */
+:root {
+  /* The three surfaces: magenta hub, cyan cabinet, blue Arcade Floor. Light
+   * mode uses darker shades of them, so text in these colors stays readable on
+   * white. */
+  --surface-hub: #a21caf;
+  --surface-cabinet: #0e7490;
+  --surface-floor: #1d4ed8;
+
+  --vp-c-brand-1: #a21caf;
+  --vp-c-brand-2: #86198f;
+  --vp-c-brand-3: #701a75;
+  --vp-c-brand-soft: rgba(162, 28, 175, 0.14);
+
+  --vp-button-brand-bg: #a21caf;
+  --vp-button-brand-hover-bg: #86198f;
+  --vp-button-brand-active-bg: #701a75;
+
+  /* Hero name: from the hub's magenta to the cabinet's cyan. */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    120deg,
+    #c026d3,
+    #7c3aed 45%,
+    #0891b2
+  );
+
+  --hero-image-max-width: 380px;
+  --vp-home-hero-image-background-image: linear-gradient(
+    120deg,
+    rgba(232, 121, 249, 0.55),
+    rgba(34, 211, 238, 0.45),
+    rgba(96, 165, 250, 0.55)
+  );
+  --vp-home-hero-image-filter: blur(48px);
+
+  /* The full name fits beside the logo in the default sidebar width. */
+  --vp-sidebar-width: 280px;
+}
+
+.dark {
+  --surface-hub: #e879f9;
+  --surface-cabinet: #22d3ee;
+  --surface-floor: #60a5fa;
+
+  /* The arcade night of the UI bundles instead of the neutral default grays. */
+  --vp-c-bg: #07071a;
+  --vp-c-bg-alt: #04040f;
+  --vp-c-bg-elv: #11112b;
+  --vp-c-bg-soft: #11112b;
+
+  --vp-c-brand-1: #e879f9;
+  --vp-c-brand-2: #f0abfc;
+  --vp-c-brand-3: #f5d0fe;
+  --vp-c-brand-soft: rgba(232, 121, 249, 0.16);
+
+  --vp-home-hero-name-background: linear-gradient(
+    120deg,
+    #e879f9,
+    #a78bfa 45%,
+    #22d3ee
+  );
+
+  /* The light dark-mode brand colors are right for links, but as a solid
+   * button fill they leave too little contrast against the white label. */
+  --vp-button-brand-bg: #a21caf;
+  --vp-button-brand-hover-bg: #c026d3;
+  --vp-button-brand-active-bg: #86198f;
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-active-text: #ffffff;
+
+  --vp-home-hero-image-background-image: linear-gradient(
+    120deg,
+    rgba(232, 121, 249, 0.75),
+    rgba(34, 211, 238, 0.6),
+    rgba(96, 165, 250, 0.75)
+  );
+}
+
+/**
+ * Home hero artwork.
+ *
+ * The default theme caps the hero image at 320px and positions it with
+ * transforms, which lets it overlap the hero text at mid-size viewports.
+ * Render it as a plain, responsive block instead and stretch the glow to it.
+ */
+.VPHero .image {
+  margin: 0 0 2.5rem;
+}
+
+.VPHome {
+  overflow-x: clip;
+}
+
+.VPHero .image-bg {
+  top: -10%;
+  right: -8%;
+  bottom: -10%;
+  left: -8%;
+  width: auto;
+  height: auto;
+  transform: none;
+}
+
+.VPHero .image-container {
+  position: relative;
+  width: 100%;
+  max-width: var(--hero-image-max-width);
+  height: auto;
+  margin: 0 auto;
+  padding: 0;
+  transform: none;
+}
+
+.VPHero .image-src {
+  /* relative (not static) so the image stacks above the absolutely positioned
+     glow; reset the default theme's top/left: 50%, which relative would honor */
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: none;
+  transform: none;
+  /* pixel art stays crisp when scaled */
+  image-rendering: pixelated;
+}
+
+@media (min-width: 960px) {
+  :root {
+    --hero-image-max-width: 460px;
+    --vp-home-hero-image-filter: blur(60px);
+  }
+
+  .VPHero .image {
+    margin: 0;
+  }
+}
+
+.VPFeature .icon {
+  font-size: 24px;
+}
+
+/* Tables read better full-width and compact. Wider tables scroll inside
+ * .table-scroll (added by the markdown hook in config.mts) instead of widening
+ * the page. */
+.vp-doc .table-scroll {
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+  margin: 0;
+}
+
+.vp-doc th,
+.vp-doc td {
+  padding: 8px 12px;
+}
+
+/* Screenshots: a quiet frame, full width of the content column. */
+.vp-doc img.shot {
+  width: 100%;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+}
+
+.vp-doc .shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.vp-doc .shots figure {
+  margin: 0;
+}
+
+.vp-doc .shots figcaption {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--vp-c-text-2);
+}
+
+/* Surface chips: the color a surface has in the running app. */
+.surface {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.surface::before {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.35em;
+  border-radius: 2px;
+  background: currentColor;
+  content: "";
+}
+
+.surface.hub {
+  color: var(--surface-hub);
+}
+
+.surface.cabinet {
+  color: var(--surface-cabinet);
+}
+
+.surface.floor {
+  color: var(--surface-floor);
+}
