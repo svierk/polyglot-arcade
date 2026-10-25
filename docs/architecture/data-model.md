@@ -75,7 +75,7 @@ Rounds played on an Account page belong to that Account. So that this is visible
 
 ## Access
 
-The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games, Accounts and their Arcade Key, and create and read access to scores. Players cannot edit or delete scores. Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface because all of them read through UI API.
+The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games, Accounts and their Arcade Key and Contacts (orgs with Person Accounts require it with Account read), and create and read access to scores. Players cannot edit or delete scores. Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface because all of them read through UI API.
 
 ## Reports and dashboard
 

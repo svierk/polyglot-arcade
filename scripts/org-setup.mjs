@@ -16,7 +16,7 @@
  * Steps (in order):
  *   login (precondition) — sf org login web only if org not already connected; always runs before deploy
  *   0. preflight — scripts/preflight.mjs: warns about org gaps, never blocks (skip with --skip-preflight)
- *   1. uiBundle  — (all UI bundles) npm install && npm run build so dist exists for deploy (skip with --skip-ui-bundle-build)
+ *   1. uiBundle  — (all UI bundles) npm install && npm run build (SF_TARGET_ORG=<alias>) so dist exists for deploy (skip with --skip-ui-bundle-build)
  *   2. deploy    — sf project deploy start --target-org <alias> (requires dist for entity deployment)
  *   3. permset   — assign permsets per org-setup.config.json (skip with --skip-permset; override via --permset-name)
  *   4. data      — prepare unique fields, then import via Apex (skipped if no data dir/plan);
@@ -2073,6 +2073,12 @@ async function main() {
   // files, so it never races this. Released on process exit.
   acquireOrgLock(targetOrg);
 
+  // The UI bundle plugins bake the org's API version into the build and, without
+  // this, read it from the CLI's default org - which may be another org, or an
+  // expired one (jsforce then falls back to v50.0). Point every bundle npm script
+  // at the target org.
+  const uiBundleEnv = { ...process.env, SF_TARGET_ORG: targetOrg };
+
   const permsetNames =
     permsetNamesExplicit.length > 0
       ? permsetNamesExplicit
@@ -2334,7 +2340,8 @@ async function main() {
           const name = dir.split(/[/\\]/).pop();
           run(`UI Bundle install (${name})`, "npm", ["install"], { cwd: dir });
           run(`UI Bundle build (${name})`, "npm", ["run", "build"], {
-            cwd: dir
+            cwd: dir,
+            env: uiBundleEnv
           });
         }
       });
@@ -2859,7 +2866,7 @@ async function main() {
           ["run", "graphql:schema"],
           {
             cwd: dir,
-            env: { ...process.env, SF_TARGET_ORG: targetOrg }
+            env: uiBundleEnv
           }
         );
         run(`GraphQL codegen (${name})`, "npm", ["run", "graphql:codegen"], {
@@ -2869,7 +2876,7 @@ async function main() {
           `UI Bundle build (post-codegen, ${name})`,
           "npm",
           ["run", "build"],
-          { cwd: dir }
+          { cwd: dir, env: uiBundleEnv }
         );
       }
     });
@@ -2883,7 +2890,8 @@ async function main() {
           const name = dir.split(/[/\\]/).pop();
           run(`UI Bundle install (${name})`, "npm", ["install"], { cwd: dir });
           run(`UI Bundle build (${name})`, "npm", ["run", "build"], {
-            cwd: dir
+            cwd: dir,
+            env: uiBundleEnv
           });
         }
       });
