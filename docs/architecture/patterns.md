@@ -49,7 +49,7 @@ The launch target is the **App URL** of the React game record, which the setup s
 
 The `arcadeGameHost` LWC frames the cabinet's `/embed` route. The cabinet has the player's session and saves the round itself. Admins pick the game in Lightning App Builder; on an Account record page such as **Arcade Account** every round is attributed to that Account.
 
-<img class="shot" src="/images/account-page.png" alt="The Arcade Account page of Pixel Pioneers Inc. in the Arcade Floor app: the embedded Pixel Cabinet after a Block Drop round, with the way back to Polyglot Arcade, and the Account Champions leaderboard listing the rounds played on this Account" />
+<img class="shot" src="/images/account-page.png" alt="The Arcade Account page of Pixel Pioneers Inc. in the Arcade Floor app: the embedded Pixel Cabinet offers Block Drop and Pellet Chase, the host card names pattern 3 in its footer, and the Account Champions leaderboard lists the rounds played on this Account" />
 
 The setup seeds the showcase Account **Pixel Pioneers Inc.**, and the hub lobby links its page from Block Drop and Pellet Chase - _or embedded on the Pixel Pioneers Inc. Account page ↗_. Rounds played there show up in the Account's leaderboard and carry the Account on the score record.
 
