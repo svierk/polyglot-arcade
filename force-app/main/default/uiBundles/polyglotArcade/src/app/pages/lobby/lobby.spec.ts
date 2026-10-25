@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ArcadeApi, type ArcadeGame } from '../../api/arcade-api.service';
-import { arcadeFloorUrl } from '../../arcade-floor';
+import { arcadeFloorRecordUrl, arcadeFloorUrl } from '../../arcade-floor';
 import { TechXray } from '../../tech-xray.service';
 import { LobbyComponent } from './lobby';
 
@@ -42,10 +42,18 @@ const GAMES: ArcadeGame[] = [
   game({ key: 'new-game', name: 'New Game', framework: 'Angular' }),
 ];
 
-async function renderLobby(): Promise<HTMLElement> {
+const SHOWCASE = { id: '001SHOWCASE', name: 'Pixel Pioneers Inc.' };
+
+async function renderLobby(showcase: typeof SHOWCASE | null = SHOWCASE): Promise<HTMLElement> {
   await TestBed.configureTestingModule({
     imports: [LobbyComponent],
-    providers: [provideRouter([]), { provide: ArcadeApi, useValue: { games: async () => GAMES } }],
+    providers: [
+      provideRouter([]),
+      {
+        provide: ArcadeApi,
+        useValue: { games: async () => GAMES, showcaseAccount: async () => showcase },
+      },
+    ],
   }).compileComponents();
   const fixture = TestBed.createComponent(LobbyComponent);
   await fixture.whenStable();
@@ -67,6 +75,35 @@ describe('LobbyComponent', () => {
     );
     expect(arcadeFloorUrl(undefined, 'Arcade_Snake')).toBeNull();
     expect(arcadeFloorUrl('https://org.my.salesforce.com', undefined)).toBeNull();
+  });
+
+  it('builds a record URL inside the Arcade Floor app', () => {
+    expect(arcadeFloorRecordUrl('https://org.my.salesforce.com/', 'Account', '001X')).toBe(
+      'https://org.my.salesforce.com/lightning/app/c__arcadeFloor/r/Account/001X/view',
+    );
+    expect(arcadeFloorRecordUrl('https://org.my.salesforce.com', 'Account', null)).toBeNull();
+    expect(arcadeFloorRecordUrl(undefined, 'Account', '001X')).toBeNull();
+  });
+
+  it('offers the showcase Account page for games Lightning can frame', async () => {
+    globalThis.SFDC_ENV = { orgUrl: 'https://org.my.salesforce.com' };
+    const root = await renderLobby();
+
+    const account = card(root, 'Block Drop').querySelector<HTMLAnchorElement>('a.lobby-account');
+    expect(account?.textContent).toContain('Pixel Pioneers Inc. Account page');
+    expect(account?.getAttribute('href')).toBe(
+      'https://org.my.salesforce.com/lightning/app/c__arcadeFloor/r/Account/001SHOWCASE/view',
+    );
+    expect(account?.getAttribute('target')).toBe('_top');
+    // Only cabinet games with an embed path are framed on a record page.
+    expect(card(root, 'Four in a Row').querySelector('a.lobby-account')).toBeNull();
+    expect(card(root, 'Snake').querySelector('a.lobby-account')).toBeNull();
+  });
+
+  it('shows no Account link without the showcase Account', async () => {
+    globalThis.SFDC_ENV = { orgUrl: 'https://org.my.salesforce.com' };
+    const root = await renderLobby(null);
+    expect(root.querySelector('a.lobby-account')).toBeNull();
   });
 
   it('links each game to where it is played', async () => {

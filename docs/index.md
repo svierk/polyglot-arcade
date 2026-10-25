@@ -100,8 +100,8 @@ flowchart LR
 
 - <span class="surface hub">Polyglot Arcade</span> is the only lobby and the hall of fame. It launches every game, wherever the game lives.
 - <span class="surface cabinet">Pixel Cabinet</span> is a machine, not a second hub. The hub launches its games, and Lightning frames them as a microfrontend.
-- <span class="surface floor">Arcade Floor</span> is where microfrontends are composed: the Snake page and the Account page with the embedded cabinet.
+- <span class="surface floor">Arcade Floor</span> is where microfrontends are composed: the Snake page, and the page of the showcase Account **Pixel Pioneers Inc.** with the embedded cabinet.
 
 Every finished round becomes a record. Read on in [Surfaces and roles](/architecture/), or [deploy the arcade](/deploy/) into your own org with one command.
 
-<img class="shot" src="/images/lobby.png" alt="Polyglot Arcade lobby in the magenta arcade hall: game cards with pixel-art teaser marquees, each saying where its game lives" />
+<img class="shot" src="/images/lobby.png" alt="Polyglot Arcade lobby in the magenta arcade hall: game cards with pixel-art teaser marquees, each saying where its game lives, the cabinet games also linking to the Pixel Pioneers Inc. Account page" />

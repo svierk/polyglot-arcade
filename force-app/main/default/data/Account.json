@@ -1,0 +1,19 @@
+{
+  "records": [
+    {
+      "attributes": { "type": "Account", "referenceId": "PixelPioneers" },
+      "Name": "Pixel Pioneers Inc.",
+      "Arcade_Key__c": "pixel-pioneers",
+      "Type": "Customer - Direct",
+      "Industry": "Entertainment",
+      "Website": "https://pixel-pioneers.example",
+      "Phone": "(415) 555-0128",
+      "BillingStreet": "8 Joystick Lane",
+      "BillingCity": "San Francisco",
+      "BillingState": "CA",
+      "BillingPostalCode": "94107",
+      "BillingCountry": "United States",
+      "Description": "Fictional arcade operator and the showcase Account of Polyglot Arcade. Rounds played on its Arcade Account page count for it."
+    }
+  ]
+}

@@ -13,7 +13,12 @@
         <visible>true</visible>
     </applicationVisibilities>
     <description
-  >Play every Polyglot Arcade game on every surface and record scores. Players can create and read scores but not edit them.</description>
+  >Play every Polyglot Arcade game on every surface and record scores. Players can create and read scores but not edit them, and read Accounts to play on the Arcade Account page.</description>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Account.Arcade_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Arcade_Game__c.Tagline__c</field>
@@ -86,6 +91,15 @@
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Polyglot Arcade Player</label>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Account</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
     <objectPermissions>
         <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>

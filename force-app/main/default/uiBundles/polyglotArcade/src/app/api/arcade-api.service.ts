@@ -1,6 +1,7 @@
 /**
- * Polyglot Arcade data access for the hub: the game catalogue, score creation
- * and leaderboards via the UI API GraphQL endpoint of the Data SDK.
+ * Polyglot Arcade data access for the hub: the game catalogue, score creation,
+ * leaderboards and the showcase Account via the UI API GraphQL endpoint of the
+ * Data SDK.
  */
 import { Injectable, inject } from '@angular/core';
 import { DataClient } from './data-client.service';
@@ -26,6 +27,15 @@ export interface ArcadeGame {
   highScore: number | null;
   totalPlays: number;
 }
+
+/** The Account that npm run setup seeds to show the cabinet on a record page. */
+export interface ShowcaseAccount {
+  id: string;
+  name: string;
+}
+
+/** Arcade_Key__c of the showcase Account in the seed data. */
+export const SHOWCASE_ACCOUNT_KEY = 'pixel-pioneers';
 
 export interface LeaderboardEntry {
   id: string;
@@ -75,6 +85,12 @@ interface LeaderboardResult {
         }>;
       };
     };
+  };
+}
+
+interface ShowcaseAccountResult {
+  uiapi: {
+    query: { Account: { edges: Array<{ node: { Id: string; Name: FieldValue<string> } }> } };
   };
 }
 
@@ -170,6 +186,25 @@ const LEADERBOARD = /* GraphQL */ `
   }
 `;
 
+const SHOWCASE_ACCOUNT = /* GraphQL */ `
+  query HubShowcaseAccount($key: String) {
+    uiapi {
+      query {
+        Account(where: { Arcade_Key__c: { eq: $key } }, first: 1) {
+          edges {
+            node {
+              Id
+              Name {
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 const CREATE_SCORE = /* GraphQL */ `
   mutation HubCreateScore($input: Arcade_Score__cCreateInput!) {
     uiapi {
@@ -252,6 +287,22 @@ export class ArcadeApi {
       },
     });
     return { isHighScore: input.score > (game.highScore ?? 0) };
+  }
+
+  /**
+   * The seeded showcase Account, or null when it is missing or the player
+   * cannot read it - the lobby then simply shows no Account link.
+   */
+  async showcaseAccount(): Promise<ShowcaseAccount | null> {
+    try {
+      const data = await this.client.execute<ShowcaseAccountResult>(SHOWCASE_ACCOUNT, {
+        key: SHOWCASE_ACCOUNT_KEY,
+      });
+      const node = data.uiapi.query.Account.edges[0]?.node;
+      return node ? { id: node.Id, name: node.Name.value ?? 'Account' } : null;
+    } catch {
+      return null;
+    }
   }
 
   /** Name of the logged-in user, shown in the marquee bar. */

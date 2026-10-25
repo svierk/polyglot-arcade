@@ -40,7 +40,7 @@ A React game in `force-app/main/default/uiBundles/pixelCabinet`. The hub launche
 2. **Engine** in `src/games/<key>/engine.ts` with `engine.test.ts`.
 3. **Component** `src/games/<key>/<Name>.tsx` that takes `GameProps`: call `onGameOver` with a `GameResult` when a round ends, show the `result` node on the machine's screen, and use `highScore` for the HUD. The machine's look goes into `machine.css` next to it.
 4. **Registry:** add the key to `GameKey` in [`games/types.ts`](../force-app/main/default/uiBundles/pixelCabinet/src/games/types.ts) and an entry to `CABINET_GAMES` in [`games/registry.ts`](../force-app/main/default/uiBundles/pixelCabinet/src/games/registry.ts). The stage saves the round with the player's session - `Source__c` is `Pixel Cabinet` standalone and `Embedded` in a frame - and tells the host when it is framed.
-5. **Host LWC:** add the key to the `datasource` of the `game` property in [`arcadeGameHost.js-meta.xml`](../force-app/main/default/lwc/arcadeGameHost/arcadeGameHost.js-meta.xml), so admins can pick it in Lightning App Builder.
+5. **Host LWC:** add the key to the `datasource` of the `game` property in [`arcadeGameHost.js-meta.xml`](../force-app/main/default/lwc/arcadeGameHost/arcadeGameHost.js-meta.xml), so admins can pick it in Lightning App Builder. The cabinet's game picker on the Arcade Account page lists it anyway, and the lobby links that page from its card.
 6. **Teaser marquee** in the hub's `games/marquees.ts`.
 
 ## As an external guest

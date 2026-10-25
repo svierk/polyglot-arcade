@@ -11,7 +11,7 @@ git pull && npm install
 npm run setup -- --target-org my-org
 ```
 
-It deploys what is new, adds missing games, updates the existing ones by their **Game Key** and stores the UI bundle URLs again.
+It deploys what is new, adds missing games, updates the existing ones by their **Game Key** and stores the UI bundle URLs again. Coming from v0.8.0 or earlier, it also adds the field **Arcade Key** to Account and the showcase Account **Pixel Pioneers Inc.**, linked from the hub lobby.
 
 ## Leftovers of older versions
 

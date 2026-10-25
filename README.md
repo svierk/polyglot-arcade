@@ -5,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/svierk/polyglot-arcade?sort=semver)](https://github.com/svierk/polyglot-arcade/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-<img src="./images/lobby.png" alt="Polyglot Arcade lobby in the magenta arcade hall: game cards with pixel-art teaser marquees, each saying where its game lives" width="900"/>
+<img src="./images/lobby.png" alt="Polyglot Arcade lobby in the magenta arcade hall: game cards with pixel-art teaser marquees, each saying where its game lives, the cabinet games also linking to the Pixel Pioneers Inc. Account page" width="900"/>
 
 A retro arcade that runs on the Salesforce Platform and shows **Salesforce Multi-Framework** end to end: an **Angular** app and a **React** app live side by side in one org, share the same CRM data and embed into Lightning pages as **microfrontends** - next to an **LWC OSS** game that is hosted outside Salesforce altogether.
 
@@ -61,7 +61,7 @@ sf org create scratch -f config/project-scratch-def.json -a polyglot-arcade -v <
 npm run setup -- --target-org polyglot-arcade
 ```
 
-`npm run setup` checks the org, builds and deploys both UI bundles and the metadata, assigns the permission set, seeds the games and connects the surfaces. It is safe to run again and keeps all scores. Then open **Polyglot Arcade** from the App Launcher. For an existing org, an upgrade and troubleshooting, see [Deploy](https://svierk.github.io/polyglot-arcade/deploy/).
+`npm run setup` checks the org, builds and deploys both UI bundles and the metadata, assigns the permission set, seeds the games and connects the surfaces. It is safe to run again and keeps all scores. Then open **Polyglot Arcade** from the App Launcher - and play a cabinet game embedded on the page of the showcase Account **Pixel Pioneers Inc.** For an existing org, an upgrade and troubleshooting, see [Deploy](https://svierk.github.io/polyglot-arcade/deploy/).
 
 ## 🗺️ What's next
 

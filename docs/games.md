@@ -20,7 +20,7 @@ The games are original implementations of classic mechanics. Names and artwork a
 
 <TeaserMarquee game="block-drop" />
 
-**Handheld brick game** in early-90s proportions: ivory plastic, a grey-olive LCD with segment digits, direction and rotate keys as touch controls. Launched from the hub lobby into the Pixel Cabinet, and framed by Lightning on the **Arcade Account** page.
+**Handheld brick game** in early-90s proportions: ivory plastic, a grey-olive LCD with segment digits, direction and rotate keys as touch controls. Launched from the hub lobby into the Pixel Cabinet, and framed by Lightning on the **Arcade Account** page - the lobby links the page of the showcase Account **Pixel Pioneers Inc.**
 
 | Keyboard                             | Touch                                    |
 | ------------------------------------ | ---------------------------------------- |
@@ -32,7 +32,7 @@ The games are original implementations of classic mechanics. Names and artwork a
 
 <TeaserMarquee game="pellet-chase" />
 
-**Upright arcade cabinet**: backlit marquee, a CRT with scanlines, joystick panel and attract-screen high scores. Four ghosts, each with its own tactics. Lives in the Pixel Cabinet like Block Drop, and can be framed in Lightning the same way.
+**Upright arcade cabinet**: backlit marquee, a CRT with scanlines, joystick panel and attract-screen high scores. Four ghosts, each with its own tactics. Lives in the Pixel Cabinet like Block Drop, and can be played on the Pixel Pioneers Inc. Account page the same way.
 
 | Keyboard                        | Touch                             |
 | ------------------------------- | --------------------------------- |

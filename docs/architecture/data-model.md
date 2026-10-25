@@ -1,5 +1,5 @@
 ---
-description: The data model of Polyglot Arcade - Arcade_Game__c and Arcade_Score__c, roll-up summaries, the Polyglot Arcade Player permission set, reports and the dashboard.
+description: The data model of Polyglot Arcade - Arcade_Game__c and Arcade_Score__c, roll-up summaries, the showcase Account, the Polyglot Arcade Player permission set, reports and the dashboard.
 ---
 
 # Data model
@@ -29,6 +29,9 @@ erDiagram
         Number Level__c "level or difficulty"
         Number Duration_Seconds__c
         Picklist Source__c "Polyglot Arcade | Pixel Cabinet | Embedded"
+    }
+    Account {
+        Text Arcade_Key__c "external ID, e.g. pixel-pioneers"
     }
 ```
 
@@ -63,9 +66,16 @@ One record per finished round, the child of its game (master-detail). The player
 
 Leaderboards only list scoring rounds; lost rounds still count as plays.
 
+## Showcase Account
+
+Rounds played on an Account page belong to that Account. So that this is visible in every org, the seed data ([`Account.json`](../../force-app/main/default/data/Account.json)) holds one fictional customer, **Pixel Pioneers Inc.** The setup upserts it by the custom field `Account.Arcade_Key__c` (external ID, `pixel-pioneers`) - like the games, it is updated in place on every run and its rounds survive.
+
+- The hub lobby looks the Account up by its key and links its Arcade Account page from the cabinet games.
+- The list view **Arcade Accounts** on the Accounts tab lists every Account with an Arcade Key.
+
 ## Access
 
-The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games and create and read access to scores. Players cannot edit or delete scores. Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface because all of them read through UI API.
+The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games, Accounts and their Arcade Key, and create and read access to scores. Players cannot edit or delete scores. Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface because all of them read through UI API.
 
 ## Reports and dashboard
 

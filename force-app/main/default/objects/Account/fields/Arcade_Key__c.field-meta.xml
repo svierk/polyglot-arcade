@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Arcade_Key__c</fullName>
+    <description
+  >Stable slug of an Account that Polyglot Arcade seeds (e.g. pixel-pioneers). npm run setup upserts the showcase Account by it, and the hub lobby finds it to link the Arcade Account page.</description>
+    <externalId>true</externalId>
+    <label>Arcade Key</label>
+    <length>40</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>true</unique>
+    <caseSensitive>false</caseSensitive>
+</CustomField>

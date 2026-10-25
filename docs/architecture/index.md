@@ -56,11 +56,11 @@ Solid arrows carry data and events, dotted arrows are links a player follows.
 
 ## The surfaces
 
-| Surface                                                                | Room                | Role                                                                                                                                                                                                                                            |
-| ---------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <span class="surface hub">Polyglot Arcade</span><br/>Angular UI bundle | magenta arcade hall | The only lobby and hall of fame, and the entry point. It launches every game, wherever it lives.                                                                                                                                                |
-| <span class="surface cabinet">Pixel Cabinet</span><br/>React UI bundle | cyan machine room   | A machine, not a second hub. It has no lobby: opening it sends the player to the hub lobby. The hub launches its games at `/play/<game>`, Lightning frames them at `/embed`.                                                                    |
-| <span class="surface floor">Arcade Floor</span><br/>Lightning app      | blue                | Where microfrontends are composed: the **Snake** page with the Snake and its leaderboard, and the **Arcade Account** record page (app default for Accounts) with the cabinet and the Account's leaderboard. Rounds there count for the Account. |
+| Surface                                                                | Room                | Role                                                                                                                                                                                                                                                                                                     |
+| ---------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <span class="surface hub">Polyglot Arcade</span><br/>Angular UI bundle | magenta arcade hall | The only lobby and hall of fame, and the entry point. It launches every game, wherever it lives.                                                                                                                                                                                                         |
+| <span class="surface cabinet">Pixel Cabinet</span><br/>React UI bundle | cyan machine room   | A machine, not a second hub. It has no lobby: opening it sends the player to the hub lobby. The hub launches its games at `/play/<game>`, Lightning frames them at `/embed`.                                                                                                                             |
+| <span class="surface floor">Arcade Floor</span><br/>Lightning app      | blue                | Where microfrontends are composed: the **Snake** page with the Snake and its leaderboard, and the **Arcade Account** record page (app default for Accounts) with the cabinet and the Account's leaderboard. Rounds there count for the Account. The setup seeds **Pixel Pioneers Inc.** as its showcase. |
 
 The Snake is a guest, not a surface: an [LWC OSS game](https://github.com/svierk/lwc-oss-snake-game) on Vercel, without a Salesforce session of its own. It is played embedded on its page in the Arcade Floor.
 
@@ -80,12 +80,12 @@ Below the bar, every game is a machine of its own - see [Games](/games).
 
 ## Navigation between the surfaces
 
-| From → to       | How                                                                                                                                          |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hub → cabinet   | The **App URL** on the React game records, stored by the setup's connect step                                                                |
-| Hub → Lightning | The org URL plus `/lightning/app/c__arcadeFloor/n/<tab>`, so the page opens inside the Arcade Floor app; `Salesforce ↗` opens the app itself |
-| Cabinet → hub   | Derived from the cabinet's own base path: both bundles share one origin, so the cabinet swaps its app name for the hub's                     |
-| Lightning → hub | The `← Polyglot Arcade` action on the Arcade Game Host card, from the App URL of the Angular game records                                    |
+| From → to       | How                                                                                                                                                                                                                                 |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hub → cabinet   | The **App URL** on the React game records, stored by the setup's connect step                                                                                                                                                       |
+| Hub → Lightning | The org URL plus `/lightning/app/c__arcadeFloor/n/<tab>` for a page and `/lightning/app/c__arcadeFloor/r/Account/<id>/view` for the showcase Account, so both open inside the Arcade Floor app; `Salesforce ↗` opens the app itself |
+| Cabinet → hub   | Derived from the cabinet's own base path: both bundles share one origin, so the cabinet swaps its app name for the hub's                                                                                                            |
+| Lightning → hub | The `← Polyglot Arcade` action on the Arcade Game Host card, from the App URL of the Angular game records                                                                                                                           |
 
 Both bundles are served from the same origin, for example `https://<my-domain>--c.<...>.salesforce.app/app/c__pixelCabinet` and `/app/c__polyglotArcade`. An org-relative URL such as `/lightning/app/c__polyglotArcade` does not launch a UI bundle - Lightning needs the bundle's `*.salesforce.app` URL, which is only exposed as the start URL of the app's App Launcher entry. That is why the [setup](/deploy/) reads it and stores it on the game records.
 

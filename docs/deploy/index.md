@@ -51,7 +51,7 @@ npm run setup -- --target-org my-org
 2. **Build** - installs and builds both UI bundles
 3. **Deploy** - deploys the metadata, including the reports and the dashboard
 4. **Permission set** - assigns Polyglot Arcade Player to you
-5. **Data** - upserts the five games by their **Game Key**. Existing games are updated in place, so their scores survive
+5. **Data** - upserts the five games by their **Game Key** and the showcase Account **Pixel Pioneers Inc.** by its **Arcade Key**. Existing records are updated in place, so their scores survive
 6. **Connect** - stores the org-specific UI bundle URLs (read from their App Launcher entries) on the game records: the Pixel Cabinet URL and its `/embed` route on the React games, so the hub can launch them and the host LWC can embed them, and the hub URL on the Angular games, so the host LWC can link back to the lobby
 7. **GraphQL** - fetches the org's GraphQL schema and generates the types of both UI bundles
 
@@ -69,7 +69,7 @@ Open **Polyglot Arcade** from the App Launcher - the lobby launches every game. 
 
 - the **Snake** tab with the embedded Snake and its leaderboard,
 - the **Dashboards** tab with the Arcade Floor dashboard,
-- any Account opened from its **Accounts** tab, which shows the **Arcade Account** page with the embedded cabinet. Rounds played there count for the Account.
+- the **Accounts** tab: every Account opens on the **Arcade Account** page with the embedded cabinet, and the list view **Arcade Accounts** shows the showcase Account **Pixel Pioneers Inc.** Rounds played there count for the Account. The hub lobby links its page from Block Drop and Pellet Chase.
 
 ## Optional steps
 

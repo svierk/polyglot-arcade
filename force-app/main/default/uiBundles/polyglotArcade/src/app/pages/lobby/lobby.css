@@ -40,6 +40,19 @@
   overflow: hidden;
 }
 
+/* Second way to play a cabinet game: framed on a record page in Lightning. */
+.lobby-account {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  color: var(--where);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lobby-account:hover {
+  text-decoration-thickness: 2px;
+}
+
 /* Backlit marquee on top of the card. */
 .lobby-marquee {
   margin: -1.25rem -1.25rem 0.5rem;
