@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitepress';
 import llmstxt from 'vitepress-plugin-llms';
 import { absolutizeFile } from '../../scripts/docs/llms-links.mjs';
@@ -11,6 +12,8 @@ const siteUrl = 'https://svierk.github.io/polyglot-arcade/';
 const base = '/polyglot-arcade/';
 const repo = 'https://github.com/svierk/polyglot-arcade';
 const repoBlob = `${repo}/blob/main/`;
+// The screenshots live in images/ at the repository root, shared with the README.
+const screenshots = fileURLToPath(new URL('../../images/', import.meta.url));
 
 export default defineConfig({
   title,
@@ -41,7 +44,21 @@ export default defineConfig({
     // agents that read the docs while they work. Its `domain` option is left
     // out on purpose: it also rewrites links inside the pages, and mangles them
     // under a base path - buildEnd below makes them absolute instead.
-    plugins: [llmstxt()],
+    plugins: [
+      llmstxt(),
+      // Pages show the README's screenshots as /images/<file> - the path GitHub
+      // resolves from the repository root too. Resolve it to images/ instead of
+      // the public directory, so Vite bundles them like any other asset (a
+      // relative ../images path loses the base path in the dev server).
+      {
+        name: 'polyglot-arcade-screenshots',
+        enforce: 'pre',
+        resolveId(id) {
+          const file = id.startsWith('/images/') && join(screenshots, id.slice('/images/'.length));
+          return file && existsSync(file) ? file : null;
+        }
+      }
+    ],
     // mermaid's own chunks are up to ~700 kB each, but they are only fetched by
     // pages that render a diagram (see theme/mermaid.ts). Raise the warning
     // limit above them so it still flags growth in the shared bundle.

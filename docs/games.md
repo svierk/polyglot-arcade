@@ -26,7 +26,7 @@ The games are original implementations of classic mechanics. Names and artwork a
 | ------------------------------------ | ---------------------------------------- |
 | ← → move · ↑ rotate · ↓ / space drop | direction keys, rotate and start buttons |
 
-<img class="shot" src="../images/pixel-cabinet.png" alt="Block Drop on an ivory handheld brick game with an LCD, in the cyan machine room of the Pixel Cabinet" />
+<img class="shot" src="/images/pixel-cabinet.png" alt="Block Drop on an ivory handheld brick game with an LCD, in the cyan machine room of the Pixel Cabinet" />
 
 ## Pellet Chase
 
@@ -38,7 +38,7 @@ The games are original implementations of classic mechanics. Names and artwork a
 | ------------------------------- | --------------------------------- |
 | arrows or WASD steer · P pauses | joystick buttons and pause button |
 
-<img class="shot" src="../images/pellet-chase.png" alt="Pellet Chase in an upright arcade cabinet with CRT, joystick panel and the attract-screen high scores" />
+<img class="shot" src="/images/pellet-chase.png" alt="Pellet Chase in an upright arcade cabinet with CRT, joystick panel and the attract-screen high scores" />
 
 ## Four in a Row
 
@@ -52,7 +52,7 @@ The games are original implementations of classic mechanics. Names and artwork a
 
 Every column tells a screen reader which discs it holds and how many places are free, and the CPU's move is announced.
 
-<img class="shot" src="../images/four-in-a-row.png" alt="Four in a Row as a tabletop toy, won against the CPU, the result on the game box lid next to its high scores" />
+<img class="shot" src="/images/four-in-a-row.png" alt="Four in a Row as a tabletop toy, won against the CPU, the result on the game box lid next to its high scores" />
 
 ## Brick Breaker
 
@@ -64,7 +64,7 @@ Every column tells a screen reader which discs it holds and how many places are 
 | ------------------------------------ | ----------------------------------- |
 | ← → move · space launches · P pauses | tap launches, drag moves the paddle |
 
-<img class="shot" src="../images/brick-breaker.png" alt="Brick Breaker on a wood-grain CRT TV with the console and cartridge, next to the cartridge box high scores" />
+<img class="shot" src="/images/brick-breaker.png" alt="Brick Breaker on a wood-grain CRT TV with the console and cartridge, next to the cartridge box high scores" />
 
 ## Snake
 
@@ -72,13 +72,13 @@ Every column tells a screen reader which discs it holds and how many places are 
 
 **Retro phone** with its own LCD - an [LWC OSS app](https://github.com/svierk/lwc-oss-snake-game) on Vercel, outside Salesforce. Embedded, the Lightning page shows the part of the phone with the screen and the navigation keys at full size. The hub lobby links it to its page in the Arcade Floor app, where the host LWC saves its rounds.
 
-<img class="shot" src="../images/snake.png" alt="Snake embedded on its page in the Arcade Floor app: the part of the phone with the screen and the navigation keys, the way back to the hub and the LWC leaderboard" />
+<img class="shot" src="/images/snake.png" alt="Snake embedded on its page in the Arcade Floor app: the part of the phone with the screen and the navigation keys, the way back to the hub and the LWC leaderboard" />
 
 ## Hall of fame
 
 The hub's hall of fame lists the rounds of every game across all surfaces, ten per page, the source of each round in the color of its surface.
 
-<img class="shot" src="../images/hall-of-fame.png" alt="Hall of fame with a tab per game, the source of each round - embedded or Pixel Cabinet - in the color of its surface" />
+<img class="shot" src="/images/hall-of-fame.png" alt="Hall of fame with a tab per game, the source of each round - embedded or Pixel Cabinet - in the color of its surface" />
 
 ## Playable by everyone
 

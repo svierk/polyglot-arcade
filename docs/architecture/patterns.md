@@ -102,7 +102,7 @@ Nothing is configured per game beyond its `Arcade_Game__c` record:
 
 ## Tech X-ray
 
-<img class="shot" src="../../images/tech-xray.png" alt="Hub lobby with the Tech X-ray switched on: the badge explains pattern 1 of the Angular hub, the game cards show blueprints with their patterns, framework, surface, who saves the score and the data path" />
+<img class="shot" src="/images/tech-xray.png" alt="Hub lobby with the Tech X-ray switched on: the badge explains pattern 1 of the Angular hub, the game cards show blueprints with their patterns, framework, surface, who saves the score and the data path" />
 
 The patterns are visible in the running app, under the same names and numbers:
 
