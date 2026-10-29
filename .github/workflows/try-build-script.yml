@@ -1,0 +1,42 @@
+name: Trial - Kit build-script
+
+# Temporary trial of svierk/salesforce-devops-starter-kit#25 (build-script input
+# for UI bundles) before it is merged. Runs on pushes to this branch only and
+# is deleted together with it.
+#
+# - scratch-org-ci: builds both UI bundles against a fresh scratch org and
+#   deploys the whole project.
+# - delta-validation: check-only delta deploy against the Dev Hub; the trial
+#   change in pixelCabinet/src/app.tsx must put UIBundle:pixelCabinet into the
+#   delta manifest. Nothing is saved to the org.
+
+on:
+  push:
+    branches: [try/kit-build-script]
+
+permissions:
+  contents: read
+
+jobs:
+  scratch-org-ci:
+    uses: svierk/salesforce-devops-starter-kit/.github/workflows/scratch-org-ci.yml@feat/build-script
+    with:
+      build-script: build:ui-bundles
+      duration-days: '1'
+    secrets:
+      SFDX_CONSUMER_KEY: ${{ secrets.SFDX_CONSUMER_KEY }}
+      SFDX_JWT_SECRET_KEY: ${{ secrets.SFDX_JWT_SECRET_KEY }}
+      SFDX_USERNAME: ${{ vars.SFDX_USERNAME }}
+
+  delta-validation:
+    uses: svierk/salesforce-devops-starter-kit/.github/workflows/deployment.yml@feat/build-script
+    with:
+      build-script: build:ui-bundles
+      dry-run: true
+      delta: true
+      delta-from: origin/main
+      test-level: NoTestRun
+    secrets:
+      SFDX_CONSUMER_KEY: ${{ secrets.SFDX_CONSUMER_KEY }}
+      SFDX_JWT_SECRET_KEY: ${{ secrets.SFDX_JWT_SECRET_KEY }}
+      SFDX_USERNAME: ${{ vars.SFDX_USERNAME }}

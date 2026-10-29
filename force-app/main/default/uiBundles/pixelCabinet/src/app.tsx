@@ -1,3 +1,4 @@
+// Trial change: puts UIBundle:pixelCabinet into the delta of the kit's build-script trial run.
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { routes } from '@/routes';
 import { StrictMode } from 'react';

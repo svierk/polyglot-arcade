@@ -13,6 +13,7 @@
   },
   "scripts": {
     "sf-project-setup": "node scripts/sf-project-setup.mjs",
+    "build:ui-bundles": "npm ci --prefix force-app/main/default/uiBundles/pixelCabinet && npm run build --prefix force-app/main/default/uiBundles/pixelCabinet && npm ci --prefix force-app/main/default/uiBundles/polyglotArcade && npm run build --prefix force-app/main/default/uiBundles/polyglotArcade",
     "build": "echo 'No build required for base-sfdx-project'",
     "clean": "echo 'No clean required for base-sfdx-project'",
     "lint": "eslint --no-error-on-unmatched-pattern **/{aura,lwc}/**/*.js",
