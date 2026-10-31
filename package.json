@@ -1,7 +1,7 @@
 {
   "name": "polyglot-arcade",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Retro arcade on the Salesforce Platform showing Salesforce Multi-Framework: an Angular hub, a React cabinet and an LWC microfrontend host sharing CRM data.",
   "author": {
     "name": "Sebastiano Schwarz",
