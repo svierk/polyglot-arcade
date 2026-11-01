@@ -1,0 +1,63 @@
+{
+  "title": "Arcade Player Card",
+  "description": "A Polyglot Arcade player's personal best and rank in every game and their last rounds.",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "lightning:type": "lightning__objectType",
+      "properties": {
+        "player": {
+          "title": "Player",
+          "description": "Name of the player",
+          "lightning:type": "lightning__textType"
+        },
+        "initials": {
+          "title": "Initials",
+          "description": "Initials for the avatar",
+          "lightning:type": "lightning__textType"
+        },
+        "rounds": {
+          "title": "Rounds",
+          "description": "Rounds played, lost rounds included",
+          "lightning:type": "lightning__numberType"
+        },
+        "gamesPlayed": {
+          "title": "Games Played",
+          "description": "Games the player has played at least once",
+          "lightning:type": "lightning__numberType"
+        },
+        "gamesTotal": {
+          "title": "Games Total",
+          "description": "Active games in the arcade",
+          "lightning:type": "lightning__numberType"
+        },
+        "hasRounds": {
+          "title": "Has Rounds",
+          "description": "True when the player has played at least one round",
+          "lightning:type": "lightning__booleanType"
+        },
+        "message": {
+          "title": "Message",
+          "description": "Shown instead of the card, for example when the player has not played yet",
+          "lightning:type": "lightning__textType"
+        },
+        "bests": {
+          "title": "Personal Bests",
+          "description": "Best round and rank in every game the player played",
+          "lightning:type": "lightning__listType",
+          "items": {
+            "lightning:type": "@apexClassType/c__ArcadePlayerCard$GameBest"
+          }
+        },
+        "recent": {
+          "title": "Recent Rounds",
+          "description": "The last five rounds, newest first",
+          "lightning:type": "lightning__listType",
+          "items": {
+            "lightning:type": "@apexClassType/c__ArcadePlayerCard$RecentRound"
+          }
+        }
+      }
+    }
+  }
+}

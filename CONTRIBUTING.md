@@ -4,12 +4,13 @@ Thanks for your interest in improving Polyglot Arcade! 🕹️
 
 ## How this project is organized
 
-| Part                          | Where                                             | Tests                                                             |
-| ----------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
-| Angular hub                   | `force-app/main/default/uiBundles/polyglotArcade` | `npx ng test --watch=false`, Playwright e2e (incl. axe and touch) |
-| React cabinet                 | `force-app/main/default/uiBundles/pixelCabinet`   | `npx vitest run`, Playwright e2e (incl. axe and touch)            |
-| Lightning Web Components      | `force-app/main/default/lwc`                      | `npm run test:unit` (Jest + sa11y)                                |
-| Data model and other metadata | `force-app/main/default`                          | deploy to a scratch org                                           |
+| Part                          | Where                                                           | Tests                                                             |
+| ----------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Angular hub                   | `force-app/main/default/uiBundles/polyglotArcade`               | `npx ng test --watch=false`, Playwright e2e (incl. axe and touch) |
+| React cabinet                 | `force-app/main/default/uiBundles/pixelCabinet`                 | `npx vitest run`, Playwright e2e (incl. axe and touch)            |
+| Lightning Web Components      | `force-app/main/default/lwc`                                    | `npm run test:unit` (Jest + sa11y)                                |
+| Headless surface (HXL, MCP)   | `force-app/main/default/classes`, `uiWidgets`, `lightningTypes` | `sf apex run test -n ArcadeToolsTest -o <org>`                    |
+| Data model and other metadata | `force-app/main/default`                                        | deploy to a scratch org                                           |
 
 The [documentation site](https://svierk.github.io/polyglot-arcade/) explains the architecture, the setup of an org and how to [build your own game](https://svierk.github.io/polyglot-arcade/build-your-own-game).
 

@@ -1,10 +1,10 @@
 ---
-description: The three surfaces of Polyglot Arcade - the Angular hub, the React cabinet and the Arcade Floor Lightning app - their roles, colors and the navigation between them.
+description: The surfaces of Polyglot Arcade - the Angular hub, the React cabinet, the Arcade Floor Lightning app and the headless surface for AI clients - their roles, colors and the navigation between them.
 ---
 
 # Surfaces and roles
 
-Polyglot Arcade runs on three surfaces in one org, plus one guest outside of it. Every surface has one role ([ADR 0001](/decisions/0001-surface-roles)) and a color of its own ([ADR 0002](/decisions/0002-surfaces-and-machines)).
+Polyglot Arcade runs on three surfaces in one org, plus one guest outside of it and a headless surface that AI clients render. Every surface has one role ([ADR 0001](/decisions/0001-surface-roles)) and a color of its own ([ADR 0002](/decisions/0002-surfaces-and-machines)).
 
 ```mermaid
 flowchart LR
@@ -23,9 +23,13 @@ flowchart LR
             LB["arcadeLeaderboard LWC"]
         end
         Data[("Arcade_Game__c<br/>Arcade_Score__c")]
+        MCP["MCP server polyglotArcade<br/>Apex tools · HXL widgets"]
     end
     subgraph Ext["Vercel · outside Salesforce"]
         Snake["LWC OSS Snake"]
+    end
+    subgraph AI["AI clients · outside Salesforce"]
+        Chat["Claude · ChatGPT · Slackbot"]
     end
     Lobby -- "GraphQL · Data SDK" --> Data
     HubGames -- "create score" --> Data
@@ -42,14 +46,19 @@ flowchart LR
     Host -- "create score for Snake" --> Data
     Host -- "Lightning Message Service" --> LB
     LB -- "GraphQL wire" --> Data
+    Chat -- "MCP tools/call, OAuth as the player" --> MCP
+    MCP -- "read in user mode" --> Data
+    MCP -- "widget for the result" --> Chat
     classDef hub fill:#e879f9,stroke:#a21caf,color:#1a0520
     classDef cabinet fill:#22d3ee,stroke:#0e7490,color:#042f2e
     classDef floor fill:#60a5fa,stroke:#1d4ed8,color:#0b1530
     classDef guest fill:#c084fc,stroke:#7e22ce,color:#1e0b36
+    classDef headless fill:#34d399,stroke:#047857,color:#022c22
     class Lobby,HubGames hub
     class Play,Embed cabinet
     class Host,LB floor
     class Snake guest
+    class MCP,Chat headless
 ```
 
 Solid arrows carry data and events, dotted arrows are links a player follows.
@@ -61,6 +70,7 @@ Solid arrows carry data and events, dotted arrows are links a player follows.
 | <span class="surface hub">Polyglot Arcade</span><br/>Angular UI bundle | magenta arcade hall | The only lobby and hall of fame, and the entry point. It launches every game, wherever it lives.                                                                                                                                                                                                         |
 | <span class="surface cabinet">Pixel Cabinet</span><br/>React UI bundle | cyan machine room   | A machine, not a second hub. It has no lobby: opening it sends the player to the hub lobby. The hub launches its games at `/play/<game>`, Lightning frames them at `/embed`.                                                                                                                             |
 | <span class="surface floor">Arcade Floor</span><br/>Lightning app      | blue                | Where microfrontends are composed: the **Snake** page with the Snake and its leaderboard, and the **Arcade Account** record page (app default for Accounts) with the cabinet and the Account's leaderboard. Rounds there count for the Account. The setup seeds **Pixel Pioneers Inc.** as its showcase. |
+| <span class="surface headless">Headless</span><br/>HXL widgets via MCP | green               | No UI of its own: the Hall of Fame and a player card as widgets that Claude, ChatGPT and Slackbot render in the chat, served by the MCP server `polyglotArcade`. Read-only - rounds are played on the other surfaces. See [Headless surface](/architecture/headless).                                    |
 
 The Snake is a guest, not a surface: an [LWC OSS game](https://github.com/svierk/lwc-oss-snake-game) on Vercel, without a Salesforce session of its own. It is played embedded on its page in the Arcade Floor.
 
@@ -86,6 +96,8 @@ Below the bar, every game is a machine of its own - see [Games](/games).
 | Hub → Lightning | The org URL plus `/lightning/app/c__arcadeFloor/n/<tab>` for a page and `/lightning/app/c__arcadeFloor/r/Account/<id>/view` for the showcase Account, so both open inside the Arcade Floor app; `Salesforce ↗` opens the app itself |
 | Cabinet → hub   | Derived from the cabinet's own base path: both bundles share one origin, so the cabinet swaps its app name for the hub's                                                                                                            |
 | Lightning → hub | The `← Polyglot Arcade` action on the Arcade Game Host card, from the App URL of the Angular game records                                                                                                                           |
+| Chat → hub      | **Play in the arcade** in the Hall of Fame widget (`action/openLink`), from the App URL of the Angular game records                                                                                                                 |
+| Widget → widget | **My player card** and **Hall of Fame** post a message as the player (`action/sendMessage`), which the client answers with the other tool                                                                                           |
 
 Both bundles are served from the same origin, for example `https://<my-domain>--c.<...>.salesforce.app/app/c__pixelCabinet` and `/app/c__polyglotArcade`. An org-relative URL such as `/lightning/app/c__polyglotArcade` does not launch a UI bundle - Lightning needs the bundle's `*.salesforce.app` URL, which is only exposed as the start URL of the app's App Launcher entry. That is why the [setup](/deploy/) reads it and stores it on the game records.
 
@@ -107,7 +119,12 @@ force-app/main/default/
 ├── applications/             Polyglot Arcade and Pixel Cabinet (UI bundles), Arcade Floor (Lightning)
 ├── reportTypes/, reports/    Arcade Games with Scores, three reports in the Polyglot Arcade folder
 ├── dashboards/               Arcade Floor dashboard
+├── classes/                  Apex tools of the headless surface: Hall of Fame, player card
+├── uiWidgets/, lightningTypes/  HXL widgets and the types that map tool results onto them
+├── mcpServerDefinitions/     polyglotArcade MCP server
+├── externalClientApps/       Polyglot Arcade MCP (OAuth for MCP clients), with extlClntApp* settings
+├── settings/                 UiWidget: turns on the Headless Experience Layer (beta)
 └── data/                     seed data for the games (upserted by npm run setup)
 ```
 
-Next: the [four integration patterns](/architecture/patterns) that connect these surfaces to the platform.
+Next: the [four integration patterns](/architecture/patterns) that connect these surfaces to the platform, and the [headless surface](/architecture/headless).

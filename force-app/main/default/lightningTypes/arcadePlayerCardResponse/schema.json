@@ -1,0 +1,46 @@
+{
+  "title": "Arcade Player Card Response",
+  "description": "Output values of the ArcadePlayerCard invocable action",
+  "type": "object",
+  "lightning:type": "lightning__objectType",
+  "lightning:tags": ["mcp"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "bests": {
+      "title": "Personal Bests",
+      "lightning:type": "@apexClassType/c__ArcadePlayerCard$GameBest"
+    },
+    "gamesPlayed": {
+      "title": "Games Played",
+      "lightning:type": "lightning__integerType"
+    },
+    "gamesTotal": {
+      "title": "Games Total",
+      "lightning:type": "lightning__integerType"
+    },
+    "hasRounds": {
+      "title": "Has Rounds",
+      "lightning:type": "lightning__booleanType"
+    },
+    "initials": {
+      "title": "Initials",
+      "lightning:type": "lightning__textType"
+    },
+    "message": {
+      "title": "Message",
+      "lightning:type": "lightning__textType"
+    },
+    "player": {
+      "title": "Player",
+      "lightning:type": "lightning__textType"
+    },
+    "recent": {
+      "title": "Recent Rounds",
+      "lightning:type": "@apexClassType/c__ArcadePlayerCard$RecentRound"
+    },
+    "rounds": {
+      "title": "Rounds",
+      "lightning:type": "lightning__integerType"
+    }
+  }
+}

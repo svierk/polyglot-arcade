@@ -76,7 +76,7 @@ Every column tells a screen reader which discs it holds and how many places are 
 
 ## Hall of fame
 
-The hub's hall of fame lists the rounds of every game across all surfaces, ten per page, the source of each round in the color of its surface.
+The hub's hall of fame lists the rounds of every game across all surfaces, ten per page, the source of each round in the color of its surface. In Claude and ChatGPT, the [headless surface](/architecture/headless) ranks the players of the same rounds.
 
 <img class="shot" src="/images/hall-of-fame.png" alt="Hall of fame with a tab per game, the source of each round - embedded or Pixel Cabinet - in the color of its surface" />
 

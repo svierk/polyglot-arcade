@@ -1,0 +1,60 @@
+{
+  "title": "Arcade Hall of Fame",
+  "description": "Ranks the players of a Polyglot Arcade game by their best round, or names the champion of every game.",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "lightning:type": "lightning__objectType",
+      "properties": {
+        "title": {
+          "title": "Title",
+          "description": "Hall of Fame, or Hall of Fame · <game>",
+          "lightning:type": "lightning__textType"
+        },
+        "periodLabel": {
+          "title": "Period",
+          "description": "Today, This week, This month or All time",
+          "lightning:type": "lightning__textType"
+        },
+        "rounds": {
+          "title": "Rounds",
+          "description": "Rounds played in the period, lost rounds included",
+          "lightning:type": "lightning__numberType"
+        },
+        "players": {
+          "title": "Players",
+          "description": "Players who played in the period",
+          "lightning:type": "lightning__numberType"
+        },
+        "allGames": {
+          "title": "All Games",
+          "description": "True when the entries are the champions of every game",
+          "lightning:type": "lightning__booleanType"
+        },
+        "hasEntries": {
+          "title": "Has Entries",
+          "description": "True when at least one player scored",
+          "lightning:type": "lightning__booleanType"
+        },
+        "message": {
+          "title": "Message",
+          "description": "Shown instead of the ranking, for example when no one scored yet",
+          "lightning:type": "lightning__textType"
+        },
+        "entries": {
+          "title": "Entries",
+          "description": "Rank, player, game, best score and rounds",
+          "lightning:type": "lightning__listType",
+          "items": {
+            "lightning:type": "@apexClassType/c__ArcadeHallOfFame$Entry"
+          }
+        },
+        "arcadeUrl": {
+          "title": "Arcade URL",
+          "description": "Opens the Polyglot Arcade hub",
+          "lightning:type": "lightning__urlType"
+        }
+      }
+    }
+  }
+}

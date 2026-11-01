@@ -4,7 +4,7 @@ description: The data model of Polyglot Arcade - Arcade_Game__c and Arcade_Score
 
 # Data model
 
-Two custom objects hold the whole arcade. Leaderboards, high scores and play counts are ordinary Salesforce data - no custom backend.
+Two custom objects hold the whole arcade. Leaderboards, high scores and play counts are ordinary Salesforce data - no custom backend. Every surface reads the same records: the UI bundles through the Data SDK, the LWCs through wires, the headless surface through Apex tools.
 
 ```mermaid
 erDiagram
@@ -75,7 +75,7 @@ Rounds played on an Account page belong to that Account. So that this is visible
 
 ## Access
 
-The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games, Accounts and their Arcade Key and Contacts (orgs with Person Accounts require it with Account read), and create and read access to scores. Players cannot edit or delete scores. Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface because all of them read through UI API.
+The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games, Accounts and their Arcade Key and Contacts (orgs with Person Accounts require it with Account read), and create and read access to scores. Players cannot edit or delete scores. It also grants the Apex classes `ArcadeHallOfFame` and `ArcadePlayerCard`, the tools of the [headless surface](/architecture/headless). Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface: the UI bundles and LWCs read through UI API, and the tools query `WITH USER_MODE` as the player who asks.
 
 ## Reports and dashboard
 

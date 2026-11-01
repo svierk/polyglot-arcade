@@ -5,7 +5,7 @@ titleTemplate: Salesforce Multi-Framework as a retro arcade
 hero:
   name: Polyglot Arcade
   text: Salesforce Multi‑Framework
-  tagline: An Angular hub, a React cabinet and an LWC OSS game share one org's CRM data and meet on Lightning pages as microfrontends - as a retro arcade you can play.
+  tagline: An Angular hub, a React cabinet and an LWC OSS game share one org's CRM data and meet on Lightning pages as microfrontends, and the Hall of Fame answers in AI chats - as a retro arcade you can play.
   image:
     src: /images/polyglot-arcade-hero.svg
     alt: Three pixel-art arcade cabinets in magenta, cyan and blue, showing Brick Breaker, Block Drop and Snake
@@ -45,6 +45,14 @@ features:
     link: /architecture/patterns
     linkText: Four integration patterns
   - icon:
+      src: /images/icons/chat.svg
+      width: 48
+      height: 48
+    title: Ask the arcade in the chat
+    details: Claude and ChatGPT show the Hall of Fame and your player card as HXL widgets, served by a Salesforce MCP server.
+    link: /architecture/headless
+    linkText: Headless surface
+  - icon:
       src: /images/icons/communication.svg
       width: 48
       height: 48
@@ -72,7 +80,7 @@ features:
 
 ## The architecture at a glance
 
-One Salesforce org is the hall. Three surfaces stand in it, each in a color of its own, and one machine stands outside: the Snake on Vercel. The arrows are everything they say to each other and to the data they share.
+One Salesforce org is the hall. Three surfaces stand in it, each in a color of its own, and one machine stands outside: the Snake on Vercel. A fourth surface has no UI of its own and answers in AI clients. The arrows are everything they say to each other and to the data they share.
 
 ```mermaid
 flowchart LR
@@ -81,6 +89,7 @@ flowchart LR
     Floor["<b>Arcade Floor</b><br/>Lightning app<br/>arcadeGameHost · arcadeLeaderboard"]
     Snake["<b>Snake</b><br/>LWC OSS on Vercel<br/>outside Salesforce"]
     Data[("<b>Salesforce data</b><br/>Arcade_Game__c<br/>Arcade_Score__c")]
+    Chat["<b>Headless</b><br/>HXL widgets via MCP<br/>Hall of Fame · player card<br/>in Claude, ChatGPT, Slackbot"]
     Hub -- "launches" --> Cab
     Hub -- "links to the Snake page" --> Floor
     Floor <-- "frames /embed · props<br/>gameover event" --> Cab
@@ -88,19 +97,23 @@ flowchart LR
     Hub -- "Data SDK GraphQL" --> Data
     Cab -- "Data SDK GraphQL" --> Data
     Floor -- "createRecord · GraphQL wire" --> Data
+    Chat -- "MCP tools · Apex in user mode" --> Data
     classDef hub fill:#e879f9,stroke:#a21caf,color:#1a0520
     classDef cabinet fill:#22d3ee,stroke:#0e7490,color:#042f2e
     classDef floor fill:#60a5fa,stroke:#1d4ed8,color:#0b1530
     classDef guest fill:#c084fc,stroke:#7e22ce,color:#1e0b36
+    classDef headless fill:#34d399,stroke:#047857,color:#022c22
     class Hub hub
     class Cab cabinet
     class Floor floor
     class Snake guest
+    class Chat headless
 ```
 
 - <span class="surface hub">Polyglot Arcade</span> is the only lobby and the hall of fame. It launches every game, wherever the game lives.
 - <span class="surface cabinet">Pixel Cabinet</span> is a machine, not a second hub. The hub launches its games, and Lightning frames them as a microfrontend.
 - <span class="surface floor">Arcade Floor</span> is where microfrontends are composed: the Snake page, and the page of the showcase Account **Pixel Pioneers Inc.** with the embedded cabinet.
+- <span class="surface headless">Headless</span> is the arcade without a UI: Claude, ChatGPT and Slackbot render the Hall of Fame and a player card as HXL widgets, served by a Salesforce MCP server.
 
 Every finished round becomes a record. Read on in [Surfaces and roles](/architecture/), or [deploy the arcade](/deploy/) into your own org with one command.
 

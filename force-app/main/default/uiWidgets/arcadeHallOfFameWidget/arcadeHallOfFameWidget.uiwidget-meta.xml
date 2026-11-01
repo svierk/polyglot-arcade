@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UiWidgetBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Arcade Hall of Fame</masterLabel>
+    <description
+  >Ranks the players of a Polyglot Arcade game by their best round, or names the champion of every game.</description>
+    <widgetType>JSON</widgetType>
+</UiWidgetBundle>

@@ -1,0 +1,46 @@
+{
+  "title": "Arcade Hall of Fame Response",
+  "description": "Output values of the ArcadeHallOfFame invocable action",
+  "type": "object",
+  "lightning:type": "lightning__objectType",
+  "lightning:tags": ["mcp"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "allGames": {
+      "title": "All Games",
+      "lightning:type": "lightning__booleanType"
+    },
+    "arcadeUrl": {
+      "title": "Arcade URL",
+      "lightning:type": "lightning__textType"
+    },
+    "entries": {
+      "title": "Entries",
+      "lightning:type": "@apexClassType/c__ArcadeHallOfFame$Entry"
+    },
+    "hasEntries": {
+      "title": "Has Entries",
+      "lightning:type": "lightning__booleanType"
+    },
+    "message": {
+      "title": "Message",
+      "lightning:type": "lightning__textType"
+    },
+    "periodLabel": {
+      "title": "Period",
+      "lightning:type": "lightning__textType"
+    },
+    "players": {
+      "title": "Players",
+      "lightning:type": "lightning__integerType"
+    },
+    "rounds": {
+      "title": "Rounds",
+      "lightning:type": "lightning__integerType"
+    },
+    "title": {
+      "title": "Title",
+      "lightning:type": "lightning__textType"
+    }
+  }
+}

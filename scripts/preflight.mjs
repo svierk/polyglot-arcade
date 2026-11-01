@@ -7,6 +7,8 @@
  *
  *   API version     67.0 (Winter '27) or later
  *   Multi-Framework the org knows the UIBundle metadata type
+ *   Headless        the org has the HXL beta setting (setup turns it on) and
+ *                   knows MCP server definitions
  *   Language        English as the default language (lightning-ui-embedding)
  *   Hyperforce      instance name like SWE44S or USA876 (lightning-ui-embedding)
  *   Edge Network    MyDomainSettings.useEdge (UI bundles open from the App Launcher)
@@ -49,14 +51,37 @@ function checkApiVersion({ apiVersion }) {
       };
 }
 
-async function checkMultiFramework() {
-  const { metadataObjects } = await sf(["org", "list", "metadata-types"]);
+async function checkMultiFramework(metadataObjects) {
   return metadataObjects.some((type) => type.xmlName === "UIBundle")
     ? { ok: true, text: "Salesforce Multi-Framework (UI bundles) available" }
     : {
         ok: false,
         text: "The org does not know the UIBundle metadata type",
         hint: "Salesforce Multi-Framework is not available in this org, so the deploy will fail. Use a scratch org, a Developer Edition or a sandbox on Winter '27 or later."
+      };
+}
+
+async function checkHeadless(metadataObjects) {
+  const settings = await sf([
+    "org",
+    "list",
+    "metadata",
+    "--metadata-type",
+    "Settings"
+  ]);
+  const hxl = settings.some((setting) => setting.fullName === "UiWidget");
+  const mcp = metadataObjects.some(
+    (type) => type.xmlName === "McpServerDefinition"
+  );
+  return hxl && mcp
+    ? {
+        ok: true,
+        text: "Headless Experience Layer (beta) and MCP servers available"
+      }
+    : {
+        ok: false,
+        text: `The org lacks ${hxl ? "MCP server definitions" : "the Headless Experience Layer beta"}`,
+        hint: "The headless surface (HXL widgets for Claude) needs both, so the deploy will fail. Use an org on Winter '27 or later."
       };
 }
 
@@ -155,14 +180,27 @@ try {
 // project, where a project-local default org is unknown.
 orgArgs = ["--target-org", org.username];
 
+const metadataTypes = sf(["org", "list", "metadata-types"]).then(
+  (result) => result.metadataObjects
+);
 const results = await Promise.all([
   checkApiVersion(org),
-  checkMultiFramework().catch(
-    manual(
-      "Multi-Framework",
-      "Make sure Salesforce Multi-Framework is available in the org."
-    )
-  ),
+  metadataTypes
+    .then(checkMultiFramework)
+    .catch(
+      manual(
+        "Multi-Framework",
+        "Make sure Salesforce Multi-Framework is available in the org."
+      )
+    ),
+  metadataTypes
+    .then(checkHeadless)
+    .catch(
+      manual(
+        "the headless surface",
+        "Make sure the Headless Experience Layer beta and MCP servers are available in the org."
+      )
+    ),
   checkOrganization().catch(
     manual(
       "language and instance",

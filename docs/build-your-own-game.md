@@ -19,6 +19,8 @@ Whatever the home, every game brings the same four things:
 - **A machine of its own**: cabinet, screen, HUD, controls, result screen and high-score card in the game's look ([ADR 0002](/decisions/0002-surfaces-and-machines)). Names and artwork must not use trademarks of the original arcade titles; a new font from npm goes into [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
 - **A teaser marquee** for its lobby card: pixel art in the hub's [`marquees.ts`](../force-app/main/default/uiBundles/polyglotArcade/src/app/games/marquees.ts), keyed by `Game_Key__c`. A game without one keeps the plain card.
 
+The [headless surface](/architecture/headless) needs nothing extra: the Hall of Fame and player card tools read every active game record, so a new game shows up in the chat with its first round. If its name is not unique enough to ask for, players can use its `Game_Key__c`.
+
 The [Tech X-ray](/architecture/patterns#tech-x-ray) needs nothing: the hub derives it from the game record.
 
 ## In the hub

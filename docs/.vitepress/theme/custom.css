@@ -10,6 +10,7 @@
   --surface-hub: #a21caf;
   --surface-cabinet: #0e7490;
   --surface-floor: #1d4ed8;
+  --surface-headless: #047857;
 
   --vp-c-brand-1: #a21caf;
   --vp-c-brand-2: #86198f;
@@ -46,6 +47,7 @@
   --surface-hub: #e879f9;
   --surface-cabinet: #22d3ee;
   --surface-floor: #60a5fa;
+  --surface-headless: #34d399;
 
   /* The arcade night of the UI bundles instead of the neutral default grays. */
   --vp-c-bg: #07071a;
@@ -214,6 +216,10 @@
 
 .surface.floor {
   color: var(--surface-floor);
+}
+
+.surface.headless {
+  color: var(--surface-headless);
 }
 
 /* The page behind an enlarged diagram (MermaidDiagram.vue) stays put. */

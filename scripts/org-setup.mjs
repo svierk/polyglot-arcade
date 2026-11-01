@@ -17,11 +17,13 @@
  *   login (precondition) — sf org login web only if org not already connected; always runs before deploy
  *   0. preflight — scripts/preflight.mjs: warns about org gaps, never blocks (skip with --skip-preflight)
  *   1. uiBundle  — (all UI bundles) npm install && npm run build (SF_TARGET_ORG=<alias>) so dist exists for deploy (skip with --skip-ui-bundle-build)
- *   2. deploy    — sf project deploy start --target-org <alias> (requires dist for entity deployment)
+ *   2. deploy    — turn on the Headless Experience Layer, then sf project deploy start --target-org <alias>
+ *                  (requires dist for entity deployment)
  *   3. permset   — assign permsets per org-setup.config.json (skip with --skip-permset; override via --permset-name)
  *   4. data      — prepare unique fields, then import via Apex (skipped if no data dir/plan);
  *                  plan entries with "externalId" are upserted by that field, never deleted
- *   5. connect   — scripts/connect.mjs: store the UI bundle URLs on the game records (skip with --skip-connect)
+ *   5. connect   — scripts/connect.mjs: store the UI bundle URLs on the game records and activate
+ *                  the MCP server of the headless surface (skip with --skip-connect)
  *   6. graphql   — (in UI bundle) npm run graphql:schema then npm run graphql:codegen
  *
  * Permset assignment config (scripts/org-setup.config.json):
@@ -340,7 +342,7 @@ Options:
   --skip-permset         Do not assign permission set
   --skip-social-login    Do not enable social login (auth providers + community profile)
   --skip-data            Do not prepare data or run data import
-  --skip-connect         Do not store the UI bundle URLs on the game records
+  --skip-connect         Do not store the UI bundle URLs or activate the MCP server
   --skip-graphql         Do not fetch schema or run GraphQL codegen
   --skip-ui-bundle-build Do not npm install / build the UI bundle
   -y, --yes              Skip interactive step picker; run all enabled steps immediately
@@ -2213,7 +2215,7 @@ async function main() {
     },
     {
       key: "connect",
-      label: "Connect — store UI bundle URLs on the game records",
+      label: "Connect — store UI bundle URLs, activate the MCP server",
       enabled: !argSkipConnect,
       available: true,
       failFast: false
@@ -2369,6 +2371,24 @@ async function main() {
           throw new StepError(`deploy blocked — ${licenseGate.reason}`);
         }
       }
+      // The org checks widget bundles before it applies settings from the same
+      // deploy, so the Headless Experience Layer (beta) is turned on first.
+      run(
+        "Turn on the Headless Experience Layer",
+        "sf",
+        [
+          "project",
+          "deploy",
+          "start",
+          "--metadata",
+          "Settings:UiWidget",
+          "--target-org",
+          targetOrg
+        ],
+        {
+          timeout: 180000
+        }
+      );
       run(
         "Deploy metadata",
         "sf",

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ExternalClientApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>polyglot-arcade@example.com</contactEmail>
+    <description
+  >Lets MCP clients such as Claude sign players in to the Polyglot Arcade MCP server, so the Hall of Fame and player card tools run as the player who asks.</description>
+    <distributionState>Local</distributionState>
+    <isProtected>false</isProtected>
+    <label>Polyglot Arcade MCP</label>
+</ExternalClientApplication>

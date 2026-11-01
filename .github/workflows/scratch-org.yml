@@ -2,7 +2,8 @@ name: Scratch Org Setup
 
 # Release acceptance in a real org: creates a fresh scratch org, deploys the
 # whole demo with the one setup command, records a round, runs the setup a
-# second time and checks that the round survived. Runs manually and on release
+# second time and checks that the round survived, that the Apex tests pass and
+# that the headless surface ranks the round and its MCP server is active. Runs manually and on release
 # tags only, so it does not use up the Dev Hub's daily scratch org limit.
 #
 # Built from the Salesforce DevOps Starter Kit's building blocks rather than its
@@ -60,7 +61,7 @@ jobs:
 
       - name: Create Scratch Org
         id: scratch
-        uses: svierk/sfdx-create-scratch-org@v1.3.2
+        uses: svierk/sfdx-create-scratch-org@v1.3.3
         with:
           target-dev-hub: devhub
           definition-file: config/project-scratch-def.json
@@ -81,6 +82,12 @@ jobs:
       - name: Run Setup Again
         run: npm run setup -- --target-org polyglot-arcade --yes
 
+      - name: Run Apex Tests
+        uses: svierk/sfdx-run-tests@v1.3.0
+        with:
+          target-org: polyglot-arcade
+          test-level: RunLocalTests
+
       - name: Check Games and Scores
         run: |
           count() {
@@ -89,7 +96,14 @@ jobs:
           games=$(count Arcade_Game__c)
           scores=$(count Arcade_Score__c)
           unplugged=$(count "Arcade_Game__c WHERE App_Url__c = null")
-          echo "Games: $games, scores: $scores, games without App URL: $unplugged"
+          champion=$(sf api request rest -o polyglot-arcade --method POST \
+            '/services/data/v67.0/actions/custom/apex/ArcadeHallOfFame' \
+            --body '{"inputs":[{"game":"block-drop"}]}' \
+            | jq -r '.[0].outputValues.entries[0].score')
+          mcp=$(sf data query -o polyglot-arcade --use-tooling-api --json \
+            -q "SELECT COUNT() FROM McpServerAccess WHERE Active = true" \
+            | jq -r '.result.totalSize')
+          echo "Games: $games, scores: $scores, games without App URL: $unplugged, Block Drop champion score: $champion, active MCP servers: $mcp"
           {
             echo "### Scratch org setup"
             echo "| Check | Expected | Actual |"
@@ -97,8 +111,10 @@ jobs:
             echo "| Games | 5 | $games |"
             echo "| Scores after the second setup | 1 | $scores |"
             echo "| Games without App URL | 0 | $unplugged |"
+            echo "| Block Drop champion score (Hall of Fame tool) | 4200 | $champion |"
+            echo "| Active MCP servers | 1 | $mcp |"
           } >> "$GITHUB_STEP_SUMMARY"
-          [ "$games" = 5 ] && [ "$scores" = 1 ] && [ "$unplugged" = 0 ]
+          [ "$games" = 5 ] && [ "$scores" = 1 ] && [ "$unplugged" = 0 ] && [ "$champion" = 4200 ] && [ "$mcp" = 1 ]
 
       - name: Delete Scratch Org
         if: always() && steps.scratch.outputs.username != ''

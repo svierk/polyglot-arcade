@@ -141,6 +141,7 @@ export default defineConfig({
         items: [
           { text: 'Surfaces and roles', link: '/architecture/' },
           { text: 'Integration patterns', link: '/architecture/patterns' },
+          { text: 'Headless surface', link: '/architecture/headless' },
           { text: 'Communication', link: '/architecture/communication' },
           { text: 'Data model', link: '/architecture/data-model' }
         ]
@@ -166,7 +167,8 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/decisions/' },
           { text: '0001 · Surface roles', link: '/decisions/0001-surface-roles' },
-          { text: '0002 · Surfaces and machines', link: '/decisions/0002-surfaces-and-machines' }
+          { text: '0002 · Surfaces and machines', link: '/decisions/0002-surfaces-and-machines' },
+          { text: '0003 · Headless surface', link: '/decisions/0003-headless-surface' }
         ]
       }
     ],
