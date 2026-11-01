@@ -33,14 +33,14 @@ Chrome's Local Network Access checks can block a Salesforce page from framing `l
 
 The [Validation workflow](../.github/workflows/ci.yml) runs all of them on every push and pull request, no org required:
 
-| Scope         | Command                                                                                    | What it covers                                                                                        |
-| ------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| SFDX project  | `npm run prettier:verify` · `npm run lint` · `npm run test:unit`                           | formatting, LWC linting, LWC Jest + accessibility (sa11y)                                             |
-| React cabinet | `npm run lint` · `npx vitest run` · `npm run build:e2e && npx playwright test`             | game engines, production build, end-to-end play, accessibility (axe), touch at 375 px                 |
-| Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, Tech X-ray, end-to-end play, accessibility (axe), touch at 375 px |
-| Docs site     | `npm run test:docs` · `npm run docs:build`                                                 | link handling of the Markdown copies, the site builds without dead links                              |
+| Scope         | Command                                                                                    | What it covers                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| SFDX project  | Code Analyzer · `npm run prettier:verify` · `npm run lint` · `npm run test:unit`           | Apex and LWC static analysis (fails from High), formatting, LWC linting, LWC Jest + accessibility (sa11y) |
+| React cabinet | `npm run lint` · `npx vitest run` · `npm run build:e2e && npx playwright test`             | game engines, production build, end-to-end play, accessibility (axe), touch at 375 px                     |
+| Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, Tech X-ray, end-to-end play, accessibility (axe), touch at 375 px     |
+| Docs site     | `npm run test:docs` · `npm run docs:build`                                                 | link handling of the Markdown copies, the site builds without dead links                                  |
 
-The Apex tests of the headless surface need an org: `sf apex run test -n ArcadeToolsTest -o my-org -c` runs them with code coverage.
+In CI, the SFDX project runs through the [DevOps Starter Kit](https://github.com/svierk/salesforce-devops-starter-kit)'s building blocks `sfdx-code-review` and `sfdx-run-tests`. The Scratch Org Setup workflow logs in, creates the scratch org and runs the Apex tests with the kit's blocks as well. The Apex tests of the headless surface need an org: `sf apex run test -n ArcadeToolsTest -o my-org -c` runs them with code coverage.
 
 The Playwright tests of both bundles run in two projects: `chromium` on a desktop window, including the [axe](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright) checks against WCAG 2.1 AA, and `mobile` (Chromium's phone emulation, tests tagged `@touch`) for touch play and layouts at 375 px. The hub's tests answer the Data SDK's calls with the seed games, so the lobby and the Tech X-ray are tested without an org.
 

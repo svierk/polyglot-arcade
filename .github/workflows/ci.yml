@@ -1,8 +1,11 @@
 name: Validation
 
-# Validates every change without a Salesforce org: formatting, linting and the
-# LWC unit tests of the SFDX project, the docs site build, plus lint, unit tests, production build and
-# Playwright end-to-end tests of both UI bundles. The end-to-end tests run against
+# Validates every change without a Salesforce org - static on purpose, so it
+# runs for every fork and pull request: the code review (Code Analyzer,
+# Prettier, ESLint) and the LWC unit tests of the SFDX project with the
+# DevOps Starter Kit's building blocks, the docs site build, plus lint, unit
+# tests, production build and Playwright end-to-end tests of both UI bundles.
+# Apex tests need an org and run in the Scratch Org Setup workflow. The end-to-end tests run against
 # the static builds, so games are fully playable while data calls fail gracefully.
 
 on:
@@ -38,19 +41,37 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Check Formatting
-        run: npm run prettier:verify
-
       # Exercises the zod schema the org setup script relies on, so dependency
       # updates that break `npm run setup` fail here instead of in a user's org.
       - name: Validate Org Setup Config
         run: npm run validate:org-setup-config
 
-      - name: Lint LWC
-        run: npm run lint
+      # Code Analyzer runs as an SF CLI plugin.
+      - name: Install SF CLI
+        uses: svierk/sfdx-cli-setup@v1.2.0
+        with:
+          version: ${{ vars.SF_CLI_VERSION_OVERRIDE }}
+
+      # Code Analyzer covers Apex and LWC; the UI bundles have linters of their
+      # own in the jobs below. Findings below High are reported, not blocking.
+      - name: Code Review
+        uses: svierk/sfdx-code-review@v1.1.1
+        with:
+          workspace: |
+            force-app/main/default/classes
+            force-app/main/default/lwc
+          severity-threshold: High
+          prettier: true
+          prettier-command: npm run prettier:verify
+          eslint: true
+          eslint-command: npx eslint --no-error-on-unmatched-pattern "**/{aura,lwc}/**/*.js" --format json --output-file eslint-report.json
 
       - name: Run LWC Unit Tests
-        run: npm run test:unit
+        uses: svierk/sfdx-run-tests@v1.3.0
+        with:
+          apex: false
+          lwc: true
+          lwc-test-command: npm run test:unit:coverage
 
       # The Docs workflow deploys the site from main only; building it here
       # catches dead links and broken pages before the merge.

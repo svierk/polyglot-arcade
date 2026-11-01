@@ -61,7 +61,7 @@ jobs:
 
       - name: Create Scratch Org
         id: scratch
-        uses: svierk/sfdx-create-scratch-org@v1.3.2
+        uses: svierk/sfdx-create-scratch-org@v1.3.3
         with:
           target-dev-hub: devhub
           definition-file: config/project-scratch-def.json
@@ -83,7 +83,10 @@ jobs:
         run: npm run setup -- --target-org polyglot-arcade --yes
 
       - name: Run Apex Tests
-        run: sf apex run test -o polyglot-arcade --test-level RunLocalTests --code-coverage --result-format human --wait 20
+        uses: svierk/sfdx-run-tests@v1.3.0
+        with:
+          target-org: polyglot-arcade
+          test-level: RunLocalTests
 
       - name: Check Games and Scores
         run: |
