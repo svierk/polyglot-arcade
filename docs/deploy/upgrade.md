@@ -13,6 +13,8 @@ npm run setup -- --target-org my-org
 
 It deploys what is new, adds missing games, updates the existing ones by their **Game Key** and stores the UI bundle URLs again. Coming from v0.8.0 or earlier, it also adds the field **Arcade Key** to Account and the showcase Account **Pixel Pioneers Inc.**, linked from the hub lobby.
 
+Coming from v1.0.x, it turns on the Headless Experience Layer beta - read its terms in **Setup → Headless Experience Layer Settings** first - and adds the [headless surface](/architecture/headless): the Apex tools, the HXL widgets, the MCP server and the External Client App **Polyglot Arcade MCP**. The permission set gains access to the two tool classes. At the end, the setup prints what Claude needs to [connect](/deploy/#connect-claude).
+
 ## Leftovers of older versions
 
 Two leftovers the setup cannot remove for you:

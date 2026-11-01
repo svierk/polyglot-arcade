@@ -40,13 +40,15 @@ The [Validation workflow](../.github/workflows/ci.yml) runs all of them on every
 | Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, Tech X-ray, end-to-end play, accessibility (axe), touch at 375 px |
 | Docs site     | `npm run test:docs` · `npm run docs:build`                                                 | link handling of the Markdown copies, the site builds without dead links                              |
 
+The Apex tests of the headless surface need an org: `sf apex run test -n ArcadeToolsTest -o my-org -c` runs them with code coverage.
+
 The Playwright tests of both bundles run in two projects: `chromium` on a desktop window, including the [axe](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright) checks against WCAG 2.1 AA, and `mobile` (Chromium's phone emulation, tests tagged `@touch`) for touch play and layouts at 375 px. The hub's tests answer the Data SDK's calls with the seed games, so the lobby and the Tech X-ray are tested without an org.
 
 GraphQL operations are validated against your org's schema with `npm run graphql:codegen` inside each bundle.
 
 ## Release acceptance in a real org
 
-The [Scratch Org Setup workflow](../.github/workflows/scratch-org.yml) creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
+The [Scratch Org Setup workflow](../.github/workflows/scratch-org.yml) creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived, that the Apex tests pass, that the Hall of Fame tool ranks the round and that the MCP server is active. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
 
 ## This site
 

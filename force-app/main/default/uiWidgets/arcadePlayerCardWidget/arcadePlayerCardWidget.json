@@ -1,0 +1,234 @@
+{
+  "type": "lightning__agentforceWidget",
+  "contentBody": {
+    "widgetBody": {
+      "definition": "tile/widget",
+      "children": [
+        {
+          "definition": "tile/column",
+          "children": [
+            {
+              "definition": "tile/row",
+              "children": [
+                {
+                  "definition": "tile/avatar",
+                  "attributes": {
+                    "initials": "{!$attrs.initials}",
+                    "alt": "{!$attrs.player}",
+                    "size": "lg"
+                  }
+                },
+                {
+                  "definition": "tile/column",
+                  "attributes": {
+                    "gap": "none"
+                  },
+                  "children": [
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "{!$attrs.player}",
+                        "variant": "h1"
+                      }
+                    },
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "{!TEXT($attrs.rounds) & IF($attrs.rounds = 1, ' round', ' rounds') & ' · ' & TEXT($attrs.gamesPlayed) & ' of ' & TEXT($attrs.gamesTotal) & ' games'}",
+                        "variant": "caption",
+                        "color": "muted"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "definition": "tile/callout",
+              "meta": {
+                "if": "{!NOT(ISBLANK($attrs.message))}"
+              },
+              "attributes": {
+                "title": "{!$attrs.message}",
+                "variant": "info"
+              }
+            },
+            {
+              "definition": "tile/column",
+              "meta": {
+                "if": "{!$attrs.hasRounds}"
+              },
+              "children": [
+                {
+                  "definition": "tile/progress",
+                  "attributes": {
+                    "label": "Games played",
+                    "value": "{!$attrs.gamesPlayed}",
+                    "max": "{!$attrs.gamesTotal}",
+                    "size": "sm"
+                  }
+                },
+                {
+                  "definition": "tile/text",
+                  "attributes": {
+                    "text": "Personal bests",
+                    "variant": "h2"
+                  }
+                },
+                {
+                  "definition": "tile/column",
+                  "attributes": {
+                    "gap": "sm"
+                  },
+                  "children": [
+                    {
+                      "definition": "tile/row",
+                      "meta": {
+                        "forEach": "{!$attrs.bests}",
+                        "forItem": "$best"
+                      },
+                      "attributes": {
+                        "justify": "between"
+                      },
+                      "children": [
+                        {
+                          "definition": "tile/column",
+                          "attributes": {
+                            "gap": "none"
+                          },
+                          "children": [
+                            {
+                              "definition": "tile/text",
+                              "attributes": {
+                                "text": "{!$best.game}",
+                                "weight": "semibold"
+                              }
+                            },
+                            {
+                              "definition": "tile/text",
+                              "attributes": {
+                                "text": "{!IF(ISNULL($best.rank), 'No score yet', '#' & TEXT($best.rank) & ' of ' & TEXT($best.players)) & ' · ' & TEXT($best.rounds) & IF($best.rounds = 1, ' round', ' rounds')}",
+                                "variant": "caption",
+                                "color": "muted"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "definition": "tile/row",
+                          "attributes": {
+                            "gap": "sm"
+                          },
+                          "children": [
+                            {
+                              "definition": "tile/badge",
+                              "meta": {
+                                "if": "{!$best.isChampion}"
+                              },
+                              "attributes": {
+                                "label": "Champion",
+                                "variant": "success"
+                              }
+                            },
+                            {
+                              "definition": "tile/text",
+                              "attributes": {
+                                "text": "{!FORMATNUMBER($best.best)}",
+                                "variant": "h3"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "definition": "tile/text",
+                  "attributes": {
+                    "text": "Last rounds",
+                    "variant": "h2"
+                  }
+                },
+                {
+                  "definition": "tile/column",
+                  "attributes": {
+                    "gap": "sm"
+                  },
+                  "children": [
+                    {
+                      "definition": "tile/row",
+                      "meta": {
+                        "forEach": "{!$attrs.recent}",
+                        "forItem": "$round"
+                      },
+                      "attributes": {
+                        "justify": "between"
+                      },
+                      "children": [
+                        {
+                          "definition": "tile/column",
+                          "attributes": {
+                            "gap": "none"
+                          },
+                          "children": [
+                            {
+                              "definition": "tile/text",
+                              "attributes": {
+                                "text": "{!$round.game}"
+                              }
+                            },
+                            {
+                              "definition": "tile/text",
+                              "attributes": {
+                                "text": "{!$round.playedAt & ' · ' & BLANKVALUE($round.source, 'Unknown surface')}",
+                                "variant": "caption",
+                                "color": "muted"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "definition": "tile/text",
+                          "attributes": {
+                            "text": "{!FORMATNUMBER($round.score)}",
+                            "variant": "h4"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "definition": "tile/separator"
+            },
+            {
+              "definition": "tile/row",
+              "children": [
+                {
+                  "definition": "tile/button",
+                  "attributes": {
+                    "label": "Hall of Fame",
+                    "iconName": "crown",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/sendMessage",
+                          "attributes": {
+                            "content": "Show the Polyglot Arcade Hall of Fame."
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

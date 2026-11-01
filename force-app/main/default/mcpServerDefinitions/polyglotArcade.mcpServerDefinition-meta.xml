@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<McpServerDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Polyglot Arcade</masterLabel>
+    <description
+  >Hall of Fame and player cards of the Polyglot Arcade, rendered as HXL widgets in Claude, ChatGPT and Slackbot.</description>
+    <tools>
+        <toolName>getHallOfFame</toolName>
+        <toolTitle>Get Arcade Hall of Fame</toolTitle>
+        <descriptionOverride
+    >Ranks the players of a Polyglot Arcade game (Block Drop, Pellet Chase, Four in a Row, Brick Breaker, Snake) by their best round, or names the champion of every game when no game is given. Optional period: today, week, month or all. Use it for questions like "Who is this week's champion?" or "Show the Brick Breaker high scores". Send exactly one object in inputs: the result renders as a widget only for a single request. To compare periods or games, call the tool once for each.</descriptionOverride>
+        <readOnly>true</readOnly>
+        <destructive>false</destructive>
+        <idempotent>true</idempotent>
+        <openWorld>false</openWorld>
+        <returnDirect>false</returnDirect>
+        <uiResource>hallOfFame</uiResource>
+        <apiDefinition>
+            <apiSource>API_CATALOG</apiSource>
+            <apiIdentifier>aa:apex-ArcadeHallOfFame</apiIdentifier>
+            <operation>ArcadeHallOfFame</operation>
+        </apiDefinition>
+    </tools>
+    <tools>
+        <toolName>getPlayerCard</toolName>
+        <toolTitle>Get Arcade Player Card</toolTitle>
+        <descriptionOverride
+    >Shows a Polyglot Arcade player's personal best and rank in every game and their last five rounds. Leave the player empty for the person who asks. Use it for questions like "How am I doing in the arcade?" or "Show Ada's player card". Send exactly one object in inputs: the result renders as a widget only for a single request. For several players, call the tool once for each.</descriptionOverride>
+        <readOnly>true</readOnly>
+        <destructive>false</destructive>
+        <idempotent>true</idempotent>
+        <openWorld>false</openWorld>
+        <returnDirect>false</returnDirect>
+        <uiResource>playerCard</uiResource>
+        <apiDefinition>
+            <apiSource>API_CATALOG</apiSource>
+            <apiIdentifier>aa:apex-ArcadePlayerCard</apiIdentifier>
+            <operation>ArcadePlayerCard</operation>
+        </apiDefinition>
+    </tools>
+    <resources>
+        <resourceName>hallOfFame</resourceName>
+        <resourceUri>ui://widget/lightningType/c__arcadeHallOfFame</resourceUri>
+        <resourceTitle>Arcade Hall of Fame</resourceTitle>
+        <description
+    >Renders the getHallOfFame result with the arcadeHallOfFameWidget HXL widget.</description>
+    </resources>
+    <resources>
+        <resourceName>playerCard</resourceName>
+        <resourceUri>ui://widget/lightningType/c__arcadePlayerCard</resourceUri>
+        <resourceTitle>Arcade Player Card</resourceTitle>
+        <description
+    >Renders the getPlayerCard result with the arcadePlayerCardWidget HXL widget.</description>
+    </resources>
+</McpServerDefinition>

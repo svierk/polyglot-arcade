@@ -1,0 +1,20 @@
+{
+  "renderer": {
+    "componentOverrides": {
+      "$": {
+        "definition": "@widget/c/arcadePlayerCardWidget",
+        "attributes": {
+          "player": "{!$attrs.outputValues.player}",
+          "initials": "{!$attrs.outputValues.initials}",
+          "rounds": "{!$attrs.outputValues.rounds}",
+          "gamesPlayed": "{!$attrs.outputValues.gamesPlayed}",
+          "gamesTotal": "{!$attrs.outputValues.gamesTotal}",
+          "hasRounds": "{!$attrs.outputValues.hasRounds}",
+          "message": "{!$attrs.outputValues.message}",
+          "bests": "{!$attrs.outputValues.bests}",
+          "recent": "{!$attrs.outputValues.recent}"
+        }
+      }
+    }
+  }
+}

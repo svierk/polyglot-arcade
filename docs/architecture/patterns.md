@@ -13,6 +13,8 @@ Polyglot Arcade covers four ways a game reaches the Salesforce Platform. The num
 | 3   | [Internally hosted microfrontend - the guest saves](#pattern-3) | Block Drop, Pellet Chase on a Lightning page | the framed cabinet, as guest            |
 | 4   | [Externally hosted microfrontend - the host saves](#pattern-4)  | Snake on its Lightning page                  | the host LWC - the guest has no session |
 
+The [headless surface](/architecture/headless) is no fifth pattern: it plays no game and saves no round, it brings the same score sheet to AI clients ([ADR 0003](/decisions/0003-headless-surface)).
+
 ## 1 · Native Angular UI bundle {#pattern-1}
 
 `polyglotArcade` launches from the App Launcher and reads and writes data with the Data SDK. The lobby is data driven: tiles, colors, high scores and launch targets come from `Arcade_Game__c`.

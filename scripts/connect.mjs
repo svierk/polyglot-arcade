@@ -12,9 +12,19 @@
  * Internal UI bundle URLs are org-specific; the platform exposes them as the
  * StartUrl of the app's AppMenuItem.
  *
+ * Then it connects the headless surface: it activates the Polyglot Arcade MCP
+ * server and prints the server URL and OAuth client ID an MCP client such as
+ * Claude needs to render the HXL widgets.
+ *
  * Usage: node scripts/connect.mjs [--target-org <alias>]
  */
 import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const MCP_SERVER = "polyglotArcade";
+const MCP_OAUTH_SETTINGS = "polyglotArcadeMcp_glbloauth";
 
 const BUNDLES = [
   {
@@ -35,9 +45,10 @@ const args = process.argv.slice(2);
 const orgIndex = args.findIndex((a) => a === "--target-org" || a === "-o");
 const orgArgs = orgIndex >= 0 ? ["--target-org", args[orgIndex + 1]] : [];
 
-function sf(argv) {
+function sf(argv, options = {}) {
   const out = execFileSync("sf", [...argv, ...orgArgs, "--json"], {
-    encoding: "utf8"
+    encoding: "utf8",
+    ...options
   });
   return JSON.parse(out).result;
 }
@@ -85,3 +96,104 @@ for (const bundle of BUNDLES) {
     );
   }
 }
+
+// The headless surface. An MCP server is activated by its McpServerAccess
+// record; its metadata has no active flag.
+const server = sf([
+  "data",
+  "query",
+  "--use-tooling-api",
+  "--query",
+  `SELECT Id FROM McpServerDefinition WHERE DeveloperName = '${MCP_SERVER}'`
+]).records[0];
+if (!server) {
+  console.error(
+    "Polyglot Arcade MCP server not found. Deploy the project first (npm run setup)."
+  );
+  process.exit(1);
+}
+const access = sf([
+  "data",
+  "query",
+  "--use-tooling-api",
+  "--query",
+  `SELECT Id, Active FROM McpServerAccess WHERE McpServerId = '${server.Id}'`
+]).records[0];
+if (!access) {
+  sf([
+    "data",
+    "create",
+    "record",
+    "--use-tooling-api",
+    "--sobject",
+    "McpServerAccess",
+    "--values",
+    `DeveloperName=${MCP_SERVER} MasterLabel='Polyglot Arcade' Active=true McpServerId=${server.Id}`
+  ]);
+} else if (!access.Active) {
+  sf([
+    "data",
+    "update",
+    "record",
+    "--use-tooling-api",
+    "--sobject",
+    "McpServerAccess",
+    "--record-id",
+    access.Id,
+    "--values",
+    "Active=true"
+  ]);
+}
+
+// Sandboxes and scratch orgs sign in at test.salesforce.com, so MCP clients
+// need the sandbox variant of the server URL.
+const [org] = sf([
+  "data",
+  "query",
+  "--query",
+  "SELECT IsSandbox FROM Organization"
+]).records;
+const serverUrl = `https://api.salesforce.com/platform/mcp/v1/${org.IsSandbox ? "sandbox/" : ""}custom/${MCP_SERVER}`;
+
+// The OAuth client ID is the consumer key the platform generated for the
+// External Client App. It is a public identifier, not a secret. The retrieve
+// runs outside the project so source tracking stays untouched.
+const retrieveDir = mkdtempSync(join(tmpdir(), "polyglot-arcade-eca-"));
+let clientId;
+try {
+  sf(
+    [
+      "project",
+      "retrieve",
+      "start",
+      "--metadata",
+      `ExtlClntAppGlobalOauthSettings:${MCP_OAUTH_SETTINGS}`,
+      "--target-metadata-dir",
+      retrieveDir,
+      "--unzip"
+    ],
+    { cwd: retrieveDir }
+  );
+  const file = readdirSync(retrieveDir, { recursive: true }).find((path) =>
+    String(path).endsWith(".ecaGlblOauth")
+  );
+  clientId = file
+    ? readFileSync(join(retrieveDir, String(file)), "utf8").match(
+        /<consumerKey>([^<]+)<\/consumerKey>/
+      )?.[1]
+    : undefined;
+} finally {
+  rmSync(retrieveDir, { recursive: true, force: true });
+}
+
+console.log(`Polyglot Arcade MCP server: active`);
+console.log(`  Server URL:       ${serverUrl}`);
+console.log(
+  `  OAuth client ID:  ${clientId ?? "(see External Client App Manager → Polyglot Arcade MCP)"}`
+);
+console.log(
+  "  In Claude: Customize → Connectors → Add custom connector, paste both, then ask"
+);
+console.log(
+  '  "Who is this week\'s arcade champion?" A new External Client App can take up to 30 minutes to work.'
+);

@@ -1,0 +1,156 @@
+{
+  "type": "lightning__agentforceWidget",
+  "contentBody": {
+    "widgetBody": {
+      "definition": "tile/widget",
+      "children": [
+        {
+          "definition": "tile/column",
+          "children": [
+            {
+              "definition": "tile/row",
+              "attributes": { "gap": "sm" },
+              "children": [
+                {
+                  "definition": "tile/icon",
+                  "attributes": { "name": "crown", "color": "warning" }
+                },
+                {
+                  "definition": "tile/text",
+                  "attributes": { "text": "{!$attrs.title}", "variant": "h1" }
+                },
+                {
+                  "definition": "tile/badge",
+                  "attributes": {
+                    "label": "{!$attrs.periodLabel}",
+                    "variant": "primary"
+                  }
+                }
+              ]
+            },
+            {
+              "definition": "tile/text",
+              "attributes": {
+                "text": "{!TEXT($attrs.rounds) & IF($attrs.rounds = 1, ' round', ' rounds') & ' · ' & TEXT($attrs.players) & IF($attrs.players = 1, ' player', ' players')}",
+                "variant": "caption",
+                "color": "muted"
+              }
+            },
+            {
+              "definition": "tile/callout",
+              "meta": { "if": "{!NOT(ISBLANK($attrs.message))}" },
+              "attributes": { "title": "{!$attrs.message}", "variant": "info" }
+            },
+            {
+              "definition": "tile/column",
+              "meta": { "if": "{!$attrs.hasEntries}" },
+              "attributes": { "gap": "sm" },
+              "children": [
+                {
+                  "definition": "tile/row",
+                  "meta": {
+                    "forEach": "{!$attrs.entries}",
+                    "forItem": "$entry"
+                  },
+                  "attributes": { "justify": "between" },
+                  "children": [
+                    {
+                      "definition": "tile/row",
+                      "attributes": { "gap": "sm" },
+                      "children": [
+                        {
+                          "definition": "tile/text",
+                          "attributes": {
+                            "text": "{!$entry.place}",
+                            "variant": "h4"
+                          }
+                        },
+                        {
+                          "definition": "tile/avatar",
+                          "attributes": {
+                            "initials": "{!$entry.initials}",
+                            "alt": "{!$entry.player}",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "definition": "tile/column",
+                          "attributes": { "gap": "none" },
+                          "children": [
+                            {
+                              "definition": "tile/text",
+                              "attributes": {
+                                "text": "{!IF($attrs.allGames, $entry.game, $entry.player)}",
+                                "weight": "semibold"
+                              }
+                            },
+                            {
+                              "definition": "tile/text",
+                              "attributes": {
+                                "text": "{!IF($attrs.allGames, $entry.player & ' · ', '') & TEXT($entry.rounds) & IF($entry.rounds = 1, ' round', ' rounds')}",
+                                "variant": "caption",
+                                "color": "muted"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "{!FORMATNUMBER($entry.score)}",
+                        "variant": "h3"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            { "definition": "tile/separator" },
+            {
+              "definition": "tile/row",
+              "attributes": { "gap": "sm" },
+              "children": [
+                {
+                  "definition": "tile/button",
+                  "meta": { "if": "{!NOT(ISBLANK($attrs.arcadeUrl))}" },
+                  "attributes": {
+                    "label": "Play in the arcade",
+                    "iconName": "open-in-new",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/openLink",
+                          "attributes": { "url": "{!$attrs.arcadeUrl}" }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "definition": "tile/button",
+                  "attributes": {
+                    "label": "My player card",
+                    "variant": "secondary",
+                    "iconName": "user",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/sendMessage",
+                          "attributes": {
+                            "content": "Show my Polyglot Arcade player card."
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

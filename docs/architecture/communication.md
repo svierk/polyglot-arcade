@@ -1,10 +1,10 @@
 ---
-description: How the surfaces of Polyglot Arcade talk to the platform and to each other - Data SDK GraphQL, View SDK props and events, the package-free bridge and Lightning Message Service - with the sequence of an embedded round.
+description: How the surfaces of Polyglot Arcade talk to the platform and to each other - Data SDK GraphQL, View SDK props and events, the package-free bridge, Lightning Message Service and MCP with HXL widgets - with the sequence of an embedded round.
 ---
 
 # Communication
 
-Four channels connect the arcade. Each one has a single job:
+Five channels connect the arcade. Each one has a single job:
 
 | Channel                                                 | Between                                 | Carries                                                     |
 | ------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------------- |
@@ -12,8 +12,9 @@ Four channels connect the arcade. Each one has a single job:
 | [View SDK props and events](#view-sdk-props-and-events) | host LWC ↔ framed cabinet               | which game to show and for which record; the end of a round |
 | [Package-free bridge](#package-free-bridge)             | host LWC ↔ framed external guest        | the same protocol, without `@salesforce/platform-sdk`       |
 | [Lightning Message Service](#lightning-message-service) | host LWC → other components on the page | "a round was saved", so leaderboards refresh                |
+| [MCP and HXL widgets](#mcp-and-hxl-widgets)             | AI client ↔ MCP server → Apex tools     | questions as tool calls, results as data and as a widget    |
 
-The LWCs read data with the `lightning/graphql` wire and write with `lightning/uiRecordApi`, like any Lightning component.
+The LWCs read data with the `lightning/graphql` wire and write with `lightning/uiRecordApi`, like any Lightning component. The headless surface reads with Apex invocable actions in user mode.
 
 ## Data SDK GraphQL
 
@@ -112,3 +113,25 @@ The host saves a guest's round only for the game record it embeds, whatever game
 After a saved round the host publishes `{ gameKey, score }` on the message channel `Arcade_Score_Channel`. Every `arcadeLeaderboard` on the same page subscribes to it and refreshes its GraphQL wire. On an Account page the leaderboard picks up the record ID and lists only that Account's rounds.
 
 The host and the leaderboard know nothing about each other beyond the channel: any component on the page can listen, and the leaderboard works next to any host - or none.
+
+## MCP and HXL widgets
+
+AI clients reach the arcade through the custom MCP server `polyglotArcade`, hosted by Salesforce. The client signs the player in with OAuth and calls a tool; the server runs the Apex invocable action behind it as that player and returns the result twice - as data the model reads, and as the input of the HXL widget linked to the tool, which the client renders as an MCP App. The full sequence is on [Headless surface](/architecture/headless#from-a-question-to-a-widget).
+
+The widgets talk back through two actions, without client-specific code:
+
+```mermaid
+sequenceDiagram
+    actor Player
+    participant Client as Claude
+    participant MCP as MCP server
+    Player->>Client: clicks "My player card" in the Hall of Fame widget
+    Client->>Client: action/sendMessage<br/>"Show my Polyglot Arcade player card."
+    Client->>MCP: tools/call getPlayerCard
+    MCP-->>Client: result + arcadePlayerCardWidget
+    Client-->>Player: the player card
+    Player->>Client: clicks "Play in the arcade"
+    Client-->>Player: action/openLink opens the hub (App URL of the Angular games)
+```
+
+The widgets never write: rounds are saved on the other surfaces, through the Data SDK and the host LWC.

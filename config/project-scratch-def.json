@@ -12,6 +12,9 @@
     },
     "myDomainSettings": {
       "useEdge": true
+    },
+    "uiWidgetSettings": {
+      "hxlEnabled": true
     }
   }
 }
