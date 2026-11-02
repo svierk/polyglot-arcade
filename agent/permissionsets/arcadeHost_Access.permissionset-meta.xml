@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentAccesses>
+        <agentName>Arcade_Host</agentName>
+        <enabled>true</enabled>
+    </agentAccesses>
+    <classAccesses>
+        <apexClass>ArcadeHallOfFameAgent</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ArcadePlayerCardAgent</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description
+  >Access to the Arcade Host employee agent in Lightning. Deploy after the agent is published, the agent must exist.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Arcade Host Access</label>
+</PermissionSet>

@@ -97,7 +97,7 @@ jobs:
           scores=$(count Arcade_Score__c)
           unplugged=$(count "Arcade_Game__c WHERE App_Url__c = null")
           champion=$(sf api request rest -o polyglot-arcade --method POST \
-            '/services/data/v67.0/actions/custom/apex/ArcadeHallOfFame' \
+            '/services/data/v68.0/actions/custom/apex/ArcadeHallOfFame' \
             --body '{"inputs":[{"game":"block-drop"}]}' \
             | jq -r '.[0].outputValues.entries[0].score')
           mcp=$(sf data query -o polyglot-arcade --use-tooling-api --json \
@@ -115,6 +115,18 @@ jobs:
             echo "| Active MCP servers | 1 | $mcp |"
           } >> "$GITHUB_STEP_SUMMARY"
           [ "$games" = 5 ] && [ "$scores" = 1 ] && [ "$unplugged" = 0 ] && [ "$champion" = 4200 ] && [ "$mcp" = 1 ]
+
+      - name: Ask the Agent
+        run: |
+          session=$(sf agent preview start -o polyglot-arcade --api-name Arcade_Host --json | jq -r '.result.sessionId')
+          score=$(sf agent preview send -o polyglot-arcade --api-name Arcade_Host --session-id "$session" \
+            -u "Show the Block Drop high scores" --json \
+            | jq -r '[.result.messages[].result[]?.value.hallOfFame.entries[0].score] | first')
+          echo "Block Drop champion score (Arcade Host): $score"
+          {
+            echo "| Block Drop champion score (Arcade Host) | 4200 | $score |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ "$score" = 4200 ]
 
       - name: Delete Scratch Org
         if: always() && steps.scratch.outputs.username != ''

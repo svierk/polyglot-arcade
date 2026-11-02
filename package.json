@@ -30,6 +30,7 @@
     "dev:preview": "node scripts/org-setup-dev.mjs",
     "preflight": "node scripts/preflight.mjs",
     "connect": "node scripts/connect.mjs",
+    "agent": "node scripts/agent.mjs",
     "test:docs": "node --test \"scripts/docs/*.test.mjs\"",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",

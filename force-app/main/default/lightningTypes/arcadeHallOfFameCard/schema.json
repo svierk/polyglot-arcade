@@ -1,0 +1,5 @@
+{
+  "title": "Arcade Hall of Fame Card",
+  "description": "Output of the ArcadeHallOfFameAgent action in Agentforce, rendered by the arcadeHallOfFameWidget HXL widget",
+  "lightning:type": "@apexClassType/c__ArcadeHallOfFame$Response"
+}

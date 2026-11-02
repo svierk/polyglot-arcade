@@ -1,0 +1,20 @@
+{
+  "renderer": {
+    "componentOverrides": {
+      "$": {
+        "definition": "@widget/c/arcadeHallOfFameWidget",
+        "attributes": {
+          "title": "{!$attrs.title}",
+          "periodLabel": "{!$attrs.periodLabel}",
+          "rounds": "{!$attrs.rounds}",
+          "players": "{!$attrs.players}",
+          "allGames": "{!$attrs.allGames}",
+          "hasEntries": "{!$attrs.hasEntries}",
+          "message": "{!$attrs.message}",
+          "entries": "{!$attrs.entries}",
+          "arcadeUrl": "{!$attrs.arcadeUrl}"
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "orgName": "Polyglot Arcade",
   "edition": "Developer",
   "language": "en_US",
-  "features": ["EnableSetPasswordInApi"],
+  "features": ["EnableSetPasswordInApi", "Einstein1AIPlatform"],
   "settings": {
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true
@@ -15,6 +15,12 @@
     },
     "uiWidgetSettings": {
       "hxlEnabled": true
+    },
+    "einsteinGptSettings": {
+      "enableEinsteinGptPlatform": true
+    },
+    "agentPlatformSettings": {
+      "enableAgentPlatform": true
     }
   }
 }
