@@ -49,7 +49,7 @@ features:
       width: 48
       height: 48
     title: Ask the arcade in the chat
-    details: Claude and ChatGPT show the Hall of Fame and your player card as HXL widgets, served by a Salesforce MCP server.
+    details: Claude, ChatGPT and an Agentforce agent in Lightning show the Hall of Fame and your player card as HXL widgets.
     link: /architecture/headless
     linkText: Headless surface
   - icon:
@@ -89,7 +89,7 @@ flowchart LR
     Floor["<b>Arcade Floor</b><br/>Lightning app<br/>arcadeGameHost · arcadeLeaderboard"]
     Snake["<b>Snake</b><br/>LWC OSS on Vercel<br/>outside Salesforce"]
     Data[("<b>Salesforce data</b><br/>Arcade_Game__c<br/>Arcade_Score__c")]
-    Chat["<b>Headless</b><br/>HXL widgets via MCP<br/>Hall of Fame · player card<br/>in Claude, ChatGPT, Slackbot"]
+    Chat["<b>Headless</b><br/>HXL widgets<br/>Hall of Fame · player card<br/>in Claude, ChatGPT, Slackbot<br/>and Agentforce"]
     Hub -- "launches" --> Cab
     Hub -- "links to the Snake page" --> Floor
     Floor <-- "frames /embed · props<br/>gameover event" --> Cab
@@ -97,7 +97,7 @@ flowchart LR
     Hub -- "Data SDK GraphQL" --> Data
     Cab -- "Data SDK GraphQL" --> Data
     Floor -- "createRecord · GraphQL wire" --> Data
-    Chat -- "MCP tools · Apex in user mode" --> Data
+    Chat -- "Apex tools in user mode" --> Data
     classDef hub fill:#e879f9,stroke:#a21caf,color:#1a0520
     classDef cabinet fill:#22d3ee,stroke:#0e7490,color:#042f2e
     classDef floor fill:#60a5fa,stroke:#1d4ed8,color:#0b1530
@@ -113,7 +113,7 @@ flowchart LR
 - <span class="surface hub">Polyglot Arcade</span> is the only lobby and the hall of fame. It launches every game, wherever the game lives.
 - <span class="surface cabinet">Pixel Cabinet</span> is a machine, not a second hub. The hub launches its games, and Lightning frames them as a microfrontend.
 - <span class="surface floor">Arcade Floor</span> is where microfrontends are composed: the Snake page, and the page of the showcase Account **Pixel Pioneers Inc.** with the embedded cabinet.
-- <span class="surface headless">Headless</span> is the arcade without a UI: Claude, ChatGPT and Slackbot render the Hall of Fame and a player card as HXL widgets, served by a Salesforce MCP server.
+- <span class="surface headless">Headless</span> is the arcade without a UI: Claude, ChatGPT and Slackbot render the Hall of Fame and a player card as HXL widgets, served by a Salesforce MCP server, and the Agentforce agent Arcade Host shows them in Lightning.
 
 Every finished round becomes a record. Read on in [Surfaces and roles](/architecture/), or [deploy the arcade](/deploy/) into your own org with one command.
 

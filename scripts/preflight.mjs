@@ -5,10 +5,12 @@
  * a gap (without English as the default language only embedding fails), and
  * the checks cannot see everything.
  *
- *   API version     67.0 (Winter '27) or later
+ *   API version     68.0 (Winter '27) or later
  *   Multi-Framework the org knows the UIBundle metadata type
  *   Headless        the org has the HXL beta setting (setup turns it on) and
  *                   knows MCP server definitions
+ *   Agentforce      the org has the Agentforce licence; without it the setup
+ *                   skips the Arcade Host and everything else still works
  *   Language        English as the default language (lightning-ui-embedding)
  *   Hyperforce      instance name like SWE44S or USA876 (lightning-ui-embedding)
  *   Edge Network    MyDomainSettings.useEdge (UI bundles open from the App Launcher)
@@ -23,7 +25,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
-const MIN_API_VERSION = 67;
+const MIN_API_VERSION = 68;
 // Hyperforce instances are named <country code><number>, often with a trailing
 // S: USA244S, SWE44S, USA876. First-party instances have two letters (NA, CS, EU).
 const HYPERFORCE_INSTANCE = /^[A-Z]{3}\d+S?$/;
@@ -82,6 +84,22 @@ async function checkHeadless(metadataObjects) {
         ok: false,
         text: `The org lacks ${hxl ? "MCP server definitions" : "the Headless Experience Layer beta"}`,
         hint: "The headless surface (HXL widgets for Claude) needs both, so the deploy will fail. Use an org on Winter '27 or later."
+      };
+}
+
+async function checkAgentforce() {
+  const { records } = await sf([
+    "data",
+    "query",
+    "--query",
+    "SELECT Id FROM PermissionSetLicense WHERE DeveloperName = 'EinsteinGPTCopilotPsl'"
+  ]);
+  return records.length > 0
+    ? { ok: true, text: "Agentforce available" }
+    : {
+        ok: false,
+        text: "The org has no Agentforce",
+        hint: "The setup skips the Arcade Host agent. The arcade and its MCP server work without it."
       };
 }
 
@@ -201,6 +219,12 @@ const results = await Promise.all([
         "Make sure the Headless Experience Layer beta and MCP servers are available in the org."
       )
     ),
+  checkAgentforce().catch(
+    manual(
+      "Agentforce",
+      "The setup skips the Arcade Host in an org without it."
+    )
+  ),
   checkOrganization().catch(
     manual(
       "language and instance",

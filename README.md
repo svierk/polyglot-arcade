@@ -7,7 +7,7 @@
 
 <img src="./images/lobby.png" alt="Polyglot Arcade lobby in the magenta arcade hall: game cards with pixel-art teaser marquees, each saying where its game lives, the cabinet games also linking to the Pixel Pioneers Inc. Account page" width="900"/>
 
-A retro arcade that runs on the Salesforce Platform and shows **Salesforce Multi-Framework** end to end: an **Angular** app and a **React** app live side by side in one org, share the same CRM data and embed into Lightning pages as **microfrontends** - next to an **LWC OSS** game that is hosted outside Salesforce altogether. A **headless** surface brings the same data to AI clients: Claude and ChatGPT show the Hall of Fame as **Salesforce Headless Experience Layer** (HXL) widgets.
+A retro arcade that runs on the Salesforce Platform and shows **Salesforce Multi-Framework** end to end: an **Angular** app and a **React** app live side by side in one org, share the same CRM data and embed into Lightning pages as **microfrontends** - next to an **LWC OSS** game that is hosted outside Salesforce altogether. A **headless** surface brings the same data to AI: Claude, ChatGPT and an **Agentforce** agent in Lightning show the Hall of Fame as **Salesforce Headless Experience Layer** (HXL) widgets.
 
 Every finished round is stored as an `Arcade_Score__c` record. Leaderboards, high scores and play counts are ordinary Salesforce data: sharing, field-level security and roll-up summaries do the work, no custom backend required.
 
@@ -22,7 +22,7 @@ flowchart LR
     Floor["<b>Arcade Floor</b><br/>Lightning app<br/>arcadeGameHost · arcadeLeaderboard"]
     Snake["<b>Snake</b><br/>LWC OSS on Vercel<br/>outside Salesforce"]
     Data[("<b>Salesforce data</b><br/>Arcade_Game__c<br/>Arcade_Score__c")]
-    Chat["<b>Headless</b><br/>HXL widgets via MCP<br/>Hall of Fame · player card<br/>in Claude, ChatGPT, Slackbot"]
+    Chat["<b>Headless</b><br/>HXL widgets<br/>Hall of Fame · player card<br/>in Claude, ChatGPT, Slackbot<br/>and Agentforce"]
     Hub -- "launches" --> Cab
     Hub -- "links to the Snake page" --> Floor
     Floor <-- "frames /embed · props<br/>gameover event" --> Cab
@@ -30,7 +30,7 @@ flowchart LR
     Hub -- "Data SDK GraphQL" --> Data
     Cab -- "Data SDK GraphQL" --> Data
     Floor -- "createRecord · GraphQL wire" --> Data
-    Chat -- "MCP tools · Apex in user mode" --> Data
+    Chat -- "Apex tools in user mode" --> Data
     classDef hub fill:#e879f9,stroke:#a21caf,color:#1a0520
     classDef cabinet fill:#22d3ee,stroke:#0e7490,color:#042f2e
     classDef floor fill:#60a5fa,stroke:#1d4ed8,color:#0b1530
@@ -43,7 +43,7 @@ flowchart LR
     class Chat headless
 ```
 
-The Angular hub is the only lobby, the React cabinet is a machine it launches and Lightning frames, and the Arcade Floor app is where microfrontends are composed. A headless surface needs no UI at all: AI clients render the Hall of Fame as widgets. Every surface has its own color and room, and every game is a machine of its own. The [documentation](https://svierk.github.io/polyglot-arcade/) explains it all:
+The Angular hub is the only lobby, the React cabinet is a machine it launches and Lightning frames, and the Arcade Floor app is where microfrontends are composed. A headless surface needs no UI at all: AI clients and an Agentforce agent render the Hall of Fame as widgets. Every surface has its own color and room, and every game is a machine of its own. The [documentation](https://svierk.github.io/polyglot-arcade/) explains it all:
 
 - [Concepts](https://svierk.github.io/polyglot-arcade/concepts) - Salesforce Multi-Framework in a nutshell
 - [Architecture](https://svierk.github.io/polyglot-arcade/architecture/) - surfaces and roles, the four [integration patterns](https://svierk.github.io/polyglot-arcade/architecture/patterns), the [headless surface](https://svierk.github.io/polyglot-arcade/architecture/headless), [communication](https://svierk.github.io/polyglot-arcade/architecture/communication) and the [data model](https://svierk.github.io/polyglot-arcade/architecture/data-model)
@@ -54,13 +54,13 @@ The Angular hub is the only lobby, the React cabinet is a machine it launches an
 
 ## 💬 Ask the arcade in the chat
 
-_"Who is this week's champion?"_ - Claude and ChatGPT answer with the Hall of Fame and your player card, rendered as **Salesforce Headless Experience Layer** (HXL, beta) widgets. A custom MCP server hosted by Salesforce runs two Apex tools as the player who asks, on the same `Arcade_Score__c` records and with the same sharing as every other surface. No frontend code: the widgets are JSON, and the client draws them.
+_"Who is this week's champion?"_ - Claude and ChatGPT answer with the Hall of Fame and your player card, rendered as **Salesforce Headless Experience Layer** (HXL, beta) widgets. A custom MCP server hosted by Salesforce runs two Apex tools as the player who asks, on the same `Arcade_Score__c` records and with the same sharing as every other surface. No frontend code: the widgets are JSON, and the client draws them. In Lightning, the Agentforce agent **Arcade Host** answers with the same widgets.
 
 <img src="./images/hxl-hall-of-fame.png" alt="The Arcade Hall of Fame HXL widget: the champion of every game with medal, initials, rounds and best score, and the buttons Play in the arcade and My player card" width="600"/>
 
 ## 🚀 Quickstart
 
-You need an org on **Winter '27** or later with Salesforce Multi-Framework (Hyperforce and English as the default language for the microfrontends), the [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) and **Node.js 24**.
+You need an org on **Winter '27** or later with Salesforce Multi-Framework (Hyperforce and English as the default language for the microfrontends), the [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) and **Node.js 26**.
 
 ```bash
 git clone https://github.com/svierk/polyglot-arcade.git
@@ -71,11 +71,11 @@ sf org create scratch -f config/project-scratch-def.json -a polyglot-arcade -v <
 npm run setup -- --target-org polyglot-arcade
 ```
 
-`npm run setup` checks the org, builds and deploys both UI bundles and the metadata, assigns the permission set, seeds the games and connects the surfaces. It is safe to run again and keeps all scores. Then open **Polyglot Arcade** from the App Launcher - and play a cabinet game embedded on the page of the showcase Account **Pixel Pioneers Inc.** To ask the arcade in Claude, add a custom connector with the MCP server URL and OAuth client ID the setup prints at the end ([Connect Claude](https://svierk.github.io/polyglot-arcade/deploy/#connect-claude)). For an existing org, an upgrade and troubleshooting, see [Deploy](https://svierk.github.io/polyglot-arcade/deploy/).
+`npm run setup` checks the org, builds and deploys both UI bundles and the metadata, assigns the permission set, seeds the games and connects the surfaces. It is safe to run again and keeps all scores. Then open **Polyglot Arcade** from the App Launcher - and play a cabinet game embedded on the page of the showcase Account **Pixel Pioneers Inc.** To ask the arcade in Claude, add a custom connector with the MCP server URL and OAuth client ID the setup prints at the end ([Connect Claude](https://svierk.github.io/polyglot-arcade/deploy/#connect-claude)). In an org with Agentforce, [ask the Arcade Host](https://svierk.github.io/polyglot-arcade/deploy/#ask-the-arcade-host) in the Agentforce panel. For an existing org, an upgrade and troubleshooting, see [Deploy](https://svierk.github.io/polyglot-arcade/deploy/).
 
 ## 🗺️ What's next
 
-v1.0.0 completes the road planned in the milestone issues [#15](https://github.com/svierk/polyglot-arcade/issues/15) to [#19](https://github.com/svierk/polyglot-arcade/issues/19), and v1.1.0 adds the headless surface; the [releases](https://github.com/svierk/polyglot-arcade/releases) tell the story. Ideas for later: a spike in which the Angular hub hosts the React cabinet itself (possibly a fifth pattern), a public arcade on Experience Cloud (trade-show lead capture), the HXL widgets in an Agentforce agent in Lightning, and Four in a Row played in the chat with widget buttons. Localization and installation via package are not planned: they add complexity to a Multi-Framework demo without showing more of it.
+v1.0.0 completes the road planned in the milestone issues [#15](https://github.com/svierk/polyglot-arcade/issues/15) to [#19](https://github.com/svierk/polyglot-arcade/issues/19), v1.1.0 adds the headless surface and v1.2.0 its Agentforce agent; the [releases](https://github.com/svierk/polyglot-arcade/releases) tell the story. Ideas for later: a spike in which the Angular hub hosts the React cabinet itself (possibly a fifth pattern), a public arcade on Experience Cloud (trade-show lead capture), and Four in a Row played in the chat with widget buttons. Localization and installation via package are not planned: they add complexity to a Multi-Framework demo without showing more of it.
 
 ## 🤝 Contributing
 

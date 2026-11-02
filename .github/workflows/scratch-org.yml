@@ -3,7 +3,8 @@ name: Scratch Org Setup
 # Release acceptance in a real org: creates a fresh scratch org, deploys the
 # whole demo with the one setup command, records a round, runs the setup a
 # second time and checks that the round survived, that the Apex tests pass and
-# that the headless surface ranks the round and its MCP server is active. Runs manually and on release
+# that the headless surface ranks the round, its MCP server is active and the
+# Arcade Host agent answers with the round. Runs manually and on release
 # tags only, so it does not use up the Dev Hub's daily scratch org limit.
 #
 # Built from the Salesforce DevOps Starter Kit's building blocks rather than its

@@ -11,5 +11,6 @@ Architecture decision records (ADRs) keep the reasons behind the shape of the ar
 | [0001 · Surface roles](/decisions/0001-surface-roles)                 | One lobby in the Angular hub, the React cabinet as a machine, and the Arcade Floor Lightning app where microfrontends are composed | v0.5.0  |
 | [0002 · Surfaces and machines](/decisions/0002-surfaces-and-machines) | Two halls, one bar: a color and a room per surface, and a machine of its own per game                                              | v0.7.0  |
 | [0003 · Headless surface](/decisions/0003-headless-surface)           | The Hall of Fame and a player card as HXL widgets that AI clients render through a custom MCP server                               | v1.1.0  |
+| [0004 · Arcade Host](/decisions/0004-arcade-host-agent)               | An Agentforce employee agent in Lightning that answers with the same HXL widgets, through thin wrapper actions                     | v1.2.0  |
 
 A new ADR is a Markdown file `NNNN-<slug>.md` in `docs/decisions/` with status, date and release, and an entry in the sidebar in `docs/.vitepress/config.mts`.
