@@ -103,11 +103,10 @@ In an org with Agentforce, open the **Arcade Floor** app and click the **Agentfo
   sf org assign permset -n polyglotArcade_Access -b <username> -o my-org
   ```
 
-- **The Arcade Host for more players:** it needs a licence and two more permission sets. A scratch org has three licences of _Agentforce (Default)_.
+- **The Arcade Host for more players:** it needs **Arcade Host Access** on top of the player's permission set. This is verified in scratch orgs. In another type of org, check whether Salesforce requires a licence for your users.
 
   ```bash
-  sf org assign permsetlicense -n EinsteinGPTCopilotPsl -b <username> -o my-org
-  sf org assign permset -n CopilotSalesforceUser -n arcadeHost_Access -b <username> -o my-org
+  sf org assign permset -n arcadeHost_Access -b <username> -o my-org
   ```
 
 - **Games on Account pages in other apps:** **Arcade Account** is the Account page only in Arcade Floor. Assign it to other apps in Lightning App Builder, or add **Arcade Game Host** (any game, including Snake) and **Arcade Leaderboard** to your own Account page. Both pick up the record ID automatically, and the leaderboard shows only that Account's rounds.

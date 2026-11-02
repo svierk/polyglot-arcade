@@ -78,7 +78,7 @@ The widget is the same, but the wiring differs from the MCP channel:
 | Links the widget | `uiResource` of the tool in the MCP server definition                        | The Agent Script output: `complex_data_type_name: "c__arcadeHallOfFameCard"`, `is_displayable: True` |
 | Sign-in          | OAuth through the External Client App                                        | The Lightning session                                                                                |
 
-The player card works the same way, with `ArcadePlayerCardAgent` and `arcadePlayerCardView`. Agentforce renders a Lightning type on one output only, so the agent has these thin wrappers, while the logic stays in the tools.
+The player card works the same way, with `ArcadePlayerCardAgent` and `arcadePlayerCardView`. Agentforce ties a Lightning type to one output, which has to hold the whole card, and the tools return their fields one by one. So the agent has these thin wrappers, while the logic stays in the tools.
 
 ## Building blocks
 
@@ -101,7 +101,7 @@ The setup's connect step then activates the MCP server - an `McpServerAccess` re
 - **The player, not an integration user.** The MCP client acts with the OAuth token of the player who signed in. `getPlayerCard` without a name is the asker's own card.
 - **Sharing and field-level security.** The Apex classes are `with sharing` and query `WITH USER_MODE`, so a player sees in the chat exactly what the hub shows them.
 - **One permission set.** **Polyglot Arcade Player** grants access to the two tool classes. Without it, the MCP server lists no tools.
-- **The agent runs as the signed-in user too.** **Arcade Host Access** (`arcadeHost_Access`) grants the agent and its two wrapper classes. It comes on top of the licence _Agentforce (Default)_ and the standard permission set `CopilotSalesforceUser`. Without `arcadeHost_Access`, a user sees no Agentforce icon and no error.
+- **The agent runs as the signed-in user too.** **Arcade Host Access** (`arcadeHost_Access`) grants the agent and its two wrapper classes. Without it, a user sees no Agentforce icon and no error.
 - **Read-only.** All tools only read. Rounds are still played and saved on the other surfaces.
 
 ## Limits of the beta

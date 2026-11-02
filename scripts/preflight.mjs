@@ -9,8 +9,8 @@
  *   Multi-Framework the org knows the UIBundle metadata type
  *   Headless        the org has the HXL beta setting (setup turns it on) and
  *                   knows MCP server definitions
- *   Agentforce      the org has the Agentforce licence; without it the setup
- *                   skips the Arcade Host and everything else still works
+ *   Agentforce      the org knows Agent Script (AiAuthoringBundle); without it the
+ *                   setup skips the Arcade Host and everything else still works
  *   Language        English as the default language (lightning-ui-embedding)
  *   Hyperforce      instance name like SWE44S or USA876 (lightning-ui-embedding)
  *   Edge Network    MyDomainSettings.useEdge (UI bundles open from the App Launcher)
@@ -87,14 +87,8 @@ async function checkHeadless(metadataObjects) {
       };
 }
 
-async function checkAgentforce() {
-  const { records } = await sf([
-    "data",
-    "query",
-    "--query",
-    "SELECT Id FROM PermissionSetLicense WHERE DeveloperName = 'EinsteinGPTCopilotPsl'"
-  ]);
-  return records.length > 0
+async function checkAgentforce(metadataObjects) {
+  return metadataObjects.some((type) => type.xmlName === "AiAuthoringBundle")
     ? { ok: true, text: "Agentforce available" }
     : {
         ok: false,
@@ -219,12 +213,14 @@ const results = await Promise.all([
         "Make sure the Headless Experience Layer beta and MCP servers are available in the org."
       )
     ),
-  checkAgentforce().catch(
-    manual(
-      "Agentforce",
-      "The setup skips the Arcade Host in an org without it."
-    )
-  ),
+  metadataTypes
+    .then(checkAgentforce)
+    .catch(
+      manual(
+        "Agentforce",
+        "The setup skips the Arcade Host in an org without it."
+      )
+    ),
   checkOrganization().catch(
     manual(
       "language and instance",
