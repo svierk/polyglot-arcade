@@ -172,7 +172,7 @@ describe('DataClient', () => {
   });
 
   it('should call fetch with no init when omitted', async () => {
-    const url = '/services/data/v64.0/chatter/users/me';
+    const url = '/services/data/v68.0/chatter/users/me';
     const expectedResponse = { ok: true, status: 200 } as Response;
     mockFetch.mockResolvedValue(expectedResponse);
 

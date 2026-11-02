@@ -15,6 +15,8 @@ It deploys what is new, adds missing games, updates the existing ones by their *
 
 Coming from v1.0.x, it turns on the Headless Experience Layer beta - read its terms in **Setup → Headless Experience Layer Settings** first - and adds the [headless surface](/architecture/headless): the Apex tools, the HXL widgets, the MCP server and the External Client App **Polyglot Arcade MCP**. The permission set gains access to the two tool classes. At the end, the setup prints what Claude needs to [connect](/deploy/#connect-claude).
 
+Coming from v1.1.x, the org needs API version 68.0 (Winter '27), and the setup adds the [Arcade Host](/architecture/headless#the-arcade-host-in-lightning) if the org has Agentforce. A scratch org gets Agentforce only when it is created. To get the agent there, create a new one from `config/project-scratch-def.json`, and connect Claude again, because the MCP server URL may stay but the OAuth client ID changes.
+
 ## Leftovers of older versions
 
 Two leftovers the setup cannot remove for you:

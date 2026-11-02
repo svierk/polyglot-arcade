@@ -48,7 +48,7 @@ GraphQL operations are validated against your org's schema with `npm run graphql
 
 ## Release acceptance in a real org
 
-The [Scratch Org Setup workflow](../.github/workflows/scratch-org.yml) creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived, that the Apex tests pass, that the Hall of Fame tool ranks the round and that the MCP server is active. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
+The [Scratch Org Setup workflow](../.github/workflows/scratch-org.yml) creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived, that the Apex tests pass, that the Hall of Fame tool ranks the round, that the MCP server is active and that the Arcade Host answers with the round. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**, or `gh workflow run scratch-org.yml --ref <branch>` for a larger change to Apex or the agent), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
 
 ## This site
 

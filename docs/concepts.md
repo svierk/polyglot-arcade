@@ -22,26 +22,27 @@ React and Angular are generally available for UI bundles as of Winter '27. Embed
 
 ## Headless Experience Layer in a nutshell
 
-The **Headless Experience Layer** (HXL, beta) is the counterpart to UI bundles: no app at all, only a declaration of what to show. AI clients such as Claude, ChatGPT and Slackbot render it natively.
+The **Headless Experience Layer** (HXL, beta) is the counterpart to UI bundles: no app at all, only a declaration of what to show. AI clients such as Claude, ChatGPT and Slackbot render it natively, and so does an Agentforce agent in Lightning.
 
-| Concept                       | What it means                                                                                                                            | Where to look                                                                                                                                                                     |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Widget** (`UiWidgetBundle`) | A UI declared in JSON from `tile/*` components, with bindings, loops, conditions and formulas, and a schema of the attributes it accepts | [`uiWidgets`](../force-app/main/default/uiWidgets)                                                                                                                                |
-| **Invocable action**          | The Apex method that reads the data, as the user who asks                                                                                | [`ArcadeHallOfFame.cls`](../force-app/main/default/classes/ArcadeHallOfFame.cls), [`ArcadePlayerCard.cls`](../force-app/main/default/classes/ArcadePlayerCard.cls)                |
-| **Custom Lightning type**     | Types the action's result and maps it onto the widget's attributes (`renderer.json`)                                                     | [`lightningTypes`](../force-app/main/default/lightningTypes)                                                                                                                      |
-| **Custom MCP server**         | Hosted by Salesforce: offers the actions as MCP tools and links each tool to its widget, which clients render as an MCP App              | [`polyglotArcade`](../force-app/main/default/mcpServerDefinitions/polyglotArcade.mcpServerDefinition-meta.xml), signed in through the External Client App **Polyglot Arcade MCP** |
+| Concept                       | What it means                                                                                                                                | Where to look                                                                                                                                                                     |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Widget** (`UiWidgetBundle`) | A UI declared in JSON from `tile/*` components, with bindings, loops, conditions and formulas, and a schema of the attributes it accepts     | [`uiWidgets`](../force-app/main/default/uiWidgets)                                                                                                                                |
+| **Invocable action**          | The Apex method that reads the data, as the user who asks                                                                                    | [`ArcadeHallOfFame.cls`](../force-app/main/default/classes/ArcadeHallOfFame.cls), [`ArcadePlayerCard.cls`](../force-app/main/default/classes/ArcadePlayerCard.cls)                |
+| **Custom Lightning type**     | Types the action's result and maps it onto the widget's attributes (`renderer.json`)                                                         | [`lightningTypes`](../force-app/main/default/lightningTypes)                                                                                                                      |
+| **Custom MCP server**         | Hosted by Salesforce: offers the actions as MCP tools and links each tool to its widget, which clients render as an MCP App                  | [`polyglotArcade`](../force-app/main/default/mcpServerDefinitions/polyglotArcade.mcpServerDefinition-meta.xml), signed in through the External Client App **Polyglot Arcade MCP** |
+| **Agentforce agent**          | Answers in the Agentforce panel of Lightning and shows the same widgets, through an action with one output and an Apex-backed Lightning type | [`Arcade_Host`](../agent/aiAuthoringBundles/Arcade_Host/Arcade_Host.agent)                                                                                                        |
 
 See [Headless surface](/architecture/headless) for how they work together.
 
 ## Three frameworks, one platform
 
-| Framework                    | Surface                                                       | Why it is used there                                                                                   |
-| ---------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| **Angular**                  | <span class="surface hub">Polyglot Arcade</span> UI bundle    | The lobby, the hall of fame and two games: an app with its own routes, launched from the App Launcher  |
-| **React**                    | <span class="surface cabinet">Pixel Cabinet</span> UI bundle  | Two real-time games, and the one bundle Lightning can frame as an internally hosted microfrontend      |
-| **LWC**                      | <span class="surface floor">Arcade Floor</span> Lightning app | The host that frames the games and the native leaderboard, composed on Lightning pages                 |
-| **LWC OSS**                  | Snake on Vercel, outside Salesforce                           | A guest without a Salesforce session: the host saves its rounds                                        |
-| **HXL** (JSON, no framework) | <span class="surface headless">Headless</span>, in AI clients | The Hall of Fame and a player card in Claude and ChatGPT, on the same data - no frontend code to write |
+| Framework                    | Surface                                                                      | Why it is used there                                                                                                         |
+| ---------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Angular**                  | <span class="surface hub">Polyglot Arcade</span> UI bundle                   | The lobby, the hall of fame and two games: an app with its own routes, launched from the App Launcher                        |
+| **React**                    | <span class="surface cabinet">Pixel Cabinet</span> UI bundle                 | Two real-time games, and the one bundle Lightning can frame as an internally hosted microfrontend                            |
+| **LWC**                      | <span class="surface floor">Arcade Floor</span> Lightning app                | The host that frames the games and the native leaderboard, composed on Lightning pages                                       |
+| **LWC OSS**                  | Snake on Vercel, outside Salesforce                                          | A guest without a Salesforce session: the host saves its rounds                                                              |
+| **HXL** (JSON, no framework) | <span class="surface headless">Headless</span>, in AI clients and Agentforce | The Hall of Fame and a player card in Claude, ChatGPT and the Agentforce panel, on the same data - no frontend code to write |
 
 ## CRM data as the score sheet
 
@@ -54,7 +55,7 @@ The Angular hub is the only lobby, the React cabinet is a machine it launches, a
 ## Where to go next
 
 - [Integration patterns](/architecture/patterns) - the four ways a game reaches the platform
-- [Headless surface](/architecture/headless) - the Hall of Fame in Claude and ChatGPT, without a UI of its own
+- [Headless surface](/architecture/headless) - the Hall of Fame in Claude, ChatGPT and Agentforce, without a UI of its own
 - [Communication](/architecture/communication) - what the surfaces say to each other, step by step
 - [Games](/games) - the five machines and how each one is built
 - [Deploy](/deploy/) - your own arcade with one command

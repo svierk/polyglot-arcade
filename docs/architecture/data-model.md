@@ -77,6 +77,8 @@ Rounds played on an Account page belong to that Account. So that this is visible
 
 The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games, Accounts and their Arcade Key and Contacts (orgs with Person Accounts require it with Account read), and create and read access to scores. Players cannot edit or delete scores. It also grants the Apex classes `ArcadeHallOfFame` and `ArcadePlayerCard`, the tools of the [headless surface](/architecture/headless). Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface: the UI bundles and LWCs read through UI API, and the tools query `WITH USER_MODE` as the player who asks.
 
+The Arcade Host adds **Arcade Host Access** (`arcadeHost_Access`, in `agent/`), which grants the agent and its wrapper classes `ArcadeHallOfFameAgent` and `ArcadePlayerCardAgent`. The agent's step in the setup assigns it, the licence _Agentforce (Default)_ and the standard permission set `CopilotSalesforceUser` to the user who runs the setup.
+
 ## Reports and dashboard
 
 The report folder **Polyglot Arcade** holds three reports on the report type _Arcade Games with Scores_ - **Top scores per game**, **Plays per framework** and **Rounds per source** - and the dashboard **Arcade Floor** charts all three. Both folders are shared with all internal users, and the dashboard shows each viewer the data they can see. Arcade Floor has the Reports and Dashboards tabs.

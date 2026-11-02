@@ -14,7 +14,7 @@
  * is launched separately via `npm run dev:preview` (scripts/org-setup-dev.mjs).
  *
  * Steps (in order):
- *   login (precondition) — sf org login web only if org not already connected; always runs before deploy
+ *   login (precondition) — sf org login web only if the CLI has no login for the org and the run is interactive; always runs before deploy
  *   0. preflight — scripts/preflight.mjs: warns about org gaps, never blocks (skip with --skip-preflight)
  *   1. uiBundle  — (all UI bundles) npm install && npm run build (SF_TARGET_ORG=<alias>) so dist exists for deploy (skip with --skip-ui-bundle-build)
  *   2. deploy    — turn on the Headless Experience Layer, then sf project deploy start --target-org <alias>
@@ -24,7 +24,9 @@
  *                  plan entries with "externalId" are upserted by that field, never deleted
  *   5. connect   — scripts/connect.mjs: store the UI bundle URLs on the game records and activate
  *                  the MCP server of the headless surface (skip with --skip-connect)
- *   6. graphql   — (in UI bundle) npm run graphql:schema then npm run graphql:codegen
+ *   6. agent     — scripts/agent.mjs: publish and activate the Arcade Host agent and give the current
+ *                  user access; an org without Agentforce is skipped (skip with --skip-agent)
+ *   7. graphql   — (in UI bundle) npm run graphql:schema then npm run graphql:codegen
  *
  * Permset assignment config (scripts/org-setup.config.json):
  *   {
@@ -295,6 +297,7 @@ function parseArgs() {
     skipRole: false,
     skipData: false,
     skipConnect: false,
+    skipAgent: false,
     skipGraphql: false,
     skipUIBundleBuild: false,
     skipSelfReg: false,
@@ -313,6 +316,7 @@ function parseArgs() {
     else if (args[i] === "--skip-role") flags.skipRole = true;
     else if (args[i] === "--skip-data") flags.skipData = true;
     else if (args[i] === "--skip-connect") flags.skipConnect = true;
+    else if (args[i] === "--skip-agent") flags.skipAgent = true;
     else if (args[i] === "--skip-self-reg") flags.skipSelfReg = true;
     else if (args[i] === "--skip-social-login") flags.skipSocialLogin = true;
     else if (args[i] === "--skip-graphql") flags.skipGraphql = true;
@@ -343,6 +347,7 @@ Options:
   --skip-social-login    Do not enable social login (auth providers + community profile)
   --skip-data            Do not prepare data or run data import
   --skip-connect         Do not store the UI bundle URLs or activate the MCP server
+  --skip-agent           Do not publish and activate the Arcade Host agent
   --skip-graphql         Do not fetch schema or run GraphQL codegen
   --skip-ui-bundle-build Do not npm install / build the UI bundle
   -y, --yes              Skip interactive step picker; run all enabled steps immediately
@@ -781,7 +786,7 @@ for (Map<String, String> provider : allProviders) {
         continue;
     }
     HttpRequest req = new HttpRequest();
-    req.setEndpoint(baseUrl + '/services/data/v62.0/sobjects/AuthConfigProviders');
+    req.setEndpoint(baseUrl + '/services/data/v68.0/sobjects/AuthConfigProviders');
     req.setMethod('POST');
     req.setHeader('Authorization', 'Bearer ' + token);
     req.setHeader('Content-Type', 'application/json');
@@ -1664,17 +1669,41 @@ function checkDeployLicense(selfRegConfig, targetOrg) {
   );
 }
 
-function isOrgConnected(targetOrg) {
-  const result = spawnSync(
-    "sf",
-    ["org", "display", "--target-org", targetOrg, "--json"],
-    {
-      cwd: ROOT,
-      stdio: "pipe",
-      shell: true
+const ORG_CHECK_ATTEMPTS = 3;
+const ORG_CHECK_RETRY_MS = 5000;
+
+/**
+ * "connected", "unknown" (the CLI has no login for this org) or "unreachable".
+ * `sf org display` also fails on a network blip, which says nothing about the
+ * login, so only the CLI's own "not found" error counts as unknown.
+ */
+async function checkOrgConnection(targetOrg) {
+  let message = "";
+  for (let attempt = 1; attempt <= ORG_CHECK_ATTEMPTS; attempt++) {
+    const result = spawnSync(
+      "sf",
+      ["org", "display", "--target-org", targetOrg, "--json"],
+      {
+        cwd: ROOT,
+        stdio: "pipe",
+        shell: true,
+        encoding: "utf8"
+      }
+    );
+    if (result.status === 0) return { state: "connected" };
+    const output = result.stdout || "";
+    if (output.includes("NamedOrgNotFoundError")) return { state: "unknown" };
+    message =
+      output.match(/"message":\s*"([^"]*)"/)?.[1] ||
+      `sf org display exited with ${result.status}`;
+    if (attempt < ORG_CHECK_ATTEMPTS) {
+      console.log(
+        `Could not check org ${targetOrg} (${message}); trying again.`
+      );
+      await new Promise((done) => setTimeout(done, ORG_CHECK_RETRY_MS));
     }
-  );
-  return result.status === 0;
+  }
+  return { state: "unreachable", message };
 }
 
 function apexLiteral(value) {
@@ -2061,6 +2090,7 @@ async function main() {
     skipSocialLogin: argSkipSocialLogin,
     skipData: argSkipData,
     skipConnect: argSkipConnect,
+    skipAgent: argSkipAgent,
     skipGraphql: argSkipGraphql,
     skipUIBundleBuild: argSkipUIBundleBuild
   } = parsed;
@@ -2221,6 +2251,14 @@ async function main() {
       failFast: false
     },
     {
+      key: "agent",
+      label:
+        "Agent — publish and activate the Arcade Host, if the org has Agentforce",
+      enabled: !argSkipAgent,
+      available: true,
+      failFast: false
+    },
+    {
       key: "graphql",
       label: "GraphQL — schema introspect + codegen",
       enabled: !argSkipGraphql,
@@ -2246,6 +2284,7 @@ async function main() {
   const skipSocialLogin = !on.socialLogin;
   const skipData = !on.data;
   const skipConnect = !on.connect;
+  const skipAgent = !on.agent;
   const skipGraphql = !on.graphql;
 
   const needsUIBundle = !skipUIBundleBuild || !skipGraphql;
@@ -2261,7 +2300,7 @@ async function main() {
     uiBundleDirs.map((dir) => dir.split(/[/\\]/).pop()).join(", ") || "(none)"
   );
   console.log(
-    "Steps: login=always preflight=%s deploy=%s permset=%s role=%s selfReg=%s socialLogin=%s data=%s connect=%s graphql=%s uiBundle=%s",
+    "Steps: login=always preflight=%s deploy=%s permset=%s role=%s selfReg=%s socialLogin=%s data=%s connect=%s agent=%s graphql=%s uiBundle=%s",
     !skipPreflight,
     !skipDeploy,
     !skipPermset,
@@ -2270,6 +2309,7 @@ async function main() {
     !skipSocialLogin,
     doData,
     !skipConnect,
+    !skipAgent,
     !skipGraphql,
     !skipUIBundleBuild
   );
@@ -2283,10 +2323,20 @@ async function main() {
     failFast: true
   };
   await runStep(loginStep, targetOrg, async () => {
-    if (isOrgConnected(targetOrg)) {
+    const { state, message } = await checkOrgConnection(targetOrg);
+    const loginCommand = `sf org login web --alias ${targetOrg}`;
+    if (state === "connected") {
       console.log("\n--- Login ---");
       console.log(
         `Org ${targetOrg} is already authenticated; skipping browser login.`
+      );
+    } else if (state === "unreachable") {
+      throw new StepError(
+        `could not reach org ${targetOrg} (${message}). Try again; if its login has expired, run: ${loginCommand}`
+      );
+    } else if (!process.stdin.isTTY) {
+      throw new StepError(
+        `the Salesforce CLI has no login for ${targetOrg}, and this run cannot open a browser. Run: ${loginCommand}`
       );
     } else {
       run("Login (browser)", "sf", [
@@ -2870,6 +2920,16 @@ async function main() {
     });
   } else {
     recordSkipped(connectStep, "not selected");
+  }
+
+  // After the deploy: the agent's actions and types must be in the org.
+  const agentStep = stepDefs.find((s) => s.key === "agent");
+  if (!skipAgent) {
+    await runStep(agentStep, targetOrg, () => {
+      run("Agent", "node", ["scripts/agent.mjs", "--target-org", targetOrg]);
+    });
+  } else {
+    recordSkipped(agentStep, "not selected");
   }
 
   const graphqlStep = stepDefs.find((s) => s.key === "graphql");

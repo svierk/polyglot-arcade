@@ -220,6 +220,25 @@ private class ArcadeToolsTest {
   }
 
   @IsTest
+  static void agentActionsWrapTheResponseInOneOutput() {
+    ArcadeHallOfFame.Request ranking = new ArcadeHallOfFame.Request();
+    ranking.game = 'brick-breaker';
+    ArcadeHallOfFame.Response hallOfFame = ArcadeHallOfFameAgent.getHallOfFame(
+        new List<ArcadeHallOfFame.Request>{ ranking }
+      )[0]
+      .hallOfFame;
+    Assert.isTrue(hallOfFame.hasEntries);
+    Assert.areEqual('Hall of Fame · Brick Breaker', hallOfFame.title);
+
+    ArcadePlayerCard.Response card = ArcadePlayerCardAgent.getPlayerCard(
+        new List<ArcadePlayerCard.Request>{ new ArcadePlayerCard.Request() }
+      )[0]
+      .playerCard;
+    Assert.areEqual(UserInfo.getName(), card.player);
+    Assert.isTrue(card.hasRounds);
+  }
+
+  @IsTest
   static void statsHelpersNormalizeAndFormat() {
     Assert.areEqual('week', ArcadeScoreStats.normalizePeriod('This Week'));
     Assert.areEqual('all', ArcadeScoreStats.normalizePeriod('forever'));
