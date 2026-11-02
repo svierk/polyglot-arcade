@@ -17,6 +17,8 @@ Coming from v1.0.x, it turns on the Headless Experience Layer beta - read its te
 
 Coming from v1.1.x, the org needs API version 68.0 (Winter '27), and the setup adds the [Arcade Host](/architecture/headless#the-arcade-host-in-lightning) if the org has Agentforce. A scratch org gets Agentforce only when it is created. To get the agent there, create a new one from `config/project-scratch-def.json`, and connect Claude again, because the MCP server URL may stay but the OAuth client ID changes.
 
+Coming from v1.2.0, there is nothing to do. The setup no longer assigns the licence _Agentforce (Default)_ and `CopilotSalesforceUser`, because the agent does not need them. Existing assignments can stay.
+
 ## Leftovers of older versions
 
 Two leftovers the setup cannot remove for you:

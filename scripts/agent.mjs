@@ -29,8 +29,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const AGENT = "Arcade_Host";
-const AGENT_LICENSE = "EinsteinGPTCopilotPsl";
-const PERMISSION_SETS = ["CopilotSalesforceUser", "arcadeHost_Access"];
+const ACCESS_PERMISSION_SET = "arcadeHost_Access";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const AGENT_SOURCE = join(ROOT, "agent");
@@ -48,14 +47,10 @@ function sf(argv, options = {}) {
   return JSON.parse(out).result;
 }
 
+/** An org without Agentforce does not know the metadata type of Agent Script. */
 function hasAgentforce() {
-  const { records } = sf([
-    "data",
-    "query",
-    "--query",
-    `SELECT Id FROM PermissionSetLicense WHERE DeveloperName = '${AGENT_LICENSE}'`
-  ]);
-  return records.length > 0;
+  const { metadataObjects } = sf(["org", "list", "metadata-types"]);
+  return metadataObjects.some((type) => type.xmlName === "AiAuthoringBundle");
 }
 
 /** The Agent Script of the agent's latest version in the org, if it has one. */
@@ -169,14 +164,11 @@ try {
     ],
     { cwd: project }
   );
-  sf(["org", "assign", "permsetlicense", "--name", AGENT_LICENSE]);
-  for (const name of PERMISSION_SETS) {
-    try {
-      sf(["org", "assign", "permset", "--name", name]);
-    } catch (error) {
-      // Already assigned by an earlier run.
-      if (!`${error.stdout}${error.stderr}`.includes("Duplicate")) throw error;
-    }
+  try {
+    sf(["org", "assign", "permset", "--name", ACCESS_PERMISSION_SET]);
+  } catch (error) {
+    // Already assigned by an earlier run.
+    if (!`${error.stdout}${error.stderr}`.includes("Duplicate")) throw error;
   }
 
   console.log(`Arcade Host: active (version ${version})`);
