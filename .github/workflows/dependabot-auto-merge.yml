@@ -5,6 +5,10 @@ name: Dependabot Auto-Merge
 # Actions pinned in the workflows - land without manual work. Every update type
 # is handled this way, so the required status checks on `main` are the only
 # quality gate: `--auto` holds the merge until they are green.
+#
+# One exception: major updates of the GraphQL codegen stay open for review. The
+# codegen only runs in `npm run setup` against an org's schema, so the checks
+# cannot see what a new major generates (#35 duplicated the cabinet's types).
 
 on: pull_request
 
@@ -34,6 +38,7 @@ jobs:
       # --auto queues the merge: GitHub only carries it out once every required
       # status check of the branch protection rule has passed.
       - name: Approve and Enable Auto-Merge
+        if: ${{ !(steps.metadata.outputs.update-type == 'version-update:semver-major' && contains(steps.metadata.outputs.dependency-names, 'graphql-codegen')) }}
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
