@@ -17,7 +17,7 @@
                 },
                 {
                   "definition": "tile/text",
-                  "attributes": { "text": "{!$attrs.title}", "variant": "h1" }
+                  "attributes": { "text": "{!$attrs.title}", "variant": "h3" }
                 },
                 {
                   "definition": "tile/badge",
@@ -100,7 +100,7 @@
                       "definition": "tile/text",
                       "attributes": {
                         "text": "{!FORMATNUMBER($entry.score)}",
-                        "variant": "h3"
+                        "variant": "h5"
                       }
                     }
                   ]

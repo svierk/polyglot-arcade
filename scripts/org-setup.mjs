@@ -14,7 +14,7 @@
  * is launched separately via `npm run dev:preview` (scripts/org-setup-dev.mjs).
  *
  * Steps (in order):
- *   login (precondition) — sf org login web only if org not already connected; always runs before deploy
+ *   login (precondition) — sf org login web only if the CLI has no login for the org and the run is interactive; always runs before deploy
  *   0. preflight — scripts/preflight.mjs: warns about org gaps, never blocks (skip with --skip-preflight)
  *   1. uiBundle  — (all UI bundles) npm install && npm run build (SF_TARGET_ORG=<alias>) so dist exists for deploy (skip with --skip-ui-bundle-build)
  *   2. deploy    — turn on the Headless Experience Layer, then sf project deploy start --target-org <alias>
@@ -1669,17 +1669,41 @@ function checkDeployLicense(selfRegConfig, targetOrg) {
   );
 }
 
-function isOrgConnected(targetOrg) {
-  const result = spawnSync(
-    "sf",
-    ["org", "display", "--target-org", targetOrg, "--json"],
-    {
-      cwd: ROOT,
-      stdio: "pipe",
-      shell: true
+const ORG_CHECK_ATTEMPTS = 3;
+const ORG_CHECK_RETRY_MS = 5000;
+
+/**
+ * "connected", "unknown" (the CLI has no login for this org) or "unreachable".
+ * `sf org display` also fails on a network blip, which says nothing about the
+ * login, so only the CLI's own "not found" error counts as unknown.
+ */
+async function checkOrgConnection(targetOrg) {
+  let message = "";
+  for (let attempt = 1; attempt <= ORG_CHECK_ATTEMPTS; attempt++) {
+    const result = spawnSync(
+      "sf",
+      ["org", "display", "--target-org", targetOrg, "--json"],
+      {
+        cwd: ROOT,
+        stdio: "pipe",
+        shell: true,
+        encoding: "utf8"
+      }
+    );
+    if (result.status === 0) return { state: "connected" };
+    const output = result.stdout || "";
+    if (output.includes("NamedOrgNotFoundError")) return { state: "unknown" };
+    message =
+      output.match(/"message":\s*"([^"]*)"/)?.[1] ||
+      `sf org display exited with ${result.status}`;
+    if (attempt < ORG_CHECK_ATTEMPTS) {
+      console.log(
+        `Could not check org ${targetOrg} (${message}); trying again.`
+      );
+      await new Promise((done) => setTimeout(done, ORG_CHECK_RETRY_MS));
     }
-  );
-  return result.status === 0;
+  }
+  return { state: "unreachable", message };
 }
 
 function apexLiteral(value) {
@@ -2299,10 +2323,20 @@ async function main() {
     failFast: true
   };
   await runStep(loginStep, targetOrg, async () => {
-    if (isOrgConnected(targetOrg)) {
+    const { state, message } = await checkOrgConnection(targetOrg);
+    const loginCommand = `sf org login web --alias ${targetOrg}`;
+    if (state === "connected") {
       console.log("\n--- Login ---");
       console.log(
         `Org ${targetOrg} is already authenticated; skipping browser login.`
+      );
+    } else if (state === "unreachable") {
+      throw new StepError(
+        `could not reach org ${targetOrg} (${message}). Try again; if its login has expired, run: ${loginCommand}`
+      );
+    } else if (!process.stdin.isTTY) {
+      throw new StepError(
+        `the Salesforce CLI has no login for ${targetOrg}, and this run cannot open a browser. Run: ${loginCommand}`
       );
     } else {
       run("Login (browser)", "sf", [
