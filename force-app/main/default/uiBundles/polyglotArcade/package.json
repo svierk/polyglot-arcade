@@ -63,7 +63,7 @@
     "angular-eslint": "^21.0.0",
     "eslint": "^9.0.0",
     "graphql": "^16.11.0",
-    "graphql-codegen-typescript-operation-types": "^2.0.2",
+    "graphql-codegen-typescript-operation-types": "^3.0.0",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.0",
     "serve": "^14.2.5",
