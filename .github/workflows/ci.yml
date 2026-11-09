@@ -203,6 +203,7 @@ jobs:
     with:
       build-script: build:ui-bundles
       deploy-agents: false # the Arcade Host lives in agent/ and is part of the acceptance
+      permission-sets: polyglotArcade_Access # the tests write arcade records as the running user, as after `npm run setup`
     secrets:
       SFDX_CONSUMER_KEY: ${{ secrets.SFDX_CONSUMER_KEY }}
       SFDX_JWT_SECRET_KEY: ${{ secrets.SFDX_JWT_SECRET_KEY }}
