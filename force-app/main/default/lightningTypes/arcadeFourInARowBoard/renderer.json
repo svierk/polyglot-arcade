@@ -1,0 +1,21 @@
+{
+  "renderer": {
+    "componentOverrides": {
+      "$": {
+        "definition": "@widget/c/arcadeFourInARowWidget",
+        "attributes": {
+          "title": "{!$attrs.title}",
+          "status": "{!$attrs.status}",
+          "difficulty": "{!$attrs.difficulty}",
+          "message": "{!$attrs.message}",
+          "hasBoard": "{!$attrs.hasBoard}",
+          "isPlaying": "{!$attrs.isPlaying}",
+          "isFinished": "{!$attrs.isFinished}",
+          "moveNumber": "{!$attrs.moveNumber}",
+          "score": "{!$attrs.score}",
+          "columns": "{!$attrs.columns}"
+        }
+      }
+    }
+  }
+}

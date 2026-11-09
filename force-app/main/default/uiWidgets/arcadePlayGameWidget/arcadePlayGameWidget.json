@@ -1,0 +1,300 @@
+{
+  "type": "lightning__agentforceWidget",
+  "contentBody": {
+    "widgetBody": {
+      "definition": "tile/widget",
+      "children": [
+        {
+          "definition": "tile/column",
+          "children": [
+            {
+              "definition": "tile/row",
+              "attributes": {
+                "gap": "sm"
+              },
+              "children": [
+                {
+                  "definition": "tile/icon",
+                  "attributes": {
+                    "name": "circle-dot",
+                    "color": "warning"
+                  }
+                },
+                {
+                  "definition": "tile/text",
+                  "attributes": {
+                    "text": "{!$attrs.title}",
+                    "variant": "h3"
+                  }
+                }
+              ]
+            },
+            {
+              "definition": "tile/text",
+              "meta": {
+                "if": "{!$attrs.hasGame}"
+              },
+              "attributes": {
+                "text": "{!$attrs.tagline}",
+                "variant": "caption",
+                "color": "muted"
+              }
+            },
+            {
+              "definition": "tile/callout",
+              "meta": {
+                "if": "{!NOT(ISBLANK($attrs.message))}"
+              },
+              "attributes": {
+                "title": "{!$attrs.message}",
+                "variant": "info"
+              }
+            },
+            {
+              "definition": "tile/row",
+              "meta": {
+                "if": "{!$attrs.hasGame}"
+              },
+              "attributes": {
+                "gap": "lg",
+                "align": "start"
+              },
+              "children": [
+                {
+                  "definition": "tile/column",
+                  "meta": {
+                    "if": "{!$attrs.hasBest}"
+                  },
+                  "attributes": {
+                    "gap": "none"
+                  },
+                  "children": [
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "Your best",
+                        "variant": "caption",
+                        "color": "muted"
+                      }
+                    },
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "{!FORMATNUMBER($attrs.bestScore)}",
+                        "variant": "h5"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "definition": "tile/column",
+                  "meta": {
+                    "if": "{!$attrs.hasChampion}"
+                  },
+                  "attributes": {
+                    "gap": "none"
+                  },
+                  "children": [
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "Champion",
+                        "variant": "caption",
+                        "color": "muted"
+                      }
+                    },
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "{!FORMATNUMBER($attrs.championScore)}",
+                        "variant": "h5"
+                      }
+                    },
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "{!$attrs.champion}",
+                        "variant": "caption",
+                        "color": "muted"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "definition": "tile/text",
+                  "meta": {
+                    "if": "{!AND(NOT($attrs.hasBest), NOT($attrs.hasChampion))}"
+                  },
+                  "attributes": {
+                    "text": "No one has scored yet. Be the first!",
+                    "color": "muted"
+                  }
+                }
+              ]
+            },
+            {
+              "definition": "tile/column",
+              "meta": {
+                "if": "{!$attrs.hasOptions}"
+              },
+              "attributes": {
+                "gap": "sm"
+              },
+              "children": [
+                {
+                  "definition": "tile/row",
+                  "meta": {
+                    "forEach": "{!$attrs.options}",
+                    "forItem": "$option"
+                  },
+                  "attributes": {
+                    "justify": "between",
+                    "isWrapped": false
+                  },
+                  "children": [
+                    {
+                      "definition": "tile/column",
+                      "attributes": {
+                        "gap": "none"
+                      },
+                      "children": [
+                        {
+                          "definition": "tile/text",
+                          "attributes": {
+                            "text": "{!$option.name}",
+                            "weight": "semibold"
+                          }
+                        },
+                        {
+                          "definition": "tile/text",
+                          "attributes": {
+                            "text": "{!$option.tagline}",
+                            "variant": "caption",
+                            "color": "muted"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "definition": "tile/button",
+                      "attributes": {
+                        "label": "Play",
+                        "variant": "secondary",
+                        "actions": {
+                          "click": [
+                            {
+                              "definition": "action/sendMessage",
+                              "attributes": {
+                                "content": "{!$option.prompt}"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "definition": "tile/separator",
+              "meta": {
+                "if": "{!$attrs.hasGame}"
+              }
+            },
+            {
+              "definition": "tile/row",
+              "meta": {
+                "if": "{!$attrs.hasGame}"
+              },
+              "attributes": {
+                "gap": "sm"
+              },
+              "children": [
+                {
+                  "definition": "tile/button",
+                  "meta": {
+                    "if": "{!$attrs.playableInChat}"
+                  },
+                  "attributes": {
+                    "label": "Play here",
+                    "iconName": "circle-dot",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/sendMessage",
+                          "attributes": {
+                            "content": "Let's play Four in a Row in the Polyglot Arcade."
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "definition": "tile/button",
+                  "meta": {
+                    "if": "{!AND($attrs.hasPlayUrl, NOT($attrs.playableInChat))}"
+                  },
+                  "attributes": {
+                    "label": "Play in the arcade",
+                    "iconName": "open-in-new",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/openLink",
+                          "attributes": {
+                            "url": "{!$attrs.playUrl}"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "definition": "tile/button",
+                  "meta": {
+                    "if": "{!AND($attrs.hasPlayUrl, $attrs.playableInChat)}"
+                  },
+                  "attributes": {
+                    "label": "Open in the arcade",
+                    "variant": "secondary",
+                    "iconName": "open-in-new",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/openLink",
+                          "attributes": {
+                            "url": "{!$attrs.playUrl}"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "definition": "tile/button",
+                  "attributes": {
+                    "label": "High scores",
+                    "variant": "secondary",
+                    "iconName": "crown",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/sendMessage",
+                          "attributes": {
+                            "content": "{!'Show the ' & $attrs.title & ' high scores in the Polyglot Arcade.'}"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

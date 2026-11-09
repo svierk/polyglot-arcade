@@ -201,6 +201,21 @@ private class ArcadeToolsTest {
   }
 
   @IsTest
+  static void playerCardWordsTheStandingOfEveryGame() {
+    insert score(
+      [SELECT Id FROM Arcade_Game__c WHERE Game_Key__c = 'block-drop'],
+      0
+    );
+    Map<String, String> standings = new Map<String, String>();
+    for (ArcadePlayerCard.GameBest best : playerCard(null).bests) {
+      standings.put(best.game, best.standing);
+    }
+
+    Assert.areEqual('#2 of 2 · 2 rounds', standings.get('Brick Breaker'));
+    Assert.areEqual('No score yet · 1 round', standings.get('Block Drop'));
+  }
+
+  @IsTest
   static void playerCardExplainsAMissingOrNewPlayer() {
     ArcadePlayerCard.Response unknown = playerCard('Nobody Here');
     Assert.isFalse(unknown.hasRounds);

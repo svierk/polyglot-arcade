@@ -1,0 +1,50 @@
+{
+  "title": "Arcade Four in a Row Response",
+  "description": "Output values of the ArcadeFourInARow invocable action",
+  "type": "object",
+  "lightning:type": "lightning__objectType",
+  "lightning:tags": ["mcp"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "columns": {
+      "title": "Columns",
+      "lightning:type": "@apexClassType/c__ArcadeFourInARow$BoardColumn"
+    },
+    "difficulty": {
+      "title": "Difficulty",
+      "lightning:type": "lightning__textType"
+    },
+    "hasBoard": {
+      "title": "Has Board",
+      "lightning:type": "lightning__booleanType"
+    },
+    "isFinished": {
+      "title": "Is Finished",
+      "lightning:type": "lightning__booleanType"
+    },
+    "isPlaying": {
+      "title": "Is Playing",
+      "lightning:type": "lightning__booleanType"
+    },
+    "message": {
+      "title": "Message",
+      "lightning:type": "lightning__textType"
+    },
+    "moveNumber": {
+      "title": "Move Number",
+      "lightning:type": "lightning__integerType"
+    },
+    "score": {
+      "title": "Score",
+      "lightning:type": "lightning__integerType"
+    },
+    "status": {
+      "title": "Status",
+      "lightning:type": "lightning__textType"
+    },
+    "title": {
+      "title": "Title",
+      "lightning:type": "lightning__textType"
+    }
+  }
+}

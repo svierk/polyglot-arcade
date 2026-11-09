@@ -224,6 +224,10 @@ export default defineConfig({
           {
             text: "0004 · Arcade Host",
             link: "/decisions/0004-arcade-host-agent"
+          },
+          {
+            text: "0005 · Games in the chat",
+            link: "/decisions/0005-games-in-the-chat"
           }
         ]
       }

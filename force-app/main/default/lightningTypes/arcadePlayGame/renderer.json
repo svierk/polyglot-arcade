@@ -1,0 +1,25 @@
+{
+  "renderer": {
+    "componentOverrides": {
+      "$": {
+        "definition": "@widget/c/arcadePlayGameWidget",
+        "attributes": {
+          "hasGame": "{!$attrs.outputValues.hasGame}",
+          "title": "{!$attrs.outputValues.title}",
+          "tagline": "{!$attrs.outputValues.tagline}",
+          "hasBest": "{!$attrs.outputValues.hasBest}",
+          "bestScore": "{!$attrs.outputValues.bestScore}",
+          "hasChampion": "{!$attrs.outputValues.hasChampion}",
+          "champion": "{!$attrs.outputValues.champion}",
+          "championScore": "{!$attrs.outputValues.championScore}",
+          "playableInChat": "{!$attrs.outputValues.playableInChat}",
+          "hasPlayUrl": "{!$attrs.outputValues.hasPlayUrl}",
+          "playUrl": "{!$attrs.outputValues.playUrl}",
+          "message": "{!$attrs.outputValues.message}",
+          "hasOptions": "{!$attrs.outputValues.hasOptions}",
+          "options": "{!$attrs.outputValues.options}"
+        }
+      }
+    }
+  }
+}

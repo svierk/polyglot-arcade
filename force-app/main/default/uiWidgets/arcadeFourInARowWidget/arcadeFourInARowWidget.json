@@ -1,0 +1,187 @@
+{
+  "type": "lightning__agentforceWidget",
+  "contentBody": {
+    "widgetBody": {
+      "definition": "tile/widget",
+      "children": [
+        {
+          "definition": "tile/column",
+          "children": [
+            {
+              "definition": "tile/row",
+              "attributes": {
+                "gap": "sm"
+              },
+              "children": [
+                {
+                  "definition": "tile/icon",
+                  "attributes": {
+                    "name": "circle-dot",
+                    "color": "warning"
+                  }
+                },
+                {
+                  "definition": "tile/text",
+                  "attributes": {
+                    "text": "{!$attrs.title}",
+                    "variant": "h3"
+                  }
+                },
+                {
+                  "definition": "tile/badge",
+                  "meta": {
+                    "if": "{!$attrs.hasBoard}"
+                  },
+                  "attributes": {
+                    "label": "{!$attrs.status}",
+                    "variant": "primary"
+                  }
+                }
+              ]
+            },
+            {
+              "definition": "tile/text",
+              "attributes": {
+                "text": "{!'You 🔴 · CPU 🟡 · ' & $attrs.difficulty}",
+                "variant": "caption",
+                "color": "muted"
+              },
+              "meta": {
+                "if": "{!$attrs.hasBoard}"
+              }
+            },
+            {
+              "definition": "tile/text",
+              "attributes": {
+                "text": "{!$attrs.message}"
+              }
+            },
+            {
+              "definition": "tile/row",
+              "meta": {
+                "if": "{!$attrs.hasBoard}"
+              },
+              "attributes": {
+                "gap": "xs",
+                "justify": "center",
+                "isWrapped": false
+              },
+              "children": [
+                {
+                  "definition": "tile/column",
+                  "meta": {
+                    "forEach": "{!$attrs.columns}",
+                    "forItem": "$column"
+                  },
+                  "attributes": {
+                    "gap": "xs",
+                    "align": "center"
+                  },
+                  "children": [
+                    {
+                      "definition": "tile/button",
+                      "meta": {
+                        "if": "{!$column.isOpen}"
+                      },
+                      "attributes": {
+                        "label": "{!$column.label}",
+                        "variant": "secondary",
+                        "actions": {
+                          "click": [
+                            {
+                              "definition": "action/sendMessage",
+                              "attributes": {
+                                "content": "{!$column.prompt}"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "definition": "tile/button",
+                      "meta": {
+                        "if": "{!NOT($column.isOpen)}"
+                      },
+                      "attributes": {
+                        "label": "{!$column.label}",
+                        "variant": "secondary"
+                      }
+                    },
+                    {
+                      "definition": "tile/text",
+                      "attributes": {
+                        "text": "{!$cell.disc}",
+                        "variant": "h4"
+                      },
+                      "meta": {
+                        "forEach": "{!$column.cells}",
+                        "forItem": "$cell"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "definition": "tile/callout",
+              "meta": {
+                "if": "{!$attrs.isFinished}"
+              },
+              "attributes": {
+                "title": "{!TEXT($attrs.score) & ' points · saved to your player card'}",
+                "variant": "success"
+              }
+            },
+            {
+              "definition": "tile/row",
+              "meta": {
+                "if": "{!NOT($attrs.isPlaying)}"
+              },
+              "attributes": {
+                "gap": "sm"
+              },
+              "children": [
+                {
+                  "definition": "tile/button",
+                  "attributes": {
+                    "label": "New game",
+                    "iconName": "rotate-ccw",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/sendMessage",
+                          "attributes": {
+                            "content": "Start a new game of Four in a Row in the Polyglot Arcade."
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "definition": "tile/button",
+                  "attributes": {
+                    "label": "My player card",
+                    "variant": "secondary",
+                    "iconName": "user",
+                    "actions": {
+                      "click": [
+                        {
+                          "definition": "action/sendMessage",
+                          "attributes": {
+                            "content": "Show my Polyglot Arcade player card."
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

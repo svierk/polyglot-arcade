@@ -1,0 +1,5 @@
+{
+  "title": "Arcade Four in a Row Board",
+  "description": "Output of the ArcadeFourInARowAgent action in Agentforce, rendered by the arcadeFourInARowWidget HXL widget",
+  "lightning:type": "@apexClassType/c__ArcadeFourInARow$Response"
+}

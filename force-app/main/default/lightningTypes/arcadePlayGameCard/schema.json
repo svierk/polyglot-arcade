@@ -1,0 +1,5 @@
+{
+  "title": "Arcade Play Game Card",
+  "description": "Output of the ArcadePlayGameAgent action in Agentforce, rendered by the arcadePlayGameWidget HXL widget",
+  "lightning:type": "@apexClassType/c__ArcadePlayGame$Response"
+}

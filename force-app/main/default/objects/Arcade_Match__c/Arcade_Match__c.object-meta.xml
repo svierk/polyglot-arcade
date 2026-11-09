@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description
+  >One game of Four in a Row played in a chat through the Polyglot Arcade MCP server or the Arcade Host. The player is the record's owner. A finished game also leaves an Arcade Score.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <enableSearch>false</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <externalSharingModel>Private</externalSharingModel>
+    <label>Arcade Match</label>
+    <nameField>
+        <displayFormat>AM-{000000}</displayFormat>
+        <label>Match Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Arcade Matches</pluralLabel>
+    <sharingModel>Private</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>

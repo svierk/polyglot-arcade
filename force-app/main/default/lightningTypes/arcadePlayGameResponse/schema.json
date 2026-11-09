@@ -1,0 +1,66 @@
+{
+  "title": "Arcade Play Game Response",
+  "description": "Output values of the ArcadePlayGame invocable action",
+  "type": "object",
+  "lightning:type": "lightning__objectType",
+  "lightning:tags": ["mcp"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "bestScore": {
+      "title": "Best Score",
+      "lightning:type": "lightning__integerType"
+    },
+    "champion": {
+      "title": "Champion",
+      "lightning:type": "lightning__textType"
+    },
+    "championScore": {
+      "title": "Champion Score",
+      "lightning:type": "lightning__integerType"
+    },
+    "hasBest": {
+      "title": "Has Best",
+      "lightning:type": "lightning__booleanType"
+    },
+    "hasChampion": {
+      "title": "Has Champion",
+      "lightning:type": "lightning__booleanType"
+    },
+    "hasGame": {
+      "title": "Has Game",
+      "lightning:type": "lightning__booleanType"
+    },
+    "hasOptions": {
+      "title": "Has Options",
+      "lightning:type": "lightning__booleanType"
+    },
+    "hasPlayUrl": {
+      "title": "Has Play URL",
+      "lightning:type": "lightning__booleanType"
+    },
+    "message": {
+      "title": "Message",
+      "lightning:type": "lightning__textType"
+    },
+    "options": {
+      "title": "Options",
+      "lightning:type": "@apexClassType/c__ArcadePlayGame$Option"
+    },
+    "playUrl": {
+      "title": "Play URL",
+      "lightning:type": "lightning__textType"
+    },
+    "playableInChat": {
+      "title": "Playable in Chat",
+      "lightning:type": "lightning__booleanType"
+    },
+    "tagline": {
+      "title": "Tagline",
+      "lightning:type": "lightning__textType"
+    },
+    "title": {
+      "title": "Title",
+      "lightning:type": "lightning__textType"
+    }
+  }
+}

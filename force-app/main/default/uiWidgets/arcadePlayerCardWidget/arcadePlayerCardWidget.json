@@ -107,7 +107,7 @@
                             {
                               "definition": "tile/text",
                               "attributes": {
-                                "text": "{!IF(ISNULL($best.rank), 'No score yet', '#' & TEXT($best.rank) & ' of ' & TEXT($best.players)) & ' · ' & TEXT($best.rounds) & IF($best.rounds = 1, ' round', ' rounds')}",
+                                "text": "{!$best.standing}",
                                 "variant": "caption",
                                 "color": "muted"
                               }

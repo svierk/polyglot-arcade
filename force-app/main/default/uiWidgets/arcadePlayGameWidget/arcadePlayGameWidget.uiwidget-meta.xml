@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UiWidgetBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Arcade Play Game</masterLabel>
+    <description
+  >A Polyglot Arcade game with the player's best, the champion and how to play it, or the list of games to choose from.</description>
+    <widgetType>JSON</widgetType>
+</UiWidgetBundle>

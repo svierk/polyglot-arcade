@@ -1,0 +1,85 @@
+{
+  "title": "Arcade Play Game",
+  "description": "A Polyglot Arcade game with the player's best, the champion and how to play it, or the list of games to choose from.",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "lightning:type": "lightning__objectType",
+      "properties": {
+        "hasGame": {
+          "title": "Has Game",
+          "description": "True when one game was found and is shown",
+          "lightning:type": "lightning__booleanType"
+        },
+        "title": {
+          "title": "Title",
+          "description": "The name of the game",
+          "lightning:type": "lightning__textType"
+        },
+        "tagline": {
+          "title": "Tagline",
+          "description": "One line about the game",
+          "lightning:type": "lightning__textType"
+        },
+        "hasBest": {
+          "title": "Has Best",
+          "description": "True when the player has scored in this game",
+          "lightning:type": "lightning__booleanType"
+        },
+        "bestScore": {
+          "title": "Best Score",
+          "description": "The best round of the person who asks",
+          "lightning:type": "lightning__numberType"
+        },
+        "hasChampion": {
+          "title": "Has Champion",
+          "description": "True when anyone has scored in this game",
+          "lightning:type": "lightning__booleanType"
+        },
+        "champion": {
+          "title": "Champion",
+          "description": "The best player so far",
+          "lightning:type": "lightning__textType"
+        },
+        "championScore": {
+          "title": "Champion Score",
+          "description": "The best round of the champion",
+          "lightning:type": "lightning__numberType"
+        },
+        "playableInChat": {
+          "title": "Playable in Chat",
+          "description": "True when the game can be played in the conversation",
+          "lightning:type": "lightning__booleanType"
+        },
+        "hasPlayUrl": {
+          "title": "Has Play URL",
+          "description": "True when the game can be opened in the arcade",
+          "lightning:type": "lightning__booleanType"
+        },
+        "playUrl": {
+          "title": "Play URL",
+          "description": "Opens the game on the surface that saves its rounds",
+          "lightning:type": "lightning__urlType"
+        },
+        "message": {
+          "title": "Message",
+          "description": "Shown when the game was not found",
+          "lightning:type": "lightning__textType"
+        },
+        "hasOptions": {
+          "title": "Has Options",
+          "description": "True when a list of games is shown to choose from",
+          "lightning:type": "lightning__booleanType"
+        },
+        "options": {
+          "title": "Options",
+          "description": "Every game to choose from, when no single game was found",
+          "lightning:type": "lightning__listType",
+          "items": {
+            "lightning:type": "@apexClassType/c__ArcadePlayGame$Option"
+          }
+        }
+      }
+    }
+  }
+}
