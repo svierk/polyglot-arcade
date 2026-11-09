@@ -28,7 +28,7 @@ erDiagram
         Number Score__c
         Number Level__c "level or difficulty"
         Number Duration_Seconds__c
-        Picklist Source__c "Polyglot Arcade | Pixel Cabinet | Embedded"
+        Picklist Source__c "Polyglot Arcade | Pixel Cabinet | Embedded | Headless"
     }
     Account {
         Text Arcade_Key__c "external ID, e.g. pixel-pioneers"
@@ -56,15 +56,19 @@ The seed data ([`Arcade_Game__c.json`](../../force-app/main/default/data/Arcade_
 
 One record per finished round, the child of its game (master-detail). The player is the record's creator.
 
-| Field                 | Purpose                                                                                            |
-| --------------------- | -------------------------------------------------------------------------------------------------- |
-| `Score__c`            | The final score                                                                                    |
-| `Level__c`            | Level reached, or the difficulty for turn-based games                                              |
-| `Duration_Seconds__c` | Time played                                                                                        |
-| `Source__c`           | Where the round was played: `Polyglot Arcade`, `Pixel Cabinet` or `Embedded` (on a Lightning page) |
-| `Account__c`          | The Account of the record page the round was played on, if any                                     |
+| Field                 | Purpose                                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `Score__c`            | The final score                                                                                                            |
+| `Level__c`            | Level reached, or the difficulty for turn-based games                                                                      |
+| `Duration_Seconds__c` | Time played                                                                                                                |
+| `Source__c`           | Where the round was played: `Polyglot Arcade`, `Pixel Cabinet`, `Embedded` (on a Lightning page) or `Headless` (in a chat) |
+| `Account__c`          | The Account of the record page the round was played on, if any                                                             |
 
 Leaderboards only list scoring rounds; lost rounds still count as plays.
+
+## Games in the chat
+
+**Arcade Match** (`Arcade_Match__c`) holds a game of Four in a Row played in a chat: the 42 cells in `Board__c`, the player's moves in `Human_Moves__c`, `Status__c` (`In Progress`, `Won`, `Lost`, `Draw`, `Abandoned`) and `Difficulty__c`. The owner is the player and the object is private. A finished game also leaves an ordinary Arcade Score ([ADR 0005](/decisions/0005-games-in-the-chat)).
 
 ## Showcase Account
 
@@ -77,7 +81,7 @@ Rounds played on an Account page belong to that Account. So that this is visible
 
 The permission set **Polyglot Arcade Player** (`polyglotArcade_Access`) grants the two UI bundle apps and Arcade Floor, read access to games, Accounts and their Arcade Key and Contacts (orgs with Person Accounts require it with Account read), and create and read access to scores. Players cannot edit or delete scores. It also grants the Apex classes `ArcadeHallOfFame` and `ArcadePlayerCard`, the tools of the [headless surface](/architecture/headless). Everything else - which scores a player sees, which fields - is the platform's sharing and field-level security, enforced in every surface: the UI bundles and LWCs read through UI API, and the tools query `WITH USER_MODE` as the player who asks.
 
-The Arcade Host adds **Arcade Host Access** (`arcadeHost_Access`, in `agent/`), which grants the agent and its wrapper classes `ArcadeHallOfFameAgent` and `ArcadePlayerCardAgent`. The agent's step in the setup assigns it to the user who runs the setup.
+The Arcade Host adds **Arcade Host Access** (`arcadeHost_Access`, in `agent/`), which grants the agent and its wrapper classes `ArcadeHallOfFameAgent`, `ArcadePlayerCardAgent`, `ArcadePlayGameAgent` and `ArcadeFourInARowAgent`. The agent's step in the setup assigns it to the user who runs the setup.
 
 ## Reports and dashboard
 

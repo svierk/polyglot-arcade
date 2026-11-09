@@ -37,6 +37,40 @@
             <operation>ArcadePlayerCard</operation>
         </apiDefinition>
     </tools>
+    <tools>
+        <toolName>playArcadeGame</toolName>
+        <toolTitle>Play Arcade Game</toolTitle>
+        <descriptionOverride
+    >Starts a round of a Polyglot Arcade game (Block Drop, Pellet Chase, Four in a Row, Brick Breaker, Snake): shows the player's best, the champion and a button that opens the game. Leave the game empty to list every game. Use it for requests like "I want to play a round of Snake" or "What can I play?". Real-time games open in the arcade and save their round there. Four in a Row can be played in the chat with playFourInARow. Send exactly one object in inputs: the result renders as a widget only for a single request.</descriptionOverride>
+        <readOnly>true</readOnly>
+        <destructive>false</destructive>
+        <idempotent>true</idempotent>
+        <openWorld>false</openWorld>
+        <returnDirect>false</returnDirect>
+        <uiResource>playGame</uiResource>
+        <apiDefinition>
+            <apiSource>API_CATALOG</apiSource>
+            <apiIdentifier>aa:apex-ArcadePlayGame</apiIdentifier>
+            <operation>ArcadePlayGame</operation>
+        </apiDefinition>
+    </tools>
+    <tools>
+        <toolName>playFourInARow</toolName>
+        <toolTitle>Play Four in a Row</toolTitle>
+        <descriptionOverride
+    >Plays Four in a Row against the CPU in the conversation and renders the board. Writes to the arcade: it saves the game after every move and records the score when the game ends. No column shows the current game or starts one. For a message like "Four in a Row: drop my disc in column 3 (move 5)", pass column 3 and moveNumber 5 and call the tool once. Every move needs a new call: the board only changes through this tool, so never describe a move without calling it. Set newGame to true only when the player asks for a new game; difficulty is easy or normal. Never choose a column for the player. The board in the result is complete, so answer in at most one short sentence. Send exactly one object in inputs: the result renders as a widget only for a single request.</descriptionOverride>
+        <readOnly>false</readOnly>
+        <destructive>false</destructive>
+        <idempotent>false</idempotent>
+        <openWorld>false</openWorld>
+        <returnDirect>false</returnDirect>
+        <uiResource>fourInARow</uiResource>
+        <apiDefinition>
+            <apiSource>API_CATALOG</apiSource>
+            <apiIdentifier>aa:apex-ArcadeFourInARow</apiIdentifier>
+            <operation>ArcadeFourInARow</operation>
+        </apiDefinition>
+    </tools>
     <resources>
         <resourceName>hallOfFame</resourceName>
         <resourceUri>ui://widget/lightningType/c__arcadeHallOfFame</resourceUri>
@@ -50,5 +84,19 @@
         <resourceTitle>Arcade Player Card</resourceTitle>
         <description
     >Renders the getPlayerCard result with the arcadePlayerCardWidget HXL widget.</description>
+    </resources>
+    <resources>
+        <resourceName>playGame</resourceName>
+        <resourceUri>ui://widget/lightningType/c__arcadePlayGame</resourceUri>
+        <resourceTitle>Arcade Play Game</resourceTitle>
+        <description
+    >Renders the playArcadeGame result with the arcadePlayGameWidget HXL widget.</description>
+    </resources>
+    <resources>
+        <resourceName>fourInARow</resourceName>
+        <resourceUri>ui://widget/lightningType/c__arcadeFourInARow</resourceUri>
+        <resourceTitle>Arcade Four in a Row</resourceTitle>
+        <description
+    >Renders the playFourInARow result with the arcadeFourInARowWidget HXL widget.</description>
     </resources>
 </McpServerDefinition>

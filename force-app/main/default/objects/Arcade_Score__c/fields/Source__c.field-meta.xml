@@ -25,6 +25,11 @@
                 <default>false</default>
                 <label>Embedded</label>
             </value>
+            <value>
+                <fullName>Headless</fullName>
+                <default>false</default>
+                <label>Headless</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

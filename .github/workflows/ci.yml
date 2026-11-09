@@ -1,12 +1,16 @@
 name: Validation
 
-# Validates every change without a Salesforce org - static on purpose, so it
-# runs for every fork and pull request: the code review (Code Analyzer,
-# Prettier, ESLint) and the LWC unit tests of the SFDX project with the
-# DevOps Starter Kit's building blocks, the docs site build, plus lint, unit
-# tests, production build and Playwright end-to-end tests of both UI bundles.
-# Apex tests need an org and run in the Scratch Org Setup workflow. The end-to-end tests run against
-# the static builds, so games are fully playable while data calls fail gracefully.
+# Static checks run for every fork and pull request, without a Salesforce org:
+# the code review (Code Analyzer, Prettier, ESLint) and the LWC unit tests of
+# the SFDX project with the DevOps Starter Kit's building blocks, the docs site
+# build, plus lint, unit tests, production build and Playwright end-to-end tests
+# of both UI bundles. The end-to-end tests run against the static builds, so
+# games are fully playable while data calls fail gracefully.
+#
+# Org Validation adds a deployment and the Apex tests in a fresh scratch org. It
+# needs the Dev Hub login, so it runs on pull requests from this repository and
+# by hand, not for forks. Needs the same secrets and variable as the Scratch
+# Org Setup workflow, which remains the full acceptance of a release.
 
 on:
   push:
@@ -39,7 +43,7 @@ jobs:
           node-version: ${{ vars.NODE_VERSION_OVERRIDE }}
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # Exercises the zod schema the org setup script relies on, so dependency
       # updates that break `npm run setup` fail here instead of in a user's org.
@@ -178,3 +182,46 @@ jobs:
 
       - name: Run End-to-End Tests
         run: npm run build:e2e && npx playwright test --reporter=line
+
+  # A pull request from a fork has no access to the secrets, so it stays with
+  # the static jobs. Dependabot and pushes to main stay out as well: each run
+  # takes a scratch org from the Dev Hub's daily limit, a dependency update does
+  # not change the Apex, and a merged change has already passed here.
+  org-validation:
+    name: Org Validation
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]')
+    # New pushes wait instead of cancelling: a cancelled run has already used
+    # up its scratch org.
+    concurrency:
+      group: org-validation-${{ github.ref }}
+      cancel-in-progress: false
+    uses: svierk/salesforce-devops-starter-kit/.github/workflows/scratch-org-ci.yml@v1.8.0
+    with:
+      build-script: build:ui-bundles
+      deploy-agents: false # the Arcade Host lives in agent/ and is part of the acceptance
+      permission-sets: polyglotArcade_Access # the tests write arcade records as the running user, as after `npm run setup`
+    secrets:
+      SFDX_CONSUMER_KEY: ${{ secrets.SFDX_CONSUMER_KEY }}
+      SFDX_JWT_SECRET_KEY: ${{ secrets.SFDX_JWT_SECRET_KEY }}
+      SFDX_USERNAME: ${{ vars.SFDX_USERNAME }}
+
+  # The name of a reusable workflow's check differs between a run and a skip,
+  # so a required check on it would wait forever on forks and Dependabot. This
+  # job always reports under one name and passes when the validation was skipped.
+  org-checks:
+    name: Org Checks
+    needs: org-validation
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check Org Validation
+        env:
+          RESULT: ${{ needs.org-validation.result }}
+        run: |
+          echo "Org Validation: $RESULT"
+          [ "$RESULT" = success ] || [ "$RESULT" = skipped ]

@@ -12,6 +12,14 @@
         <apexClass>ArcadePlayerCardAgent</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>ArcadeFourInARowAgent</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ArcadePlayGameAgent</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description
   >Access to the Arcade Host employee agent in Lightning. Deploy after the agent is published, the agent must exist.</description>
     <hasActivationRequired>false</hasActivationRequired>

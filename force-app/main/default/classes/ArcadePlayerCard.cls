@@ -82,6 +82,9 @@ global with sharing class ArcadePlayerCard {
     global Integer rounds;
     @AuraEnabled
     global Boolean isChampion;
+    /** "#2 of 5 · 3 rounds". Built here: the widget's TEXT() fails on an empty rank. */
+    @AuraEnabled
+    global String standing;
   }
 
   @JsonAccess(serializable='always' deserializable='always')
@@ -163,6 +166,13 @@ global with sharing class ArcadePlayerCard {
       entry.players = scorers;
       entry.rounds = mine.rounds;
       entry.isChampion = entry.rank == 1;
+      entry.standing =
+        (entry.rank == null
+          ? 'No score yet'
+          : '#' + entry.rank + ' of ' + entry.players) +
+        ' · ' +
+        entry.rounds +
+        (entry.rounds == 1 ? ' round' : ' rounds');
       response.bests.add(entry);
       response.rounds += mine.rounds;
       response.gamesPlayed++;

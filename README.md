@@ -56,6 +56,8 @@ The Angular hub is the only lobby, the React cabinet is a machine it launches an
 
 _"Who is this week's champion?"_ - Claude and ChatGPT answer with the Hall of Fame and your player card, rendered as **Salesforce Headless Experience Layer** (HXL, beta) widgets. A custom MCP server hosted by Salesforce runs two Apex tools as the player who asks, on the same `Arcade_Score__c` records and with the same sharing as every other surface. No frontend code: the widgets are JSON, and the client draws them. In Lightning, the Agentforce agent **Arcade Host** answers with the same widgets.
 
+_"I want to play a round of Snake"_ works too: the widget opens the game where it saves its rounds. Four in a Row is played right in the chat, with the game and the score on the server.
+
 <img src="./images/hxl-hall-of-fame.png" alt="The Arcade Hall of Fame HXL widget: the champion of every game with medal, initials, rounds and best score, and the buttons Play in the arcade and My player card" width="600"/>
 
 ## 🚀 Quickstart

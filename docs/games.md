@@ -44,7 +44,7 @@ The games are original implementations of classic mechanics. Names and artwork a
 
 <TeaserMarquee game="four-in-a-row" />
 
-**Tabletop toy**: a glossy blue frame on feet, discs that drop and bounce, the result on the lid of the game box. The CPU plays minimax on three difficulties; the difficulty is stored as the round's level. Lives in the Angular hub.
+**Tabletop toy**: a glossy blue frame on feet, discs that drop and bounce, the result on the lid of the game box. The CPU plays minimax on three difficulties; the difficulty is stored as the round's level. Lives in the Angular hub, and can also be [played in a chat](/architecture/headless#playing-in-the-chat) with Claude or the Arcade Host.
 
 | Keyboard                               | Touch        |
 | -------------------------------------- | ------------ |

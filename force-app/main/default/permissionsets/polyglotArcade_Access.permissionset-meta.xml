@@ -20,8 +20,16 @@
         <apexClass>ArcadePlayerCard</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>ArcadeFourInARow</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ArcadePlayGame</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description
-  >Play every Polyglot Arcade game on every surface and record scores. Players can create and read scores but not edit them, read Accounts to play on the Arcade Account page, and ask for the Hall of Fame and their player card through the MCP server.</description>
+  >Play every Polyglot Arcade game on every surface and record scores. Players can create and read scores but not edit them, read Accounts for the Arcade Account page, use the MCP tools and keep their own Four in a Row matches.</description>
     <fieldPermissions>
         <editable>false</editable>
         <field>Account.Arcade_Key__c</field>
@@ -97,8 +105,37 @@
         <field>Arcade_Score__c.Account__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Arcade_Match__c.Board__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Arcade_Match__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Arcade_Match__c.Difficulty__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Arcade_Match__c.Human_Moves__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Polyglot Arcade Player</label>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Arcade_Match__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
     <objectPermissions>
         <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>

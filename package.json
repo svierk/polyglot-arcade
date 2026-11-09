@@ -1,7 +1,7 @@
 {
   "name": "polyglot-arcade",
   "private": true,
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Retro arcade on the Salesforce Platform showing Salesforce Multi-Framework: an Angular hub, a React cabinet and an LWC microfrontend host sharing CRM data, plus HXL widgets for AI clients via MCP.",
   "author": {
     "name": "Sebastiano Schwarz",
@@ -14,6 +14,7 @@
   "scripts": {
     "sf-project-setup": "node scripts/sf-project-setup.mjs",
     "build": "echo 'No build required for base-sfdx-project'",
+    "build:ui-bundles": "npm ci --ignore-scripts --prefix force-app/main/default/uiBundles/pixelCabinet && npm run build --prefix force-app/main/default/uiBundles/pixelCabinet && npm ci --ignore-scripts --prefix force-app/main/default/uiBundles/polyglotArcade && npm run build --prefix force-app/main/default/uiBundles/polyglotArcade",
     "clean": "echo 'No clean required for base-sfdx-project'",
     "lint": "eslint --no-error-on-unmatched-pattern **/{aura,lwc}/**/*.js",
     "validate:org-setup-config": "node scripts/validate-org-setup-config.mjs",

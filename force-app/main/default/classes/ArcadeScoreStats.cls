@@ -45,7 +45,14 @@ public with sharing class ArcadeScoreStats {
   /** Active games in lobby order. */
   public static List<Arcade_Game__c> activeGames() {
     return [
-      SELECT Id, Name, Game_Key__c, Framework__c, App_Url__c
+      SELECT
+        Id,
+        Name,
+        Game_Key__c,
+        Framework__c,
+        App_Url__c,
+        Tagline__c,
+        Host_Saves_Score__c
       FROM Arcade_Game__c
       WHERE Is_Active__c = TRUE
       WITH USER_MODE

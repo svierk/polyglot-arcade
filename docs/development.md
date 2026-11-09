@@ -31,7 +31,7 @@ Chrome's Local Network Access checks can block a Salesforce page from framing `l
 
 ## Tests and checks
 
-The [Validation workflow](../.github/workflows/ci.yml) runs all of them on every push and pull request, no org required:
+The [Validation workflow](../.github/workflows/ci.yml) runs these static checks on every push and pull request, no org required:
 
 | Scope         | Command                                                                                    | What it covers                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
@@ -40,7 +40,9 @@ The [Validation workflow](../.github/workflows/ci.yml) runs all of them on every
 | Angular hub   | `npm run build` · `npx ng test --watch=false` · `npm run build:e2e && npx playwright test` | game engines, lobby launch targets, Tech X-ray, end-to-end play, accessibility (axe), touch at 375 px     |
 | Docs site     | `npm run test:docs` · `npm run docs:build`                                                 | link handling of the Markdown copies, the site builds without dead links                                  |
 
-In CI, the SFDX project runs through the [DevOps Starter Kit](https://github.com/svierk/salesforce-devops-starter-kit)'s building blocks `sfdx-code-review` and `sfdx-run-tests`. The Scratch Org Setup workflow logs in, creates the scratch org and runs the Apex tests with the kit's blocks as well. The Apex tests of the headless surface need an org: `sf apex run test -n ArcadeToolsTest -o my-org -c` runs them with code coverage.
+In CI, the SFDX project runs through the [DevOps Starter Kit](https://github.com/svierk/salesforce-devops-starter-kit)'s building blocks `sfdx-code-review` and `sfdx-run-tests`. The Apex tests need an org: `sf apex run test -n ArcadeToolsTest -o my-org -c` runs them with code coverage.
+
+The job **Org Validation** of the same workflow deploys `force-app` to a fresh scratch org with the kit's `scratch-org-ci` workflow and runs the Apex tests there. It needs the Dev Hub login, so it runs on pull requests from this repository and by hand. Pull requests from forks have no access to the secrets and get the static checks only. Dependabot and pushes to `main` skip the job to save scratch orgs, because each run takes one from the Dev Hub's daily limit.
 
 The Playwright tests of both bundles run in two projects: `chromium` on a desktop window, including the [axe](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright) checks against WCAG 2.1 AA, and `mobile` (Chromium's phone emulation, tests tagged `@touch`) for touch play and layouts at 375 px. The hub's tests answer the Data SDK's calls with the seed games, so the lobby and the Tech X-ray are tested without an org.
 
@@ -48,7 +50,7 @@ GraphQL operations are validated against your org's schema with `npm run graphql
 
 ## Release acceptance in a real org
 
-The [Scratch Org Setup workflow](../.github/workflows/scratch-org.yml) creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived, that the Apex tests pass, that the Hall of Fame tool ranks the round, that the MCP server is active and that the Arcade Host answers with the round. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**, or `gh workflow run scratch-org.yml --ref <branch>` for a larger change to Apex or the agent), so it does not use up the Dev Hub's scratch org limit, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
+The [Scratch Org Setup workflow](../.github/workflows/scratch-org.yml) creates a fresh scratch org, runs `npm run setup`, records a round, runs the setup again and checks that the round survived, that the Apex tests pass, that the Hall of Fame tool ranks the round, that the MCP server is active and that the Arcade Host answers with the round. It runs on release tags and manually (**Actions → Scratch Org Setup → Run workflow**, or `gh workflow run scratch-org.yml --ref <branch>` for a larger change to the setup or the agent), because a full run takes 15 to 20 minutes, and needs a JWT login to a Dev Hub: the repository secrets `SFDX_CONSUMER_KEY` and `SFDX_JWT_SECRET_KEY` and the repository variable `SFDX_USERNAME`.
 
 ## This site
 

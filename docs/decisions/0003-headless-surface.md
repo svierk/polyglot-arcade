@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-31
 - **Release:** v1.1.0
-- **Follow-up:** the Agentforce channel in Lightning came with [ADR 0004](/decisions/0004-arcade-host-agent) in v1.2.0
+- **Follow-up:** the Agentforce channel in Lightning came with [ADR 0004](/decisions/0004-arcade-host-agent) in v1.2.0, playing in the chat with [ADR 0005](/decisions/0005-games-in-the-chat) in v1.3.0
 
 ## Context
 

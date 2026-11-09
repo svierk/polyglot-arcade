@@ -1,0 +1,65 @@
+{
+  "title": "Arcade Four in a Row",
+  "description": "The board of a Four in a Row game against the CPU, with a button per column.",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "lightning:type": "lightning__objectType",
+      "properties": {
+        "title": {
+          "title": "Title",
+          "description": "The name of the game",
+          "lightning:type": "lightning__textType"
+        },
+        "status": {
+          "title": "Status",
+          "description": "Your move, You won, CPU won or Draw",
+          "lightning:type": "lightning__textType"
+        },
+        "difficulty": {
+          "title": "Difficulty",
+          "description": "easy or normal",
+          "lightning:type": "lightning__textType"
+        },
+        "message": {
+          "title": "Message",
+          "description": "What just happened, in one sentence",
+          "lightning:type": "lightning__textType"
+        },
+        "hasBoard": {
+          "title": "Has Board",
+          "description": "True when there is a board to show",
+          "lightning:type": "lightning__booleanType"
+        },
+        "isPlaying": {
+          "title": "Is Playing",
+          "description": "True while the game is in progress",
+          "lightning:type": "lightning__booleanType"
+        },
+        "isFinished": {
+          "title": "Is Finished",
+          "description": "True when this call ended the game and recorded the score",
+          "lightning:type": "lightning__booleanType"
+        },
+        "moveNumber": {
+          "title": "Move Number",
+          "description": "The number of the player's next move",
+          "lightning:type": "lightning__numberType"
+        },
+        "score": {
+          "title": "Score",
+          "description": "Points of the finished game, recorded in the arcade",
+          "lightning:type": "lightning__numberType"
+        },
+        "columns": {
+          "title": "Columns",
+          "description": "The seven columns of the board from the left",
+          "lightning:type": "lightning__listType",
+          "items": {
+            "lightning:type": "@apexClassType/c__ArcadeFourInARow$BoardColumn"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1910,7 +1910,11 @@ function run(name, cmd, args, opts = {}) {
     ...(opts.timeout && { timeout: opts.timeout })
   });
   if (result.status !== 0 && !optional) {
-    throw new StepError(`${name} (exit ${result.status ?? 1})`);
+    const reason =
+      result.error?.code === "ETIMEDOUT"
+        ? `timed out after ${opts.timeout / 1000} s`
+        : `exit ${result.status ?? 1}`;
+    throw new StepError(`${name} (${reason})`);
   }
   return result;
 }
@@ -2444,7 +2448,8 @@ async function main() {
         "sf",
         ["project", "deploy", "start", "--target-org", targetOrg],
         {
-          timeout: 180000
+          // A first deploy takes about three minutes, plus the org's queue.
+          timeout: 900000
         }
       );
     });
