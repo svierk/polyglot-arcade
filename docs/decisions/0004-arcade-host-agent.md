@@ -45,4 +45,4 @@ Checked in scratch orgs (Winter '27, API 68.0) before the documentation was writ
 - **Moving the MCP tools to one wrapped output too.** One action would serve both channels, but the verified MCP chain, its types and its acceptance would all have to change for a difference that the wrappers absorb in a few lines.
 - **A Lightning web component as renderer.** `lightningDesktopGenAi` allows it, but it works in one channel only and would mean a second UI for the same card.
 - **The Agentforce Conversation Client inside a UI bundle.** It brings the chat into the hub, but the lobby is for playing. The agent answers where people work: in Lightning.
-- **Apex tests on every pull request that touches Apex.** Community pull requests have no secrets, and for larger changes the acceptance can be started by hand on the branch.
+- **Apex tests on every pull request that touches Apex.** Community pull requests have no secrets, and for larger changes the acceptance can be started by hand on the branch. _Revisited in v1.3.0: the Validation workflow now runs them on pull requests from this repository, and forks stay with the static checks._
