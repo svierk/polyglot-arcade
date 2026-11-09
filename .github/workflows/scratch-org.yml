@@ -84,7 +84,7 @@ jobs:
         run: npm run setup -- --target-org polyglot-arcade --yes
 
       - name: Run Apex Tests
-        uses: svierk/sfdx-run-tests@v1.3.0
+        uses: svierk/sfdx-run-tests@v1.4.0
         with:
           target-org: polyglot-arcade
           test-level: RunLocalTests

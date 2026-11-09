@@ -67,7 +67,7 @@ jobs:
           eslint-command: npx eslint --no-error-on-unmatched-pattern "**/{aura,lwc}/**/*.js" --format json --output-file eslint-report.json
 
       - name: Run LWC Unit Tests
-        uses: svierk/sfdx-run-tests@v1.3.0
+        uses: svierk/sfdx-run-tests@v1.4.0
         with:
           apex: false
           lwc: true
