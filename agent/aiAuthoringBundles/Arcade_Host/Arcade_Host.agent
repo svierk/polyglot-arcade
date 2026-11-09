@@ -160,7 +160,7 @@ subagent four_in_a_row:
             if @variables.move_played == False:
                 | Call play_four_in_a_row now, before you write anything. Nothing happens on the board without that call, and you can never know the result in advance.
             else:
-                | The move is played. Show its result to the user with __show_tool_results__, using the message field of the result as the caption. The user cannot play without seeing the board, so do not answer in plain text instead.
+                | The move is played. Show its result to the user with __show_tool_results__, with exactly "Here is the board." as the caption. The card already shows the result's message, so do not repeat it. The user cannot play without seeing the board, so do not answer in plain text instead.
         actions:
             play_four_in_a_row: @actions.playFourInARow
                 available when @variables.move_played == False
