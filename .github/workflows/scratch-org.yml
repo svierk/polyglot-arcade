@@ -8,8 +8,8 @@ name: Scratch Org Setup
 # tags only, so it does not use up the Dev Hub's daily scratch org limit.
 #
 # Built from the Salesforce DevOps Starter Kit's building blocks rather than its
-# scratch-org-ci reusable workflow: the UI bundles must be built before the
-# deploy, which `npm run setup` does and a plain source deploy does not.
+# scratch-org-ci reusable workflow: this workflow tests `npm run setup` itself
+# and adds checks around it, and a reusable workflow cannot take extra steps.
 #
 # Needs a JWT login to the Dev Hub: the repository secrets SFDX_CONSUMER_KEY
 # and SFDX_JWT_SECRET_KEY and the repository variable SFDX_USERNAME.
@@ -44,7 +44,7 @@ jobs:
           node-version: ${{ vars.NODE_VERSION_OVERRIDE }}
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Install SF CLI
         uses: svierk/sfdx-cli-setup@v1.2.0
@@ -62,7 +62,7 @@ jobs:
 
       - name: Create Scratch Org
         id: scratch
-        uses: svierk/sfdx-create-scratch-org@v1.3.3
+        uses: svierk/sfdx-create-scratch-org@v1.3.4
         with:
           target-dev-hub: devhub
           definition-file: config/project-scratch-def.json
